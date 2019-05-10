@@ -1,6 +1,6 @@
-## Smithy Gradle Plugin
+# Smithy Gradle Plugin
 
-Smithy plugin for Gradle
+This project integrates Smithy with Gradle.
 
 ## License
 

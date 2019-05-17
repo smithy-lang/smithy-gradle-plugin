@@ -46,8 +46,11 @@ public final class SmithyPlugin implements Plugin<Project> {
         }
 
         SmithyExtension extension = project.getExtensions().create("smithy", SmithyExtension.class);
-        registerSourceSets(project);
-        registerTasks(project, extension);
+
+        project.afterEvaluate(p -> {
+            registerSourceSets(project);
+            registerTasks(project, extension);
+        });
     }
 
     private void registerTasks(Project project, SmithyExtension extension) {

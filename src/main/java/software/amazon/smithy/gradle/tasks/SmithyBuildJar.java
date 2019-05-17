@@ -17,31 +17,89 @@ package software.amazon.smithy.gradle.tasks;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.io.FileUtils;
-import org.gradle.api.GradleException;
+import org.gradle.api.file.FileCollection;
+import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.TaskAction;
+import software.amazon.smithy.gradle.SmithyExtension;
 import software.amazon.smithy.gradle.SmithyUtils;
 
 /**
- * Executes SmithyBuild in order to update the JAR of a project.
+ * Builds Smithy model projections and artifacts for the JAR.
+ *
+ * <p>A package that does not use a {@code projection} is built using both the
+ * compileClasspath and buildscript classpath. Source models from the
+ * project are copied literally into the generated JAR. Also included
+ * in the JAR are models found in the sources of the package itself (that is,
+ * model/ and src/main/smithy/). After generating the JAR, validation is run
+ * using the runtimeClasspath to ensure that the generated model is correct
+ * and has configured its dependencies correctly.
+ *
+ * <p>A package that uses a projection executes Smithy's build process using
+ * the buildscript classpath and *does not* use the compileClasspath at all.
+ * This serves to isolate downstream consumers of the package from internal
+ * models, but it also means that dependencies may need to be specified both
+ * in the buildscript and in the normal dependencies block.
+ *
+ * <p>This is meant to be an internal task that's automatically executed.
  */
 public class SmithyBuildJar extends SmithyBuild {
+    private static final String SMITHY_VALIDATE_TASK = "smithyValidate";
+    private static final String RUNTIME_CLASSPATH = "runtimeClasspath";
+    private static final String COMPILE_CLASSPATH = "compileClasspath";
 
     @TaskAction
-    public void build() {
+    public void build() throws IOException {
+        // Clear out the directories when rebuilding.
+        getProject().delete(getSmithyResourceStagingDir());
+        getProject().delete(getModelDir());
+
+        // Configure default values that take the projection setting into account.
+        configureDefaults();
+
         super.build();
-        createSourceSets(getSmithyBuildOutput());
+
+        // Copy generated files where they're needed and register source sets.
+        createSourceSets(getOutputDirectory().toPath());
         copySourceModels();
         copyModelsToStaging();
+
+        // Ensure that validation runs after building.
+        addValidationTask();
+    }
+
+    @OutputDirectory
+    public File getModelDir() {
+        return getProject().getBuildDir().toPath().resolve("smithymodel").resolve(getProject().getName()).toFile();
+    }
+
+    @OutputDirectory
+    public File getSmithyResourceStagingDir() {
+        Path metaInf = getProject().getBuildDir().toPath().resolve("tmp").resolve("smithy-inf");
+        return metaInf.resolve("META-INF").resolve("smithy").toFile();
+    }
+
+    private void configureDefaults() {
+        if (getClasspath() == null) {
+            if (isSourceProjection()) {
+                setClasspath(SmithyUtils.getClasspath(getProject(), COMPILE_CLASSPATH)
+                        .plus(SmithyUtils.getBuildscriptClasspath(getProject())));
+            } else {
+                setClasspath(SmithyUtils.getBuildscriptClasspath(getProject()));
+            }
+        }
+
+        if (getModelDiscoveryClasspath() == null && isSourceProjection()) {
+            setModelDiscoveryClasspath(SmithyUtils.getClasspath(getProject(), COMPILE_CLASSPATH));
+        }
     }
 
     // Create source sets for every projection + plugin combination.
-    private void createSourceSets(Path output) {
+    private void createSourceSets(Path output) throws IOException {
         for (Path projection : getDirectories(output)) {
             String projectionName = output.relativize(projection).toString();
 
@@ -64,35 +122,35 @@ public class SmithyBuildJar extends SmithyBuild {
         }
     }
 
-    private List<Path> getDirectories(Path path) {
-        try {
-            return Files.list(path).filter(Files::isDirectory).collect(Collectors.toList());
-        } catch (IOException e) {
-            throw new GradleException(e.getMessage(), e);
-        }
+    private List<Path> getDirectories(Path path) throws IOException {
+        return Files.list(path).filter(Files::isDirectory).collect(Collectors.toList());
     }
 
     // Copies models found in this project to "smithymodel".
-    private void copySourceModels() {
-        try {
-            File sources = SmithyUtils.getProjectionPluginPath(getProject(), "source", "sources").toFile();
-            String projectName = getProject().getName();
-            File dest = getProject().getBuildDir().toPath().resolve("smithymodel").resolve(projectName).toFile();
-            FileUtils.copyDirectory(sources, dest);
-            FileUtils.deleteQuietly(dest.toPath().resolve("manifest").toFile());
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+    private void copySourceModels() throws IOException {
+        File sources = SmithyUtils.getProjectionPluginPath(getProject(), "source", "sources").toFile();
+        File dest = getModelDir();
+        FileUtils.copyDirectory(sources, dest);
+        FileUtils.deleteQuietly(dest.toPath().resolve("manifest").toFile());
     }
 
     // Copy the "sources" plugin output to the generated resources directory.
-    private void copyModelsToStaging() {
-        String projection = getProjection();
-        Path sources = SmithyUtils.getProjectionPluginPath(getProject(), projection, "sources");
-        try {
-            FileUtils.copyDirectory(sources.toFile(), SmithyUtils.getSmithyResourceTempDir(getProject()));
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+    private void copyModelsToStaging() throws IOException {
+        Path sources = SmithyUtils.getProjectionPluginPath(getProject(), getProjection(), "sources");
+        FileUtils.copyDirectory(sources.toFile(), SmithyUtils.getSmithyResourceTempDir(getProject()));
+    }
+
+    // Only execute validation if smithy-build ran.
+    private void addValidationTask() {
+        Validate validateTask = getProject().getTasks().create(SMITHY_VALIDATE_TASK, Validate.class, task -> {
+            task.updateWithExtension(getProject().getExtensions().getByType(SmithyExtension.class));
+            task.setClasspath(SmithyUtils.getClasspath(getProject(), RUNTIME_CLASSPATH));
+            // Use only model discovery with the built JAR + the runtime classpath when validating.
+            FileCollection validationCp = getProject().getTasks().getByName("jar").getOutputs().getFiles()
+                    .plus(SmithyUtils.getClasspath(getProject(), RUNTIME_CLASSPATH));
+            task.setModelDiscoveryClasspath(validationCp);
+        });
+
+        getProject().getTasks().getByName("assemble").doLast(t -> validateTask.execute());
     }
 }

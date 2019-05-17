@@ -122,4 +122,18 @@ public final class SmithyUtils {
         Path metaInf = project.getBuildDir().toPath().resolve("tmp").resolve("smithy-inf");
         return metaInf.resolve("META-INF").resolve("smithy").toFile();
     }
+
+    /**
+     * Gets the path to the default output directory of projections.
+     *
+     * @param project Project to inspect.
+     * @return Returns the default output directory.
+     */
+    public static File getProjectionOutputDir(Project project) {
+        return project.getProjectDir().toPath()
+                .resolve("build")
+                .resolve(SMITHY_PROJECTIONS)
+                .resolve(project.getName())
+                .toFile();
+    }
 }

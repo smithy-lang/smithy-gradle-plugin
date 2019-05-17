@@ -18,15 +18,18 @@ package software.amazon.smithy.gradle.tasks;
 import java.util.ArrayList;
 import java.util.List;
 import org.gradle.api.DefaultTask;
+import org.gradle.api.Project;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.tasks.Classpath;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFiles;
+import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.JavaExec;
 import org.gradle.api.tasks.Optional;
 import org.gradle.internal.impldep.org.eclipse.jgit.annotations.Nullable;
 import software.amazon.smithy.cli.SmithyCli;
 import software.amazon.smithy.gradle.SmithyExtension;
+import software.amazon.smithy.gradle.SmithyUtils;
 import software.amazon.smithy.model.traits.DynamicTrait;
 import software.amazon.smithy.utils.ListUtils;
 
@@ -47,7 +50,7 @@ abstract class SmithyTask extends DefaultTask {
      *
      * @param extension Smithy extension to update the task with.
      */
-    public final void updateWithExtension(SmithyExtension extension) {
+    public void updateWithExtension(SmithyExtension extension) {
         setProjection(extension.getProjection());
         setSmithyBuildConfigs(extension.getSmithyBuildConfigs());
         setClasspath(extension.getClasspath());
@@ -72,6 +75,16 @@ abstract class SmithyTask extends DefaultTask {
      */
     public final void setProjection(String projection) {
         this.projection = projection;
+    }
+
+    /**
+     * Gets whether or not this is the source projection.
+     *
+     * @return Returns true if projection is "source".
+     */
+    @Internal
+    public boolean isSourceProjection() {
+        return getProjection().equals("source");
     }
 
     /**
@@ -161,8 +174,7 @@ abstract class SmithyTask extends DefaultTask {
      *
      * @return Returns true if unknown traits are allowed.
      */
-    @Input
-    @Optional
+    @Input @Optional
     public final boolean getAllowUnknownTraits() {
         return allowUnknownTraits;
     }
@@ -177,16 +189,22 @@ abstract class SmithyTask extends DefaultTask {
     }
 
     /**
-     * Creates a mutable list of arguments to use with the CLI.
+     * Executes the given CLI command.
      *
      * <p>This method will take care of adding --discover, --discover-classpath,
      * and --allow-unknown-traits.
      *
      * @param command The command to execute.
-     * @param modelDiscoveryClasspath The model discovery classpath to use.
-     * @return Returns the mutable list of arguments.
+     * @param customArguments Custom arguments that aren't one of the shared args.
+     * @param cliClasspath Classpath to use when running the CLI.
+     * @param modelDiscoveryClasspath Classpath to use for model discovery.
      */
-    final List<String> createCliArguments(String command, FileCollection modelDiscoveryClasspath) {
+    final void executeCliProcess(
+            String command,
+            List<String> customArguments,
+            FileCollection cliClasspath,
+            FileCollection modelDiscoveryClasspath
+    ) {
         List<String> args = new ArrayList<>();
         args.add(command);
 
@@ -201,30 +219,33 @@ abstract class SmithyTask extends DefaultTask {
             args.add("--discover");
         }
 
-        return args;
-    }
+        args.addAll(customArguments);
 
-    /**
-     * Adds model arguments to the CLI, including a preceding "--".
-     *
-     * @param args Arguments to mutate.
-     */
-    final void addModelArguments(List<String> args) {
         java.util.Optional.ofNullable(getModels()).ifPresent(models -> {
             args.add("--");
             models.forEach(file -> args.add(file.getAbsolutePath()));
         });
-    }
 
-    final void executeCliProcess(FileCollection cliClasspath, List<String> args) {
+        FileCollection resolveClasspath = resolveCliClasspath(getProject(), cliClasspath);
+        getProject().getLogger().debug("Executing `smithy {}` with: {} | and classpath of {}",
+                command, String.join(" ", args), resolveClasspath);
+
         getProject().getTasks().create("smithyCliTask" + args.get(0), JavaExec.class, t -> {
             t.setArgs(args);
-            if (cliClasspath != null) {
-                t.setClasspath(cliClasspath);
-            }
+            t.setClasspath(resolveClasspath);
             t.setMain(SmithyCli.class.getCanonicalName());
             t.setJvmArgs(ListUtils.of("-XX:TieredStopAtLevel=2"));
             t.exec();
         });
+    }
+
+    // Add the CLI classpath if it's missing from the given classpath.
+    private static FileCollection resolveCliClasspath(Project project, FileCollection cliClasspath) {
+        if (!cliClasspath.getAsPath().contains("smithy-cli")) {
+            project.getLogger().debug("Adding CLI classpath to command");
+            cliClasspath = cliClasspath.plus(SmithyUtils.getSmithyCliClasspath(project));
+        }
+
+        return cliClasspath;
     }
 }

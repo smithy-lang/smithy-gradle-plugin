@@ -24,13 +24,10 @@ import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.artifacts.DependencySet;
-import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.tasks.SourceSet;
-import software.amazon.smithy.gradle.tasks.SmithyBuild;
 import software.amazon.smithy.gradle.tasks.SmithyBuildJar;
-import software.amazon.smithy.gradle.tasks.Validate;
 import software.amazon.smithy.utils.ListUtils;
 
 /**
@@ -54,35 +51,21 @@ public final class SmithyPlugin implements Plugin<Project> {
     }
 
     private void registerTasks(Project project, SmithyExtension extension) {
-        SmithyBuild buildTask = project.getTasks().create("smithyBuild", SmithyBuildJar.class, task -> {
-            project.delete(SmithyUtils.getSmithyResourceTempDir(project));
+        SmithyBuildJar buildTask = project.getTasks().create("smithyBuild", SmithyBuildJar.class, task -> {
             task.updateWithExtension(extension);
             task.setModels(SmithyUtils.getSmithyModelSources(project));
+            if (extension.getOutputDirectory() == null) {
+                task.setOutputDirectory(SmithyUtils.getProjectionOutputDir(project));
+            }
         });
 
         // Smithy should build before the assemble task if no jar is being created, otherwise, compileJava.
-        if (!isJarEnabled(project)) {
+        if (!project.getTasks().getByName("jar").getEnabled()) {
             project.getTasks().getByName("assemble").dependsOn(buildTask);
         } else {
             project.getTasks().getByName("compileJava").dependsOn(buildTask);
             addCliDependencies(project);
-
-            Validate validateTask = project.getTasks().create("smithyValidate", Validate.class, task -> {
-                task.updateWithExtension(extension);
-                task.setClasspath(SmithyUtils.getClasspath(project, "runtimeClasspath"));
-                // Use only model discovery with the built JAR + the runtime classpath when validating.
-                FileCollection validationCp = project.getTasks().getByName("jar").getOutputs().getFiles()
-                        .plus(SmithyUtils.getClasspath(project, "runtimeClasspath"));
-                task.setModelDiscoveryClasspath(validationCp);
-            });
-
-            // Automatically validate that the created JAR will actually works with runtime dependencies.
-            project.getTasks().getByName("assemble").finalizedBy(validateTask);
         }
-    }
-
-    private static boolean isJarEnabled(Project project) {
-        return project.getTasks().getByName("jar").getEnabled();
     }
 
     /**

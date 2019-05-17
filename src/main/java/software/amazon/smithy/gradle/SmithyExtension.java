@@ -15,7 +15,9 @@
 
 package software.amazon.smithy.gradle;
 
+import java.io.File;
 import org.gradle.api.file.FileCollection;
+import org.gradle.internal.impldep.org.eclipse.jgit.annotations.Nullable;
 import software.amazon.smithy.model.traits.DynamicTrait;
 
 /**
@@ -28,6 +30,7 @@ public class SmithyExtension {
     private FileCollection classpath;
     private FileCollection modelDiscoveryClasspath;
     private boolean allowUnknownTraits;
+    private File outputDirectory;
 
     /**
      * Gets the projection name in use by the extension.
@@ -56,7 +59,7 @@ public class SmithyExtension {
      *
      * @return Returns the collection of build configurations.
      */
-    public FileCollection getSmithyBuildConfigs() {
+    public @Nullable FileCollection getSmithyBuildConfigs() {
         return smithyBuildConfigs;
     }
 
@@ -75,7 +78,7 @@ public class SmithyExtension {
      *
      * @return Returns the nullable classpath in use.
      */
-    public FileCollection getClasspath() {
+    public @Nullable FileCollection getClasspath() {
         return classpath;
     }
 
@@ -93,7 +96,7 @@ public class SmithyExtension {
      *
      * @return Returns the nullable classpath in use.
      */
-    public FileCollection getModelDiscoveryClasspath() {
+    public @Nullable FileCollection getModelDiscoveryClasspath() {
         return modelDiscoveryClasspath;
     }
 
@@ -126,5 +129,23 @@ public class SmithyExtension {
      */
     public void setAllowUnknownTraits(boolean allowUnknownTraits) {
         this.allowUnknownTraits = allowUnknownTraits;
+    }
+
+    /**
+     * Sets the output directory of running Smithy Build.
+     *
+     * @param outputDirectory Output directory to set.
+     */
+    public void setOutputDirectory(File outputDirectory) {
+        this.outputDirectory = outputDirectory;
+    }
+
+    /**
+     * Gets the output directory for running Smithy build.
+     *
+     * @return Returns the output directory.
+     */
+    public @Nullable File getOutputDirectory() {
+        return outputDirectory;
     }
 }

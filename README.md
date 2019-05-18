@@ -8,7 +8,7 @@ models.
 
 ## Installation
 
-The Smithy Gradle plugin is applied using `buildscript` (we'll move the the
+The Smithy Gradle plugin is applied using `buildscript` (we'll move to the
 `plugins` DSL when the plugin is published). This plugin requires that the
 `java` plugin is also applied.
 
@@ -45,8 +45,8 @@ Models found in these directories are combined into a single directory
 and used to validate and build the Smithy model. A Smithy manifest file
 is automatically created for the detected models, and it along with the
 model files, are placed in the `META-INF/smithy/` resource of the created
-JAR. Any project that then depends on this created will be able to find and
-use the Smithy models contained in the JAR when using *model discovery*.
+JAR. Any project that then depends on this created JAR will be able to find
+and use the Smithy models contained in the JAR when using *model discovery*.
 
 
 ## Building Smithy models
@@ -59,7 +59,7 @@ then the plugin runs in a "projection" mode.
 
 ### Building a source model
 
-A "source" build is run when no `projection` is specified in the
+A "source" build is run when no `projection` is configured in
 `SmithyExtension`. Because no projection was specified, **Smithy-build** is
 executed using the `compileClasspath` plus the `buildscript` classpath. To
 prevent accidentally relying on Smithy models that are only available to
@@ -86,7 +86,7 @@ buildscript {
 apply(plugin = "software.amazon.smithy")
 
 // The SmithyExtension is used to customize the build. This example
-// doesn't set any values.
+// doesn't set any values and can be completely omitted.
 configure<software.amazon.smithy.gradle.SmithyExtension> {}
 
 repositories {

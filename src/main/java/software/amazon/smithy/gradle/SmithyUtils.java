@@ -35,7 +35,7 @@ public final class SmithyUtils {
     private SmithyUtils() {}
 
     /**
-     * Gets the path toa  projection plugins output.
+     * Gets the path to a projection plugins output.
      *
      * @param project Project to inspect.
      * @param projection Projection name.

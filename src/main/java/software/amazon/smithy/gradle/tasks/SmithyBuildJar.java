@@ -77,8 +77,7 @@ public class SmithyBuildJar extends SmithyBuild {
 
     @OutputDirectory
     public File getSmithyResourceStagingDir() {
-        Path metaInf = getProject().getBuildDir().toPath().resolve("tmp").resolve("smithy-inf");
-        return metaInf.resolve("META-INF").resolve("smithy").toFile();
+        return SmithyUtils.getSmithyResourceTempDir(getProject());
     }
 
     private void configureDefaults() {

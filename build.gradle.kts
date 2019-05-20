@@ -80,7 +80,7 @@ tasks.jar {
 }
 
 sourceSets {
-    create("it") {
+    create("integTest") {
         java.srcDir("src/it/java")
         resources.srcDir("src/it/resources")
         compileClasspath += sourceSets["main"].output + configurations["testRuntimeClasspath"]
@@ -88,17 +88,17 @@ sourceSets {
     }
 }
 
-tasks.register<Test>("it") {
+tasks.register<Test>("integTest") {
     useJUnitPlatform()
-    testClassesDirs = sourceSets["it"].output.classesDirs
-    classpath = sourceSets["it"].compileClasspath + sourceSets["it"].runtimeClasspath
+    testClassesDirs = sourceSets["integTest"].output.classesDirs
+    classpath = sourceSets["integTest"].compileClasspath + sourceSets["integTest"].runtimeClasspath
     maxParallelForks = Runtime.getRuntime().availableProcessors() / 2
 }
 
-tasks["it"].dependsOn("publishToMavenLocal")
+tasks["integTest"].dependsOn("publishToMavenLocal")
 
 // Always run javadoc and integration tests after build.
-tasks["build"].finalizedBy(tasks["javadoc"]).finalizedBy(tasks["it"])
+tasks["build"].finalizedBy(tasks["javadoc"]).finalizedBy(tasks["integTest"])
 
 /*
  * Maven
@@ -134,7 +134,7 @@ publishing {
  */
 
 tasks["checkstyleTest"].enabled = false
-tasks["checkstyleIt"].enabled = false
+tasks["checkstyleIntegTest"].enabled = false
 
 /*
  * Code coverage
@@ -164,7 +164,7 @@ tasks.jacocoTestReport {
 
 // We don't need to lint tests.
 tasks["spotbugsTest"].enabled = false
-tasks["spotbugsIt"].enabled = false
+tasks["spotbugsIntegTest"].enabled = false
 
 // Configure the bug filter for spotbugs.
 tasks.withType(com.github.spotbugs.SpotBugsTask::class) {

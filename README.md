@@ -233,9 +233,9 @@ buildscript {
 
 The plugin is tested using integration tests that exercise example packages
 in the `examples` directory. Failure cases are placed in `examples/failure-cases`.
-Integration tests are executed with Gradle using the `it` task. Note that this
-task requires publishing the Smithy Gradle plugin to your Maven local
-repository.
+Integration tests are executed with Gradle using the `integTest` task. Note
+that this task requires publishing the Smithy Gradle plugin to your Maven
+local repository.
 
 
 ## License

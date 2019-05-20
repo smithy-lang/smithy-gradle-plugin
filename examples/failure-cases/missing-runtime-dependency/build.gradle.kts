@@ -5,6 +5,7 @@
 
 plugins {
     java
+    id("software.amazon.smithy").version("0.0.1")
 }
 
 buildscript {
@@ -12,14 +13,10 @@ buildscript {
         mavenLocal()
     }
     dependencies {
-        classpath("software.amazon.smithy:smithy-gradle-plugin:0.0.1")
-
         // This dependency is required to build the model.
         classpath("software.amazon.smithy:smithy-aws-traits:0.4.1")
     }
 }
-
-apply(plugin = "software.amazon.smithy")
 
 repositories {
     mavenLocal()

@@ -5,18 +5,8 @@
 
 plugins {
     java
+    id("software.amazon.smithy").version("0.0.1")
 }
-
-buildscript {
-    repositories {
-        mavenLocal()
-    }
-    dependencies {
-        classpath("software.amazon.smithy:smithy-gradle-plugin:0.0.1")
-    }
-}
-
-apply(plugin = "software.amazon.smithy")
 
 repositories {
     mavenLocal()

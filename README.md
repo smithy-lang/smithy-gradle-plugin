@@ -8,27 +8,14 @@ models.
 
 ## Installation
 
-The Smithy Gradle plugin is applied using `buildscript` (we'll move to the
-`plugins` DSL when the plugin is published). This plugin requires that the
-`java` plugin is also applied.
-
+The Smithy Gradle plugin is applied using the `software.amazon.smithy` plugin.
 The following example configures a project to use the Smithy Gradle plugin:
 
 ```kotlin
 plugins {
     java
+    id("software.amazon.smithy").version("0.0.1")
 }
-
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-        classpath("software.amazon.smithy:smithy-gradle-plugin:0.0.1")
-    }
-}
-
-apply(plugin = "software.amazon.smithy")
 ```
 
 
@@ -71,19 +58,8 @@ The following example `build.gradle.kts` will build a Smithy model using a
 ```kotlin
 plugins {
     java
+    id("software.amazon.smithy").version("0.0.1")
 }
-
-buildscript {
-    repositories {
-        mavenLocal()
-        mavenCentral()
-    }
-    dependencies {
-        classpath("software.amazon.smithy:smithy-gradle-plugin:0.0.1")
-    }
-}
-
-apply(plugin = "software.amazon.smithy")
 
 // The SmithyExtension is used to customize the build. This example
 // doesn't set any values and can be completely omitted.
@@ -121,6 +97,7 @@ build that uses the "external" projection.
 ```kotlin
 plugins {
     java
+    id("software.amazon.smithy").version("0.0.1")
 }
 
 buildscript {
@@ -129,7 +106,6 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath("software.amazon.smithy:smithy-gradle-plugin:0.0.1")
         classpath("software.amazon.smithy:smithy-aws-traits:0.4.1")
 
         // Take a dependency on the internal model package. This
@@ -138,8 +114,6 @@ buildscript {
         classpath("com.foo.baz:foo-internal-model:1.0.0")
     }
 }
-
-apply(plugin = "software.amazon.smithy")
 
 // Use the "external" projection. This projection must be found in the
 // smithy-build.json file.

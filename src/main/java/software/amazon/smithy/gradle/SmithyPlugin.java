@@ -39,17 +39,23 @@ public final class SmithyPlugin implements Plugin<Project> {
     private static final List<String> SOURCE_DIRS = ListUtils.of(
             "model", "src/$name/smithy", "src/$name/resources/META-INF/smithy");
 
+    private boolean appliedPlugin;
+
     @Override
     public void apply(Project project) {
-        if (!project.getPluginManager().hasPlugin("java")) {
-            throw new GradleException("Smithy plugin is missing the required java plugin");
-        }
-
-        SmithyExtension extension = project.getExtensions().create("smithy", SmithyExtension.class);
+        project.getPluginManager().withPlugin("java", javaPlugin -> {
+            appliedPlugin = true;
+            SmithyExtension extension = project.getExtensions().create("smithy", SmithyExtension.class);
+            project.afterEvaluate(p -> {
+                registerSourceSets(project);
+                registerTasks(project, extension);
+            });
+        });
 
         project.afterEvaluate(p -> {
-            registerSourceSets(project);
-            registerTasks(project, extension);
+            if (!appliedPlugin) {
+                throw new GradleException("Smithy plugin is missing the required java plugin");
+            }
         });
     }
 

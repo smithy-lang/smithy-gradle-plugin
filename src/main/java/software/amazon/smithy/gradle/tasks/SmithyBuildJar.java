@@ -22,6 +22,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.io.FileUtils;
+import org.gradle.api.GradleException;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.TaskAction;
@@ -126,6 +127,12 @@ public class SmithyBuildJar extends SmithyBuild {
     // Copy the "sources" plugin output to the generated resources directory.
     private void copyModelsToStaging() throws IOException {
         Path sources = SmithyUtils.getProjectionPluginPath(getProject(), getProjection(), "sources");
+
+        if (!Files.isDirectory(sources)) {
+            throw new GradleException("Smithy projection `" + getProjection() + "` not found. "
+                                      + "Is this projection defined in your smithy-build.json file?");
+        }
+
         FileUtils.copyDirectory(sources.toFile(), SmithyUtils.getSmithyResourceTempDir(getProject()));
     }
 

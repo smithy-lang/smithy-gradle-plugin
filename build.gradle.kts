@@ -34,6 +34,7 @@ dependencies {
     testRuntime("org.junit.jupiter:junit-jupiter-engine:5.4.0")
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.4.0")
     testImplementation("org.hamcrest:hamcrest:2.1")
+    testImplementation("commons-io:commons-io:2.6")
 }
 
 /*
@@ -78,8 +79,26 @@ tasks.jar {
     }
 }
 
-// Always run javadoc after build.
-tasks["build"].finalizedBy(tasks["javadoc"])
+sourceSets {
+    create("it") {
+        java.srcDir("src/it/java")
+        resources.srcDir("src/it/resources")
+        compileClasspath += sourceSets["main"].output + configurations["testRuntimeClasspath"]
+        runtimeClasspath += output + compileClasspath + sourceSets["test"].runtimeClasspath
+    }
+}
+
+tasks.register<Test>("it") {
+    useJUnitPlatform()
+    testClassesDirs = sourceSets["it"].output.classesDirs
+    classpath = sourceSets["it"].compileClasspath + sourceSets["it"].runtimeClasspath
+    maxParallelForks = Runtime.getRuntime().availableProcessors() / 2
+}
+
+tasks["it"].dependsOn("publishToMavenLocal")
+
+// Always run javadoc and integration tests after build.
+tasks["build"].finalizedBy(tasks["javadoc"]).finalizedBy(tasks["it"])
 
 /*
  * Maven
@@ -115,6 +134,7 @@ publishing {
  */
 
 tasks["checkstyleTest"].enabled = false
+tasks["checkstyleIt"].enabled = false
 
 /*
  * Code coverage
@@ -144,6 +164,7 @@ tasks.jacocoTestReport {
 
 // We don't need to lint tests.
 tasks["spotbugsTest"].enabled = false
+tasks["spotbugsIt"].enabled = false
 
 // Configure the bug filter for spotbugs.
 tasks.withType(com.github.spotbugs.SpotBugsTask::class) {

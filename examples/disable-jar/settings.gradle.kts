@@ -1,4 +1,4 @@
-rootProject.name = "test"
+rootProject.name = "disable-jar"
 
 pluginManagement {
     repositories {

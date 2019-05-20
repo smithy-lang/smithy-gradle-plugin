@@ -80,9 +80,7 @@ tasks.jar {
 }
 
 sourceSets {
-    create("integTest") {
-        java.srcDir("src/it/java")
-        resources.srcDir("src/it/resources")
+    create("it") {
         compileClasspath += sourceSets["main"].output + configurations["testRuntimeClasspath"]
         runtimeClasspath += output + compileClasspath + sourceSets["test"].runtimeClasspath
     }
@@ -90,8 +88,8 @@ sourceSets {
 
 tasks.register<Test>("integTest") {
     useJUnitPlatform()
-    testClassesDirs = sourceSets["integTest"].output.classesDirs
-    classpath = sourceSets["integTest"].compileClasspath + sourceSets["integTest"].runtimeClasspath
+    testClassesDirs = sourceSets["it"].output.classesDirs
+    classpath = sourceSets["it"].runtimeClasspath
     maxParallelForks = Runtime.getRuntime().availableProcessors() / 2
 }
 
@@ -109,9 +107,7 @@ tasks["build"].finalizedBy(tasks["javadoc"]).finalizedBy(tasks["integTest"])
 
 repositories {
     mavenLocal()
-    maven {
-        url = uri("http://repo.maven.apache.org/maven2")
-    }
+    mavenCentral()
 }
 
 publishing {
@@ -134,7 +130,7 @@ publishing {
  */
 
 tasks["checkstyleTest"].enabled = false
-tasks["checkstyleIntegTest"].enabled = false
+tasks["checkstyleIt"].enabled = false
 
 /*
  * Code coverage
@@ -164,7 +160,7 @@ tasks.jacocoTestReport {
 
 // We don't need to lint tests.
 tasks["spotbugsTest"].enabled = false
-tasks["spotbugsIntegTest"].enabled = false
+tasks["spotbugsIt"].enabled = false
 
 // Configure the bug filter for spotbugs.
 tasks.withType(com.github.spotbugs.SpotBugsTask::class) {

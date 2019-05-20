@@ -21,7 +21,7 @@ plugins {
 
 buildscript {
     repositories {
-        mavenCentral
+        mavenCentral()
     }
     dependencies {
         classpath("software.amazon.smithy:smithy-gradle-plugin:0.0.1")

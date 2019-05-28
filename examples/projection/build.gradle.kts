@@ -11,7 +11,7 @@ buildscript {
     }
     dependencies {
         // This dependency is required to build the model.
-        classpath("software.amazon.smithy:smithy-aws-traits:0.4.1")
+        classpath("software.amazon.smithy:smithy-aws-traits:0.5.0")
     }
 }
 
@@ -21,10 +21,10 @@ repositories {
 }
 
 dependencies {
-    implementation("software.amazon.smithy:smithy-model:0.4.1")
+    implementation("software.amazon.smithy:smithy-model:0.5.0")
 
     // This dependency is used in the projected model, so it's requird here too.
-    implementation("software.amazon.smithy:smithy-aws-traits:0.4.1")
+    implementation("software.amazon.smithy:smithy-aws-traits:0.5.0")
 }
 
 configure<software.amazon.smithy.gradle.SmithyExtension> {

@@ -11,7 +11,7 @@ repositories {
 }
 
 dependencies {
-    implementation("software.amazon.smithy:smithy-model:0.4.1")
+    implementation("software.amazon.smithy:smithy-model:0.5.0")
 }
 
 configure<software.amazon.smithy.gradle.SmithyExtension> {

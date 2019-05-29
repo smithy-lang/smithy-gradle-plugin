@@ -24,7 +24,6 @@ import org.gradle.api.tasks.Classpath;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.Internal;
-import org.gradle.api.tasks.JavaExec;
 import org.gradle.api.tasks.Optional;
 import org.gradle.internal.impldep.org.eclipse.jgit.annotations.Nullable;
 import software.amazon.smithy.cli.SmithyCli;
@@ -230,12 +229,11 @@ abstract class SmithyTask extends DefaultTask {
         getProject().getLogger().debug("Executing `smithy {}` with: {} | and classpath of {}",
                 command, String.join(" ", args), resolveClasspath);
 
-        getProject().getTasks().create("smithyCliTask" + args.get(0), JavaExec.class, t -> {
+        getProject().javaexec(t -> {
             t.setArgs(args);
             t.setClasspath(resolveClasspath);
             t.setMain(SmithyCli.class.getCanonicalName());
             t.setJvmArgs(ListUtils.of("-XX:TieredStopAtLevel=2"));
-            t.exec();
         });
     }
 

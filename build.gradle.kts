@@ -28,13 +28,11 @@ dependencies {
     implementation("software.amazon.smithy:smithy-model:0.5.0")
     implementation("software.amazon.smithy:smithy-build:0.5.0")
     implementation("software.amazon.smithy:smithy-cli:0.5.0")
-    implementation("commons-io:commons-io:2.6")
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.4.0")
     testRuntime("org.junit.jupiter:junit-jupiter-engine:5.4.0")
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.4.0")
     testImplementation("org.hamcrest:hamcrest:2.1")
-    testImplementation("commons-io:commons-io:2.6")
 }
 
 /*

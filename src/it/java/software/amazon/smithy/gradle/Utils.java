@@ -16,16 +16,20 @@ package software.amazon.smithy.gradle;/*
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.function.Consumer;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
-import org.apache.commons.io.FileUtils;
+import java.util.stream.Stream;
 import org.gradle.testkit.runner.BuildResult;
 import org.gradle.testkit.runner.TaskOutcome;
 import org.junit.jupiter.api.Assertions;
@@ -42,6 +46,10 @@ public final class Utils {
     }
 
     public static void deleteTempDir(Path dir) {
+        if (!Files.isDirectory(dir)) {
+            return;
+        }
+
         try {
             Files.walk(dir).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
         } catch (IOException e) {
@@ -57,28 +65,20 @@ public final class Utils {
         File source = getProjectDir(name).toFile();
 
         try {
-            FileUtils.deleteQuietly(dest);
-            FileUtils.copyDirectory(source, dest, f -> {
-                // Don't copy the build dir.
-                if (f.toString().endsWith("build") || f.toString().endsWith(".gradle")) {
-                    return false;
-                }
-
-                // Skip hidden files.
-                return !f.getName().startsWith(".");
-            });
+            deleteDir(dest.toPath());
+            copyDirectory(source.toPath(), dest.toPath());
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
     public static void withCopy(String projectName, Consumer<File> consumer) {
-        File buildDir = Utils.createTempDir(projectName).toFile();
+        File buildDir = createTempDir(projectName).toFile();
         try {
             copyProject(projectName, buildDir);
             consumer.accept(buildDir);
         } finally {
-            Utils.deleteTempDir(buildDir);
+            deleteTempDir(buildDir);
         }
     }
 
@@ -101,11 +101,10 @@ public final class Utils {
     public static void assertArtifactsCreated(File projectDir, String... paths) {
         Path base = projectDir.toPath();
         for (String file : paths) {
-            Assertions.assertTrue(Files.exists(base.resolve(file)), () -> file
+            Path dirPath = base.resolve(file);
+            Assertions.assertTrue(Files.exists(dirPath), () -> file
                     + " does not exist. The following files exist:\n"
-                    + FileUtils.listFiles(projectDir, null, true).stream()
-                            .map(File::toString)
-                            .collect(Collectors.joining("\n")));
+                    + listProjectFiles(base).map(Path::toString).collect(Collectors.joining("\n")));
         }
     }
 
@@ -128,5 +127,44 @@ public final class Utils {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    private static void deleteDir(Path dir) throws IOException {
+        if (!Files.exists(dir)) {
+            return;
+        }
+
+        Files.walk(dir).map(Path::toFile).sorted((o1, o2) -> -o1.compareTo(o2)).forEach(File::delete);
+    }
+
+    private static Stream<Path> listProjectFiles(Path dir) {
+        try {
+            return Files.find(dir, 999, (p, bfa) -> bfa.isRegularFile());
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public static void copyDirectory(Path from, Path to) throws IOException {
+        Files.walkFileTree(from, new SimpleFileVisitor<Path>() {
+            @Override
+            public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
+                // Don't copy the build dirs or private files.
+                if (dir.toString().endsWith("build") || dir.toString().endsWith(".gradle")
+                        || dir.getFileName().startsWith(".")) {
+                    return FileVisitResult.SKIP_SUBTREE;
+                }
+
+                // Create parent directories if they don't exist.
+                to.resolve(from.relativize(dir)).toFile().mkdirs();
+                return FileVisitResult.CONTINUE;
+            }
+
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                Files.copy(file, to.resolve(from.relativize(file)), StandardCopyOption.REPLACE_EXISTING);
+                return FileVisitResult.CONTINUE;
+            }
+        });
     }
 }

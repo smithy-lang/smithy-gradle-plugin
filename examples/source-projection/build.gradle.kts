@@ -2,7 +2,7 @@
 
 plugins {
     java
-    id("software.amazon.smithy").version("0.0.1")
+    id("software.amazon.smithy").version("0.1.0")
 }
 
 repositories {
@@ -11,8 +11,8 @@ repositories {
 }
 
 dependencies {
-    implementation("software.amazon.smithy:smithy-model:0.5.0")
-    implementation("software.amazon.smithy:smithy-aws-traits:0.5.0")
+    implementation("software.amazon.smithy:smithy-model:0.5.4")
+    implementation("software.amazon.smithy:smithy-aws-traits:0.5.4")
 }
 
 configure<software.amazon.smithy.gradle.SmithyExtension> {

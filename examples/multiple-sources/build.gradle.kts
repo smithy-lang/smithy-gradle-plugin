@@ -5,7 +5,7 @@
 
 plugins {
     java
-    id("software.amazon.smithy").version("0.0.1")
+    id("software.amazon.smithy").version("0.1.0")
 }
 
 repositories {
@@ -14,5 +14,5 @@ repositories {
 }
 
 dependencies {
-    implementation("software.amazon.smithy:smithy-model:0.5.0")
+    implementation("software.amazon.smithy:smithy-model:0.5.4")
 }

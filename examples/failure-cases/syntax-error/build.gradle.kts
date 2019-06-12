@@ -1,4 +1,4 @@
-// This example attempts to use an invalid projection. The build will fail.
+// This example fails to build due to a syntax error.
 
 plugins {
     java
@@ -12,8 +12,4 @@ repositories {
 
 dependencies {
     implementation("software.amazon.smithy:smithy-model:0.5.4")
-}
-
-configure<software.amazon.smithy.gradle.SmithyExtension> {
-    projection = "invalid"
 }

@@ -1,4 +1,4 @@
-package software.amazon.smithy.gradle;/*
+/*
  * Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
@@ -13,6 +13,8 @@ package software.amazon.smithy.gradle;/*
  * permissions and limitations under the License.
  */
 
+package software.amazon.smithy.gradle;
+
 import org.gradle.testkit.runner.BuildResult;
 import org.gradle.testkit.runner.GradleRunner;
 import org.junit.jupiter.api.Test;
@@ -23,7 +25,7 @@ public class SourceProjectionTest {
         Utils.withCopy("source-projection", buildDir -> {
             BuildResult result = GradleRunner.create()
                     .withProjectDir(buildDir)
-                    .withArguments("build")
+                    .withArguments("clean", "build", "--stacktrace", "--debug")
                     .build();
 
             Utils.assertSmithyBuildRan(result);

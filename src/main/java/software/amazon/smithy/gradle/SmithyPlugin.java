@@ -61,10 +61,16 @@ public final class SmithyPlugin implements Plugin<Project> {
 
     private void registerTasks(Project project, SmithyExtension extension) {
         SmithyBuildJar buildTask = project.getTasks().create("smithyBuild", SmithyBuildJar.class, task -> {
-            task.updateWithExtension(extension);
+            task.setProjection(extension.getProjection());
+            task.setProjectionSourceTags(extension.getProjectionSourceTags());
+            task.setTags(extension.getTags());
+            task.setSmithyBuildConfigs(extension.getSmithyBuildConfigs());
+            task.setAllowUnknownTraits(extension.getAllowUnknownTraits());
             task.setModels(SmithyUtils.getSmithyModelSources(project));
             if (extension.getOutputDirectory() == null) {
                 task.setOutputDirectory(SmithyUtils.getProjectionOutputDir(project));
+            } else {
+                task.setOutputDirectory(extension.getOutputDirectory());
             }
         });
 

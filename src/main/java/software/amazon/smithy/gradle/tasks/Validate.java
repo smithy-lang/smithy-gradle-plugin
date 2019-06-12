@@ -15,13 +15,11 @@
 
 package software.amazon.smithy.gradle.tasks;
 
-import org.gradle.api.file.FileCollection;
 import org.gradle.api.tasks.TaskAction;
-import software.amazon.smithy.gradle.SmithyUtils;
 import software.amazon.smithy.utils.ListUtils;
 
 /**
- * Validates the Smithy models found through model discovery.
+ * Validates the Smithy models.
  *
  * <p>The validation task will execute the Smithy CLI in a new process
  * to ensure that it uses an explicit classpath that ensures that the
@@ -32,14 +30,10 @@ import software.amazon.smithy.utils.ListUtils;
  * the same version of the CLI is used. If not found, a default version
  * is used.
  */
-public class Validate extends SmithyTask {
+public class Validate extends SmithyCliTask {
 
     @TaskAction
     public void execute() {
-        executeCliProcess("validate", ListUtils.of(), resolveValidateClasspath(), getModelDiscoveryClasspath());
-    }
-
-    private FileCollection resolveValidateClasspath() {
-        return getClasspath() != null ? getClasspath() : SmithyUtils.getClasspath(getProject(), "runtimeClasspath");
+        executeCliProcess("validate", ListUtils.of(), getClasspath(), getModelDiscoveryClasspath());
     }
 }

@@ -17,12 +17,15 @@ package software.amazon.smithy.gradle;
 
 import org.gradle.testkit.runner.BuildResult;
 import org.gradle.testkit.runner.GradleRunner;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import software.amazon.smithy.model.Model;
+import software.amazon.smithy.model.shapes.ShapeId;
 
-public class ProjectionTest {
+public class ProjectsWithTagsTest {
     @Test
-    public void testProjection() {
-        Utils.withCopy("projection", buildDir -> {
+    public void testProjectionWithSourceTags() {
+        Utils.withCopy("projects-with-tags", buildDir -> {
             BuildResult result = GradleRunner.create()
                     .withProjectDir(buildDir)
                     .withArguments("clean", "build", "--stacktrace")
@@ -30,20 +33,19 @@ public class ProjectionTest {
 
             Utils.assertSmithyBuildRan(result);
             Utils.assertValidationRan(result);
-            Utils.assertArtifactsCreated(buildDir,
-                    "build/smithyprojections/projection/source/build-info/smithy-build-info.json",
-                    "build/smithyprojections/projection/source/model/model.json",
-                    "build/smithyprojections/projection/source/sources/main.smithy",
-                    "build/smithyprojections/projection/source/sources/manifest",
-                    "build/smithyprojections/projection/foo/build-info/smithy-build-info.json",
-                    "build/smithyprojections/projection/foo/model/model.json",
-                    "build/smithyprojections/projection/foo/sources/manifest",
-                    "build/smithyprojections/projection/foo/sources/model.json",
-                    "build/libs/projection.jar");
             Utils.assertJarContains(buildDir,
-                    "build/libs/projection.jar",
-                    "META-INF/smithy/manifest",
-                    "META-INF/smithy/model.json");
+                                    "build/libs/projects-with-tags.jar",
+                                    "META-INF/smithy/manifest",
+                                    "META-INF/smithy/model.json");
+
+            Model model = Model.assembler()
+                    .addImport(buildDir.toPath().resolve("build").resolve("libs").resolve("projects-with-tags.jar"))
+                    .assemble()
+                    .unwrap();
+
+            Assertions.assertTrue(model.getShapeIndex().getShape(ShapeId.from("foo.baz#Integer")).isPresent());
+            Assertions.assertTrue(model.getShapeIndex().getShape(ShapeId.from("foo.baz#Float")).isPresent());
+            Assertions.assertTrue(model.getShapeIndex().getShape(ShapeId.from("smithy.example#Baz")).isPresent());
         });
     }
 }

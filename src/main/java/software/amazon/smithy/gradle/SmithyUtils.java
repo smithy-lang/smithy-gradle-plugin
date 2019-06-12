@@ -17,10 +17,13 @@ package software.amazon.smithy.gradle;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.util.List;
 import org.gradle.api.Project;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.tasks.SourceSetContainer;
+import software.amazon.smithy.cli.SmithyCli;
+import software.amazon.smithy.utils.ListUtils;
 
 /**
  * General utility methods used throughout the plugin.
@@ -135,5 +138,39 @@ public final class SmithyUtils {
                 .resolve(SMITHY_PROJECTIONS)
                 .resolve(project.getName())
                 .toFile();
+    }
+
+    /**
+     * Executes the Smithy CLI in a separate process.
+     *
+     * @param project Gradle project being built.
+     * @param arguments CLI arguments.
+     * @param classpath Classpath to use when running the CLI. Uses buildScript when not defined.
+     */
+    public static void executeCliProcess(Project project, List<String> arguments, FileCollection classpath) {
+        FileCollection resolveClasspath = resolveCliClasspath(project, classpath);
+        project.getLogger().debug("Executing Smithy CLI {} using classpath {}",
+                                  String.join(" ", arguments), resolveClasspath.getAsPath());
+
+        project.javaexec(t -> {
+            t.setArgs(arguments);
+            t.setClasspath(resolveClasspath);
+            t.setMain(SmithyCli.class.getCanonicalName());
+            t.setJvmArgs(ListUtils.of("-XX:TieredStopAtLevel=2"));
+        });
+    }
+
+    private static FileCollection resolveCliClasspath(Project project, FileCollection cliClasspath) {
+        if (cliClasspath == null) {
+            cliClasspath = SmithyUtils.getBuildscriptClasspath(project);
+        }
+
+        // Add the CLI classpath if it's missing from the given classpath.
+        if (!cliClasspath.getAsPath().contains("smithy-cli")) {
+            project.getLogger().debug("Adding CLI classpath to command");
+            cliClasspath = cliClasspath.plus(SmithyUtils.getSmithyCliClasspath(project));
+        }
+
+        return cliClasspath;
     }
 }

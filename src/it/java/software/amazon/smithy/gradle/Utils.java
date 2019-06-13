@@ -1,4 +1,4 @@
-package software.amazon.smithy.gradle;/*
+/*
  * Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
@@ -13,6 +13,8 @@ package software.amazon.smithy.gradle;/*
  * permissions and limitations under the License.
  */
 
+package software.amazon.smithy.gradle;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -25,7 +27,6 @@ import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.function.Consumer;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
@@ -72,14 +73,21 @@ public final class Utils {
         }
     }
 
-    public static void withCopy(String projectName, Consumer<File> consumer) {
+    public static void withCopy(String projectName, CopyConsumer consumer) {
         File buildDir = createTempDir(projectName).toFile();
         try {
             copyProject(projectName, buildDir);
             consumer.accept(buildDir);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         } finally {
             deleteTempDir(buildDir);
         }
+    }
+
+    @FunctionalInterface
+    interface CopyConsumer {
+        void accept(File file) throws IOException;
     }
 
     public static Path getProjectDir(String name) {

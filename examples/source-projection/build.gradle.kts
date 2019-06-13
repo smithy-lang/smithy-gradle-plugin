@@ -2,7 +2,7 @@
 
 plugins {
     java
-    id("software.amazon.smithy").version("0.1.0")
+    id("software.amazon.smithy").version("0.2.0")
 }
 
 repositories {

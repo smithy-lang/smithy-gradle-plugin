@@ -16,6 +16,8 @@
 package software.amazon.smithy.gradle;
 
 import java.io.File;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import org.gradle.api.file.FileCollection;
 import org.gradle.internal.impldep.org.eclipse.jgit.annotations.Nullable;
 import software.amazon.smithy.model.traits.DynamicTrait;
@@ -27,8 +29,8 @@ public class SmithyExtension {
 
     private FileCollection smithyBuildConfigs;
     private String projection = "source";
-    private FileCollection classpath;
-    private FileCollection modelDiscoveryClasspath;
+    private Set<String> projectionSourceTags = new LinkedHashSet<>();
+    private Set<String> tags = new LinkedHashSet<>();
     private boolean allowUnknownTraits;
     private File outputDirectory;
 
@@ -54,6 +56,59 @@ public class SmithyExtension {
     }
 
     /**
+     * Get the tags that are searched for in classpaths when determining which
+     * models are projected into the created JAR.
+     *
+     * <p>This plugin will look through the JARs in the buildscript classpath
+     * to see if they contain a META-INF/MANIFEST.MF attribute named
+     * "Smithy-Tags" that matches any of the given projection source tags.
+     * The Smithy models found in each matching JAR are copied into the
+     * JAR being projected. This allows a projection JAR to aggregate models
+     * into a single JAR.
+     *
+     * @return Returns the tags. This will never return null.
+     */
+    public final Set<String> getProjectionSourceTags() {
+        return projectionSourceTags;
+    }
+
+    /**
+     * Set the projection source tags.
+     *
+     * @param projectionSourceTags Tags to search for.
+     * @see #getProjectionSourceTags()
+     */
+    public final void setProjectionSourceTags(Set<String> projectionSourceTags) {
+        this.projectionSourceTags.clear();
+        this.projectionSourceTags.addAll(projectionSourceTags);
+    }
+
+    /**
+     * Get the tags that are added to the JAR.
+     *
+     * <p>These tags are placed in the META-INF/MANIFEST.MF attribute named
+     * "Smithy-Tags" as a comma separated list. JARs with Smithy-Tags can be
+     * queried when building projections so that the Smithy models found in
+     * each matching JAR are placed into the projection JAR.
+     *
+     * @return Returns the Smithy-Tags values that will be added to the created JAR.
+     */
+    public Set<String> getTags() {
+        return tags;
+    }
+
+    /**
+     * Sets the tags that are added that the JAR manifest in "Smithy-Tags".
+     *
+     * @param tags Smithy-Tags to add to the JAR.
+     * @see #getTags()
+     */
+    public void setTags(Set<String> tags) {
+        this.tags.clear();
+        this.tags.addAll(tags);
+    }
+
+    /**
      * Gets a custom collection of smithy-build.json files to use when
      * building the model.
      *
@@ -71,42 +126,6 @@ public class SmithyExtension {
      */
     public void setSmithyBuildConfigs(FileCollection smithyBuildConfigs) {
         this.smithyBuildConfigs = smithyBuildConfigs;
-    }
-
-    /**
-     * Gets the classpath used when loading models, traits, validators, etc.
-     *
-     * @return Returns the nullable classpath in use.
-     */
-    public @Nullable FileCollection getClasspath() {
-        return classpath;
-    }
-
-    /**
-     * Sets the classpath to use when loading models, traits, validators, etc.
-     *
-     * @param classpath Classpath to use.
-     */
-    public void setClasspath(FileCollection classpath) {
-        this.classpath = classpath;
-    }
-
-    /**
-     * Gets the classpath used for model discovery.
-     *
-     * @return Returns the nullable classpath in use.
-     */
-    public @Nullable FileCollection getModelDiscoveryClasspath() {
-        return modelDiscoveryClasspath;
-    }
-
-    /**
-     * Sets the classpath to use for model discovery.
-     *
-     * @param modelDiscoveryClasspath Classpath to use for model discovery.
-     */
-    public void setModelDiscoveryClasspath(FileCollection modelDiscoveryClasspath) {
-        this.modelDiscoveryClasspath = modelDiscoveryClasspath;
     }
 
     /**

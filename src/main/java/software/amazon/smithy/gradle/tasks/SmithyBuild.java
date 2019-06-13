@@ -16,21 +16,24 @@
 package software.amazon.smithy.gradle.tasks;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import org.gradle.api.file.FileCollection;
+import org.gradle.api.tasks.InputFiles;
+import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.TaskAction;
-import software.amazon.smithy.gradle.SmithyExtension;
-import software.amazon.smithy.gradle.SmithyUtils;
 
 /**
- * Builds Smithy model projections and artifacts.
+ * This task allows Smithy's build CLI to be run using ad-hoc
+ * settings and classpaths.
+ *
+ * <p>See the {@link SmithyBuildJar} task for building JARs for
+ * projects.
  */
-public class SmithyBuild extends SmithyTask {
+public class SmithyBuild extends SmithyCliTask {
 
+    private FileCollection smithyBuildConfigs;
     private File outputDirectory;
 
     /**
@@ -39,12 +42,15 @@ public class SmithyBuild extends SmithyTask {
      * @return Returns the output directory.
      */
     @OutputDirectory
+    @Optional
     public File getOutputDirectory() {
         return outputDirectory;
     }
 
     /**
-     * Sets the output directory of running Smithy Build.
+     * Sets the output directory of running smithy build.
+     *
+     * <p>This is the root directory where artifacts are written.
      *
      * @param outputDirectory Output directory to set.
      */
@@ -52,31 +58,48 @@ public class SmithyBuild extends SmithyTask {
         this.outputDirectory = outputDirectory;
     }
 
-    @Override
-    public void updateWithExtension(SmithyExtension extension) {
-        super.updateWithExtension(extension);
-        setOutputDirectory(extension.getOutputDirectory());
+    /**
+     * Gets the {@code smithy-build.json} files set on the task.
+     *
+     * @return Returns the resolved collection of configurations.
+     */
+    @InputFiles
+    @Optional
+    final FileCollection getSmithyBuildConfigs() {
+        return smithyBuildConfigs;
+    }
+
+    /**
+     * Sets a collection of {@code smithy-build.json} files to use when
+     * building the model.
+     *
+     * <p>These configuration files are combined together and can
+     * cross-reference each other in things like {@code apply} transforms.
+     *
+     * @param smithyBuildConfigs Sets the collection of build configurations.
+     */
+    public final void setSmithyBuildConfigs(FileCollection smithyBuildConfigs) {
+        this.smithyBuildConfigs = smithyBuildConfigs;
     }
 
     @TaskAction
-    public void build() throws IOException {
+    public void build() {
         // Clear out the build directory when rebuilding.
         getProject().delete(getOutputDirectory());
 
         List<String> customArgs = new ArrayList<>();
-        Optional.ofNullable(getSmithyBuildConfigs()).ifPresent(files -> files.forEach(file -> {
-            if (file.exists()) {
-                customArgs.add("--config");
-                customArgs.add(file.getAbsolutePath());
-            }
-        }));
+
+        if (getSmithyBuildConfigs() != null) {
+            getSmithyBuildConfigs().forEach(file -> {
+                if (file.exists()) {
+                    customArgs.add("--config");
+                    customArgs.add(file.getAbsolutePath());
+                }
+            });
+        }
 
         customArgs.add("--output");
         customArgs.add(getOutputDirectory().toString());
-
-        FileCollection resolvedClasspath = Optional.ofNullable(getClasspath())
-                .orElseGet(() -> SmithyUtils.getBuildscriptClasspath(getProject()));
-
-        executeCliProcess("build", customArgs, resolvedClasspath, getModelDiscoveryClasspath());
+        executeCliProcess("build", customArgs, getClasspath(), getModelDiscoveryClasspath());
     }
 }

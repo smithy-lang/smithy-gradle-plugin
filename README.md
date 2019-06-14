@@ -186,7 +186,7 @@ projection. For example:
 
 ```json
 {
-    "smithy": "1.0",
+    "version": "1.0",
     "projections": {
         "external": {
             // This projection creates a modified version of the
@@ -244,7 +244,7 @@ The following example generates an OpenAPI model from a Smithy model:
 
 ```json
 {
-    "smithy": "1.0",
+    "version": "1.0",
     "plugins": {
         "openapi": {
             "service": "foo.baz#MyService"

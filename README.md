@@ -110,7 +110,7 @@ repositories {
 }
 
 dependencies {
-    api("software.amazon.smithy:smithy-model:0.5.4")
+    api("software.amazon.smithy:smithy-model:0.7.0")
 
     // These are just examples of dependencies. This model has a dependency on
     // a "common" model package and uses the external AWS traits.
@@ -147,7 +147,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath("software.amazon.smithy:smithy-aws-traits:0.5.4")
+        classpath("software.amazon.smithy:smithy-aws-traits:0.7.0")
 
         // Take a dependency on the internal model package. This
         // dependency *must* be a buildscript only dependency to ensure
@@ -171,7 +171,7 @@ repositories {
 }
 
 dependencies {
-    api("software.amazon.smithy:smithy-model:0.5.4")
+    api("software.amazon.smithy:smithy-model:0.7.0")
 
     // Any dependencies that the projected model needs must be (re)declared
     // here. For example, let's assume that the smithy-aws-traits package is
@@ -264,7 +264,7 @@ buildscript {
 
         // This dependency is required in order to apply the "openapi"
         // plugin in smithy-build.json
-        classpath("software.amazon.smithy:smithy-openapi:0.5.4")
+        classpath("software.amazon.smithy:smithy-openapi:0.7.0")
     }
 }
 ```

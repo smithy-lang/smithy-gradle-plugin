@@ -14,5 +14,5 @@ repositories {
 }
 
 dependencies {
-    implementation("software.amazon.smithy:smithy-model:0.5.4")
+    implementation("software.amazon.smithy:smithy-model:0.7.0")
 }

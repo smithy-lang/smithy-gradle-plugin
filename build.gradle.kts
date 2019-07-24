@@ -19,6 +19,7 @@ plugins {
     checkstyle
     jacoco
     id("com.github.spotbugs") version "1.6.10"
+    id("com.gradle.plugin-publish") version "0.10.0"
 }
 
 group = "software.amazon.smithy"
@@ -175,7 +176,18 @@ gradlePlugin {
     plugins {
         create("software.amazon.smithy") {
             id = "software.amazon.smithy"
+            displayName = "Smithy Gradle Plugin"
+            description = "This project integrates Smithy with Gradle. This plugin can build artifacts " +
+                    "from Smithy models, generate JARs that contain Smithy models found in Java " +
+                    "projects, and generate JARs that contain filtered *projections* of Smithy " +
+                    "models."
             implementationClass = "software.amazon.smithy.gradle.SmithyPlugin"
         }
     }
+}
+
+pluginBundle {
+    website = "https://github.com/awslabs/smithy"
+    vcsUrl = "https://github.com/awslabs/smithy"
+    tags = listOf("smithy", "api", "building")
 }

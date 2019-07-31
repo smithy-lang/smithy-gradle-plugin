@@ -95,7 +95,8 @@ tasks.register<Test>("integTest") {
 tasks["integTest"].dependsOn("publishToMavenLocal")
 
 // Always run javadoc and integration tests after build.
-tasks["build"].finalizedBy(tasks["javadoc"]).finalizedBy(tasks["integTest"])
+tasks["assemble"].dependsOn("javadoc")
+tasks["build"].finalizedBy(tasks["integTest"])
 
 /*
  * Maven

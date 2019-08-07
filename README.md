@@ -14,7 +14,7 @@ The following example configures a project to use the Smithy Gradle plugin:
 ```kotlin
 plugins {
     java
-    id("software.amazon.smithy").version("0.2.0")
+    id("software.amazon.smithy").version("0.3.0")
 }
 ```
 
@@ -97,7 +97,7 @@ The following example `build.gradle.kts` will build a Smithy model using a
 ```kotlin
 plugins {
     java
-    id("software.amazon.smithy").version("0.2.0")
+    id("software.amazon.smithy").version("0.3.0")
 }
 
 // The SmithyExtension is used to customize the build. This example
@@ -110,12 +110,12 @@ repositories {
 }
 
 dependencies {
-    api("software.amazon.smithy:smithy-model:0.8.0")
+    api("software.amazon.smithy:smithy-model:0.9.0")
 
     // These are just examples of dependencies. This model has a dependency on
     // a "common" model package and uses the external AWS traits.
     api("com.foo.baz:foo-model-internal-common:1.0.0")
-    api("software.amazon.smithy:smithy-aws-traits:0.4.0")
+    api("software.amazon.smithy:smithy-aws-traits:0.9.0")
 }
 ```
 
@@ -138,7 +138,7 @@ build that uses the "external" projection.
 ```kotlin
 plugins {
     java
-    id("software.amazon.smithy").version("0.2.0")
+    id("software.amazon.smithy").version("0.3.0")
 }
 
 buildscript {
@@ -147,7 +147,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath("software.amazon.smithy:smithy-aws-traits:0.8.0")
+        classpath("software.amazon.smithy:smithy-aws-traits:0.9.0")
 
         // Take a dependency on the internal model package. This
         // dependency *must* be a buildscript only dependency to ensure
@@ -171,12 +171,12 @@ repositories {
 }
 
 dependencies {
-    api("software.amazon.smithy:smithy-model:0.8.0")
+    api("software.amazon.smithy:smithy-model:0.9.0")
 
     // Any dependencies that the projected model needs must be (re)declared
     // here. For example, let's assume that the smithy-aws-traits package is
     // needed in the projected model too.
-    api("software.amazon.smithy:smithy-aws-traits:0.4.0")
+    api("software.amazon.smithy:smithy-aws-traits:0.9.0")
 }
 ```
 
@@ -264,7 +264,7 @@ buildscript {
 
         // This dependency is required in order to apply the "openapi"
         // plugin in smithy-build.json
-        classpath("software.amazon.smithy:smithy-openapi:0.8.0")
+        classpath("software.amazon.smithy:smithy-openapi:0.9.0")
     }
 }
 ```

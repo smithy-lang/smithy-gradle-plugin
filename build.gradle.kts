@@ -23,12 +23,12 @@ plugins {
 }
 
 group = "software.amazon.smithy"
-version = "0.2.0"
+version = "0.3.0"
 
 dependencies {
-    implementation("software.amazon.smithy:smithy-model:0.8.0")
-    implementation("software.amazon.smithy:smithy-build:0.8.0")
-    implementation("software.amazon.smithy:smithy-cli:0.8.0")
+    implementation("software.amazon.smithy:smithy-model:0.9.0")
+    implementation("software.amazon.smithy:smithy-build:0.9.0")
+    implementation("software.amazon.smithy:smithy-cli:0.9.0")
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.4.0")
     testRuntime("org.junit.jupiter:junit-jupiter-engine:5.4.0")

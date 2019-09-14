@@ -4,7 +4,6 @@
 // - src/main/resources/META-INF/smithy
 
 plugins {
-    java
     id("software.amazon.smithy").version("0.3.0")
 }
 

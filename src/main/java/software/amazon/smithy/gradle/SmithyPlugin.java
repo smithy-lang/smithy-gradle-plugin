@@ -25,6 +25,7 @@ import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.artifacts.DependencySet;
 import org.gradle.api.file.SourceDirectorySet;
+import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.tasks.SourceSet;
 import software.amazon.smithy.gradle.tasks.SmithyBuildJar;
@@ -43,6 +44,7 @@ public final class SmithyPlugin implements Plugin<Project> {
 
     @Override
     public void apply(Project project) {
+        project.getPluginManager().apply(JavaPlugin.class);
         project.getPluginManager().withPlugin("java", javaPlugin -> {
             appliedPlugin = true;
             SmithyExtension extension = project.getExtensions().create("smithy", SmithyExtension.class);

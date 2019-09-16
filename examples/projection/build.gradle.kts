@@ -1,7 +1,6 @@
 // This example places a projected version of the model into the JAR.
 
 plugins {
-    java
     id("software.amazon.smithy").version("0.3.0")
 }
 

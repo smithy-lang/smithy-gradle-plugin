@@ -1,7 +1,6 @@
 // This examples adds a Smithy tag to the built JAR.
 
 plugins {
-    java
     id("software.amazon.smithy").version("0.3.0")
 }
 

@@ -4,7 +4,6 @@
 // plugin validates the JAR with Smithy model discovery.
 
 plugins {
-    java
     id("software.amazon.smithy").version("0.3.0")
 }
 

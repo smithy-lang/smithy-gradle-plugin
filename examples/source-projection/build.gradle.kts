@@ -1,7 +1,6 @@
 // This example builds the model and places it in the JAR.
 
 plugins {
-    java
     id("software.amazon.smithy").version("0.3.0")
 }
 

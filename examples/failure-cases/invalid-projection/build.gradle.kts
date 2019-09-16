@@ -1,7 +1,6 @@
 // This example attempts to use an invalid projection. The build will fail.
 
 plugins {
-    java
     id("software.amazon.smithy").version("0.3.0")
 }
 

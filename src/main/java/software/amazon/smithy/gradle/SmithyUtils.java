@@ -23,7 +23,6 @@ import org.gradle.api.file.FileCollection;
 import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.tasks.SourceSetContainer;
 import software.amazon.smithy.cli.SmithyCli;
-import software.amazon.smithy.utils.ListUtils;
 
 /**
  * General utility methods used throughout the plugin.
@@ -156,7 +155,6 @@ public final class SmithyUtils {
             t.setArgs(arguments);
             t.setClasspath(resolveClasspath);
             t.setMain(SmithyCli.class.getCanonicalName());
-            t.setJvmArgs(ListUtils.of("-XX:TieredStopAtLevel=2"));
         });
     }
 

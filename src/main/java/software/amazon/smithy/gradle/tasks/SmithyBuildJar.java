@@ -230,7 +230,7 @@ public class SmithyBuildJar extends BaseSmithyTask {
 
         BuildParameterBuilder.Result result = builder.build();
         Object[] jars = result.classpath.split(":");
-        SmithyUtils.executeCliProcess(getProject(), result.args, getProject().files(jars));
+        SmithyUtils.executeCli(getProject(), result.args, getProject().files(jars));
 
         // Copy generated files where they're needed and register source sets.
         try {

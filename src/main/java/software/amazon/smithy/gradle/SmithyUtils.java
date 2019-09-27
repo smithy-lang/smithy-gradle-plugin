@@ -16,8 +16,14 @@
 package software.amazon.smithy.gradle;
 
 import java.io.File;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.file.Path;
+import java.security.AccessController;
+import java.security.PrivilegedExceptionAction;
 import java.util.List;
+import java.util.Set;
+import org.gradle.api.GradleException;
 import org.gradle.api.Project;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.plugins.JavaPluginConvention;
@@ -140,22 +146,82 @@ public final class SmithyUtils {
     }
 
     /**
-     * Executes the Smithy CLI in a separate process.
+     * Executes the Smithy CLI in a separate thread or process.
      *
      * @param project Gradle project being built.
      * @param arguments CLI arguments.
      * @param classpath Classpath to use when running the CLI. Uses buildScript when not defined.
      */
-    public static void executeCliProcess(Project project, List<String> arguments, FileCollection classpath) {
+    public static void executeCli(Project project, List<String> arguments, FileCollection classpath) {
         FileCollection resolveClasspath = resolveCliClasspath(project, classpath);
-        project.getLogger().debug("Executing Smithy CLI {} using classpath {}",
-                                  String.join(" ", arguments), resolveClasspath.getAsPath());
+        boolean fork = project.getExtensions().getByType(SmithyExtension.class).getFork();
+        project.getLogger().debug("Executing Smithy CLI in a {}: {}; using classpath {}",
+                                  fork ? "process" : "thread",
+                                  String.join(" ", arguments),
+                                  resolveClasspath.getAsPath());
+        if (fork) {
+            executeCliProcess(project, arguments, resolveClasspath);
+        } else {
+            executeCliThread(arguments, resolveClasspath);
+        }
+    }
 
+    private static void executeCliProcess(Project project, List<String> arguments, FileCollection classpath) {
         project.javaexec(t -> {
             t.setArgs(arguments);
-            t.setClasspath(resolveClasspath);
+            t.setClasspath(classpath);
             t.setMain(SmithyCli.class.getCanonicalName());
         });
+    }
+
+    @SuppressWarnings("unchecked")
+    private static void executeCliThread(List<String> arguments, FileCollection classpath) {
+        try {
+            // Create a custom class loader to run within the context of.
+            Set<File> files = classpath.getFiles();
+            URL[] paths = new URL[files.size()];
+            int i = 0;
+            for (File file : files) {
+                paths[i++] = file.toURI().toURL();
+            }
+            // Need to run this in a doPriveleged to pass SpotBugs.
+            ClassLoader classLoader = AccessController.doPrivileged(
+                    (PrivilegedExceptionAction<URLClassLoader>) () -> new URLClassLoader(paths));
+
+            // Reflection is used to make calls on the loaded SmithyCli object.
+            String cliName = SmithyCli.class.getCanonicalName();
+            Thread thread = new Thread(() -> {
+                try {
+                    Class cliClass = classLoader.loadClass(cliName);
+                    Object cli = cliClass.getDeclaredMethod("create").invoke(null);
+                    cliClass.getDeclaredMethod("classLoader", ClassLoader.class).invoke(cli, classLoader);
+                    cliClass.getDeclaredMethod("run", List.class).invoke(cli, arguments);
+                } catch (ReflectiveOperationException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+
+            // Configure the thread to re-throw exception and use our custom class loader.
+            thread.setContextClassLoader(classLoader);
+            ExceptionHandler handler = new ExceptionHandler();
+            thread.setUncaughtExceptionHandler(handler);
+            thread.start();
+            thread.join();
+            if (handler.e != null) {
+                throw handler.e;
+            }
+        } catch (Throwable e) {
+            throw new GradleException("Error running Smithy CLI (thread): " + e.getMessage(), e);
+        }
+    }
+
+    private static final class ExceptionHandler implements Thread.UncaughtExceptionHandler {
+        volatile Throwable e;
+
+        @Override
+        public void uncaughtException(Thread t, Throwable e) {
+            this.e = e;
+        }
     }
 
     private static FileCollection resolveCliClasspath(Project project, FileCollection cliClasspath) {

@@ -33,6 +33,7 @@ public class SmithyExtension {
     private Set<String> tags = new LinkedHashSet<>();
     private boolean allowUnknownTraits;
     private File outputDirectory;
+    private boolean fork;
 
     /**
      * Gets the projection name in use by the extension.
@@ -148,6 +149,29 @@ public class SmithyExtension {
      */
     public void setAllowUnknownTraits(boolean allowUnknownTraits) {
         this.allowUnknownTraits = allowUnknownTraits;
+    }
+
+    /**
+     * Gets whether or not to fork when running the Smithy CLI.
+     *
+     * <p>By default, the CLI is run in the same process as Gradle,
+     * but inside of a thread with a custom class loader. This should
+     * work in most cases, but there is an option to run inside of a
+     * process if necessary.
+     *
+     * @return Returns true if the CLI should fork.
+     */
+    public boolean getFork() {
+        return fork;
+    }
+
+    /**
+     * Sets whether or not to fork when running the Smithy CLI.
+     *
+     * @param fork Set to true to fork when running the Smithy CLI.
+     */
+    public void setFork(boolean fork) {
+        this.fork = fork;
     }
 
     /**

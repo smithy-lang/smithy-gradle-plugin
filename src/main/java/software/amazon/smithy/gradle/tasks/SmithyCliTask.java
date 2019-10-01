@@ -135,6 +135,6 @@ abstract class SmithyCliTask extends BaseSmithyTask {
             models.forEach(file -> args.add(file.getAbsolutePath()));
         });
 
-        SmithyUtils.executeCliProcess(getProject(), args, cliClasspath);
+        SmithyUtils.executeCli(getProject(), args, cliClasspath);
     }
 }

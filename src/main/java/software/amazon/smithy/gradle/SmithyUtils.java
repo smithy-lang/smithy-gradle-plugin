@@ -185,7 +185,7 @@ public final class SmithyUtils {
                 paths[i++] = file.toURI().toURL();
             }
             // Need to run this in a doPriveleged to pass SpotBugs.
-            ClassLoader classLoader = AccessController.doPrivileged(
+            URLClassLoader classLoader = AccessController.doPrivileged(
                     (PrivilegedExceptionAction<URLClassLoader>) () -> new URLClassLoader(paths));
 
             // Reflection is used to make calls on the loaded SmithyCli object.
@@ -210,6 +210,9 @@ public final class SmithyUtils {
             if (handler.e != null) {
                 throw handler.e;
             }
+
+            classLoader.close();
+
         } catch (Throwable e) {
             throw new GradleException("Error running Smithy CLI (thread): " + e.getMessage(), e);
         }

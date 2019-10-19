@@ -15,20 +15,49 @@
 
 package software.amazon.smithy.gradle.tasks;
 
+import java.util.logging.Logger;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.Optional;
-import org.gradle.internal.impldep.org.eclipse.jgit.annotations.Nullable;
+import software.amazon.smithy.gradle.SmithyExtension;
+import software.amazon.smithy.gradle.SmithyUtils;
 import software.amazon.smithy.model.traits.DynamicTrait;
 
 /**
  * Base class for all Smithy tasks.
  */
 abstract class BaseSmithyTask extends DefaultTask {
+
+    static final String SMITHY_VALIDATE_TASK = "smithyValidate";
+    static final String RUNTIME_CLASSPATH = "runtimeClasspath";
+    static final String COMPILE_CLASSPATH = "compileClasspath";
+
+    private static final Logger LOGGER = Logger.getLogger(BaseSmithyTask.class.getName());
+
     private FileCollection models;
     private boolean allowUnknownTraits;
+
+    protected void execute() {
+        // Configure the task from the extension if things aren't already setup.
+        SmithyExtension extension = getProject().getExtensions().getByType(SmithyExtension.class);
+
+        if (!allowUnknownTraits) {
+            LOGGER.finer(() -> String.format(
+                    "Setting allowUnknownTraits of %s to %s from SmithyExtension",
+                    getClass().getName(), extension.getAllowUnknownTraits()));
+            setAllowUnknownTraits(extension.getAllowUnknownTraits());
+        }
+
+        if (models == null) {
+            FileCollection resolvedModels = SmithyUtils.getSmithyModelSources(getProject());
+            LOGGER.finer(() -> String.format(
+                    "Setting models of %s to %s from SmithyExtension",
+                    getClass().getName(), resolvedModels.getAsPath()));
+            setModels(resolvedModels);
+        }
+    }
 
     /**
      * Gets the list of models to build/validate.
@@ -37,13 +66,15 @@ abstract class BaseSmithyTask extends DefaultTask {
      * for a project. A source model is a model that appears in the
      * {@code META-INF/smithy} directory of a JAR.
      *
+     * <p>This method will return an empty {@code FileCollection} and
+     * never {@code null}.
+     *
      * @return Returns the models to validate.
      */
     @InputFiles
     @Optional
-    @Nullable
     public final FileCollection getModels() {
-        return models;
+        return models == null ? getProject().files() : models;
     }
 
     /**
@@ -65,7 +96,6 @@ abstract class BaseSmithyTask extends DefaultTask {
      * @return Returns true if unknown traits are allowed.
      */
     @Input
-    @Optional
     public final boolean getAllowUnknownTraits() {
         return allowUnknownTraits;
     }

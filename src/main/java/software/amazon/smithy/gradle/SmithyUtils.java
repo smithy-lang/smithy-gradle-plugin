@@ -23,6 +23,7 @@ import java.security.AccessController;
 import java.security.PrivilegedExceptionAction;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Logger;
 import org.gradle.api.GradleException;
 import org.gradle.api.Project;
 import org.gradle.api.file.FileCollection;
@@ -39,6 +40,7 @@ public final class SmithyUtils {
     private static final String MAIN_SOURCE_SET = "main";
     private static final String SMITHY_SOURCE_SET_EXTENSION = "smithy";
     private static final String SOURCE_SETS_PROPERTY = "sourceSets";
+    private static final Logger LOGGER = Logger.getLogger(SmithyUtils.class.getName());
 
     private SmithyUtils() {}
 
@@ -155,14 +157,24 @@ public final class SmithyUtils {
     public static void executeCli(Project project, List<String> arguments, FileCollection classpath) {
         FileCollection resolveClasspath = resolveCliClasspath(project, classpath);
         boolean fork = project.getExtensions().getByType(SmithyExtension.class).getFork();
-        project.getLogger().debug("Executing Smithy CLI in a {}: {}; using classpath {}",
+        LOGGER.fine(String.format("Executing Smithy CLI in a %s: %s; using classpath %s",
                                   fork ? "process" : "thread",
                                   String.join(" ", arguments),
-                                  resolveClasspath.getAsPath());
+                                  resolveClasspath.getAsPath()));
         if (fork) {
             executeCliProcess(project, arguments, resolveClasspath);
         } else {
             executeCliThread(arguments, resolveClasspath);
+        }
+    }
+
+    public static File resolveOutputDirectory(File setOnTask, SmithyExtension extension, Project project) {
+        if (setOnTask != null) {
+            return setOnTask;
+        } else if (extension.getOutputDirectory() != null) {
+            return extension.getOutputDirectory();
+        } else {
+            return SmithyUtils.getProjectionOutputDir(project);
         }
     }
 
@@ -234,7 +246,7 @@ public final class SmithyUtils {
 
         // Add the CLI classpath if it's missing from the given classpath.
         if (!cliClasspath.getAsPath().contains("smithy-cli")) {
-            project.getLogger().debug("Adding CLI classpath to command");
+            LOGGER.fine("Adding CLI classpath to command");
             cliClasspath = cliClasspath.plus(SmithyUtils.getSmithyCliClasspath(project));
         }
 

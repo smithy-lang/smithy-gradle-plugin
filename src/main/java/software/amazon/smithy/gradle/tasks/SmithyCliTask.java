@@ -17,8 +17,10 @@ package software.amazon.smithy.gradle.tasks;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.tasks.Classpath;
+import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.Optional;
 import software.amazon.smithy.gradle.SmithyUtils;
 
@@ -28,9 +30,14 @@ import software.amazon.smithy.gradle.SmithyUtils;
  */
 abstract class SmithyCliTask extends BaseSmithyTask {
 
+    private static final Logger LOGGER = Logger.getLogger(SmithyCliTask.class.getName());
+
     private FileCollection classpath;
     private FileCollection modelDiscoveryClasspath;
-    private boolean modelDiscovery;
+    private boolean disableModelDiscovery;
+    private boolean addRuntimeClasspath;
+    private boolean addBuildScriptClasspath;
+    private boolean addCompileClasspath;
 
     /**
      * Gets the classpath used when loading models, traits, validators, etc.
@@ -69,32 +76,88 @@ abstract class SmithyCliTask extends BaseSmithyTask {
      * @param modelDiscoveryClasspath Classpath to use for model discovery.
      */
     public final void setModelDiscoveryClasspath(FileCollection modelDiscoveryClasspath) {
-        this.modelDiscovery = true;
+        this.disableModelDiscovery = false;
         this.modelDiscoveryClasspath = modelDiscoveryClasspath;
     }
 
     /**
-     * Returns true if this task uses model discovery.
+     * Returns true if this task disables model discovery.
      *
-     * @return Returns true if model discovery is enabled.
+     * @return Returns true if model discovery is disabled.
      */
-    @Classpath
-    @Optional
-    public final boolean getModelDiscovery() {
-        return modelDiscovery;
+    @Input
+    public final boolean getDisableModelDiscovery() {
+        return disableModelDiscovery;
     }
 
     /**
-     * Sets whether or not model discovery is enabled.
+     * Sets whether or not model discovery is disabled.
      *
-     * @param modelDiscovery Set to true to enable model discovery.
+     * @param disableModelDiscovery Set to true to disable model discovery.
      */
-    public final void setModelDiscovery(boolean modelDiscovery) {
-        this.modelDiscovery = modelDiscovery;
+    public final void setDisableModelDiscovery(boolean disableModelDiscovery) {
+        this.disableModelDiscovery = disableModelDiscovery;
 
-        if (!modelDiscovery) {
+        if (disableModelDiscovery) {
             modelDiscoveryClasspath = null;
         }
+    }
+
+    /**
+     * Gets whether or not the runtime classpath is used when building.
+     *
+     * @return Returns true if used.
+     */
+    @Input
+    public boolean getAddRuntimeClasspath() {
+        return addRuntimeClasspath;
+    }
+
+    /**
+     * Sets whether or not the runtime classpath is used when building.
+     *
+     * @param addRuntimeClasspath Set to true to use.
+     */
+    public void setAddRuntimeClasspath(boolean addRuntimeClasspath) {
+        this.addRuntimeClasspath = addRuntimeClasspath;
+    }
+
+    /**
+     * Gets whether or not the buildScript classpath is used when building.
+     *
+     * @return Returns true if used.
+     */
+    @Input
+    public boolean getAddBuildScriptClasspath() {
+        return addBuildScriptClasspath;
+    }
+
+    /**
+     * Sets whether or not the buildScript classpath is used when building.
+     *
+     * @param addBuildScriptClasspath Set to true to use.
+     */
+    public void setAddBuildScriptClasspath(boolean addBuildScriptClasspath) {
+        this.addBuildScriptClasspath = addBuildScriptClasspath;
+    }
+
+    /**
+     * Gets whether or not the compile classpath is used when building.
+     *
+     * @return Returns true if used.
+     */
+    @Input
+    public boolean getAddCompileClasspath() {
+        return addCompileClasspath;
+    }
+
+    /**
+     * Sets whether or not the compile classpath is used when building.
+     *
+     * @param addCompileClasspath Set to true to use.
+     */
+    public void setAddCompileClasspath(boolean addCompileClasspath) {
+        this.addCompileClasspath = addCompileClasspath;
     }
 
     /**
@@ -114,6 +177,26 @@ abstract class SmithyCliTask extends BaseSmithyTask {
             FileCollection cliClasspath,
             FileCollection modelDiscoveryClasspath
     ) {
+        // Setup the CLI classpath.
+        if (getAddRuntimeClasspath() || getAddCompileClasspath() || getAddBuildScriptClasspath()) {
+            FileCollection originalCliClasspath = cliClasspath;
+            cliClasspath = cliClasspath != null ? cliClasspath : getProject().files();
+            if (getAddBuildScriptClasspath()) {
+                cliClasspath = cliClasspath.plus(SmithyUtils.getBuildscriptClasspath(getProject()));
+            }
+            if (getAddRuntimeClasspath()) {
+                cliClasspath = cliClasspath.plus(SmithyUtils.getClasspath(getProject(), RUNTIME_CLASSPATH));
+            }
+            if (getAddCompileClasspath()) {
+                cliClasspath = cliClasspath.plus(SmithyUtils.getClasspath(getProject(), COMPILE_CLASSPATH));
+            }
+            LOGGER.fine(String.format(
+                    "Configuring classpath: runtime: %s; compile: %s; buildscript: %s; updated from %s to %s",
+                    addRuntimeClasspath, addCompileClasspath, addBuildScriptClasspath,
+                    originalCliClasspath == null ? "null" : originalCliClasspath.getAsPath(),
+                    cliClasspath.getAsPath()));
+        }
+
         List<String> args = new ArrayList<>();
         args.add(command);
 
@@ -124,16 +207,23 @@ abstract class SmithyCliTask extends BaseSmithyTask {
         if (modelDiscoveryClasspath != null) {
             args.add("--discover-classpath");
             args.add(modelDiscoveryClasspath.getAsPath());
-        } else if (modelDiscovery) {
+        } else if (!disableModelDiscovery) {
             args.add("--discover");
         }
 
         args.addAll(customArguments);
 
-        java.util.Optional.ofNullable(getModels()).ifPresent(models -> {
+        if (!getModels().isEmpty()) {
             args.add("--");
-            models.forEach(file -> args.add(file.getAbsolutePath()));
-        });
+            getModels().forEach(file -> {
+                if (file.exists()) {
+                    LOGGER.finest(() -> "Adding Smithy model file to CLI: " + file);
+                    args.add(file.getAbsolutePath());
+                } else {
+                    LOGGER.severe("Skipping Smithy model file because it does not exist: " + file);
+                }
+            });
+        }
 
         SmithyUtils.executeCli(getProject(), args, cliClasspath);
     }

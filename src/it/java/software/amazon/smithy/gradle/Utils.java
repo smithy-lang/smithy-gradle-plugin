@@ -95,7 +95,11 @@ public final class Utils {
     }
 
     public static void assertSmithyBuildRan(BuildResult result) {
-        Assertions.assertTrue(result.task(":smithyBuild").getOutcome() == TaskOutcome.SUCCESS);
+        Assertions.assertTrue(result.task(":smithyBuildJar").getOutcome() == TaskOutcome.SUCCESS);
+    }
+
+    public static void assertSmithyBuildDidNotRun(BuildResult result) {
+        Assertions.assertTrue(result.task(":smithyBuildJar") == null);
     }
 
     public static void assertValidationRan(BuildResult result) {

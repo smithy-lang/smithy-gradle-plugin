@@ -18,11 +18,14 @@ package software.amazon.smithy.gradle.tasks;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.TaskAction;
+import software.amazon.smithy.gradle.SmithyExtension;
+import software.amazon.smithy.gradle.SmithyUtils;
 
 /**
  * This task allows Smithy's build CLI to be run using ad-hoc
@@ -33,6 +36,8 @@ import org.gradle.api.tasks.TaskAction;
  */
 public class SmithyBuild extends SmithyCliTask {
 
+    private static final Logger LOGGER = Logger.getLogger(SmithyBuild.class.getName());
+
     private FileCollection smithyBuildConfigs;
     private File outputDirectory;
 
@@ -42,9 +47,9 @@ public class SmithyBuild extends SmithyCliTask {
      * @return Returns the output directory.
      */
     @OutputDirectory
-    @Optional
     public File getOutputDirectory() {
-        return outputDirectory;
+        SmithyExtension extension = getProject().getExtensions().getByType(SmithyExtension.class);
+        return SmithyUtils.resolveOutputDirectory(outputDirectory, extension, getProject());
     }
 
     /**
@@ -65,8 +70,9 @@ public class SmithyBuild extends SmithyCliTask {
      */
     @InputFiles
     @Optional
-    final FileCollection getSmithyBuildConfigs() {
-        return smithyBuildConfigs;
+    public final FileCollection getSmithyBuildConfigs() {
+        return java.util.Optional.ofNullable(smithyBuildConfigs)
+                .orElseGet(() -> getProject().files("smithy-build.json"));
     }
 
     /**
@@ -83,20 +89,31 @@ public class SmithyBuild extends SmithyCliTask {
     }
 
     @TaskAction
-    public void build() {
+    public void execute() {
+        super.execute();
+
+        // Configure the task from the extension if things aren't already setup.
+        SmithyExtension extension = getProject().getExtensions().getByType(SmithyExtension.class);
+
+        if (smithyBuildConfigs == null) {
+            LOGGER.finer(() -> String.format(
+                    "Setting smithyBuildConfigs of %s to %s from SmithyExtension",
+                    getClass().getName(), extension.getSmithyBuildConfigs()));
+            setSmithyBuildConfigs(extension.getSmithyBuildConfigs());
+        }
+
         // Clear out the build directory when rebuilding.
         getProject().delete(getOutputDirectory());
 
         List<String> customArgs = new ArrayList<>();
 
-        if (getSmithyBuildConfigs() != null) {
-            getSmithyBuildConfigs().forEach(file -> {
-                if (file.exists()) {
-                    customArgs.add("--config");
-                    customArgs.add(file.getAbsolutePath());
-                }
-            });
-        }
+        getSmithyBuildConfigs().forEach(file -> {
+            if (file.exists()) {
+                LOGGER.finest(() -> "Adding configuration file to CLI: " + file);
+                customArgs.add("--config");
+                customArgs.add(file.getAbsolutePath());
+            }
+        });
 
         customArgs.add("--output");
         customArgs.add(getOutputDirectory().toString());

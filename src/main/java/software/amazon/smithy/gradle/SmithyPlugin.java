@@ -18,7 +18,7 @@ package software.amazon.smithy.gradle;
 import java.io.File;
 import java.util.List;
 import java.util.Objects;
-import org.gradle.api.GradleException;
+import java.util.logging.Logger;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
@@ -28,6 +28,7 @@ import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.tasks.SourceSet;
+import org.gradle.api.tasks.TaskProvider;
 import software.amazon.smithy.gradle.tasks.SmithyBuildJar;
 import software.amazon.smithy.utils.ListUtils;
 
@@ -39,49 +40,35 @@ public final class SmithyPlugin implements Plugin<Project> {
     private static final String DEFAULT_CLI_VERSION = "0.9.4";
     private static final List<String> SOURCE_DIRS = ListUtils.of(
             "model", "src/$name/smithy", "src/$name/resources/META-INF/smithy");
-
-    private boolean appliedPlugin;
+    private static final Logger LOGGER = Logger.getLogger(SmithyPlugin.class.getName());
 
     @Override
     public void apply(Project project) {
+        // Ensure that the Java plugin is applied.
         project.getPluginManager().apply(JavaPlugin.class);
-        project.getPluginManager().withPlugin("java", javaPlugin -> {
-            appliedPlugin = true;
-            SmithyExtension extension = project.getExtensions().create("smithy", SmithyExtension.class);
-            project.afterEvaluate(p -> {
-                registerSourceSets(project);
-                registerTasks(project, extension);
-            });
-        });
 
+        // Register the Smithy extension so that tasks can be configured.
+        project.getExtensions().create("smithy", SmithyExtension.class);
+
+        // Register the "smithyBuildJar" task. It's configured once the extension is available.
+        TaskProvider<SmithyBuildJar> provider = project.getTasks().register("smithyBuildJar", SmithyBuildJar.class);
+
+        // Can't read from the "smithy" extension until the "afterEvaluate" step.
         project.afterEvaluate(p -> {
-            if (!appliedPlugin) {
-                throw new GradleException("Smithy plugin is missing the required java plugin");
-            }
+            registerSourceSets(project);
+            addCliDependencies(project);
+            registerSmithyBuildTask(provider.get(), project);
         });
     }
 
-    private void registerTasks(Project project, SmithyExtension extension) {
-        SmithyBuildJar buildTask = project.getTasks().create("smithyBuild", SmithyBuildJar.class, task -> {
-            task.setProjection(extension.getProjection());
-            task.setProjectionSourceTags(extension.getProjectionSourceTags());
-            task.setTags(extension.getTags());
-            task.setSmithyBuildConfigs(extension.getSmithyBuildConfigs());
-            task.setAllowUnknownTraits(extension.getAllowUnknownTraits());
-            task.setModels(SmithyUtils.getSmithyModelSources(project));
-            if (extension.getOutputDirectory() == null) {
-                task.setOutputDirectory(SmithyUtils.getProjectionOutputDir(project));
+    private void registerSmithyBuildTask(SmithyBuildJar buildTask, Project project) {
+        if (buildTask.isEnabled()) {
+            // Smithy should build before the assemble task if no jar is being created, otherwise, compileJava.
+            if (!project.getTasks().getByName("jar").getEnabled()) {
+                project.getTasks().getByName("assemble").dependsOn(buildTask);
             } else {
-                task.setOutputDirectory(extension.getOutputDirectory());
+                project.getTasks().getByName("compileJava").dependsOn(buildTask);
             }
-        });
-
-        // Smithy should build before the assemble task if no jar is being created, otherwise, compileJava.
-        if (!project.getTasks().getByName("jar").getEnabled()) {
-            project.getTasks().getByName("assemble").dependsOn(buildTask);
-        } else {
-            project.getTasks().getByName("compileJava").dependsOn(buildTask);
-            addCliDependencies(project);
         }
     }
 
@@ -107,19 +94,19 @@ public final class SmithyPlugin implements Plugin<Project> {
         DependencySet existing = cli.getAllDependencies();
 
         if (existing.stream().anyMatch(d -> isMatchingDependency(d, "smithy-cli"))) {
-            project.getLogger().info("Using explicitly configured Smithy CLI");
+            LOGGER.info("Using explicitly configured Smithy CLI");
             return;
         }
 
         String cliVersion = project.getConfigurations().getByName("runtimeClasspath").getAllDependencies().stream()
                 .filter(d -> isMatchingDependency(d, "smithy-model"))
                 .map(Dependency::getVersion)
-                .peek(v -> project.getLogger().info("Detected Smithy CLI version {}", v))
+                .peek(v -> LOGGER.info(String.format("Detected Smithy CLI version %s", v)))
                 .findFirst()
                 .orElseGet(() -> {
-                    project.getLogger().info(
-                            "No Smithy model dependencies were found in the JAR, assuming Smithy CLI version {}",
-                            DEFAULT_CLI_VERSION);
+                    LOGGER.info(String.format(
+                            "No Smithy model dependencies were found in the JAR, assuming Smithy CLI version %s",
+                            DEFAULT_CLI_VERSION));
                     return DEFAULT_CLI_VERSION;
                 });
 
@@ -154,12 +141,12 @@ public final class SmithyPlugin implements Plugin<Project> {
             SourceDirectorySet sds = project.getObjects().sourceDirectorySet(name, name + " Smithy sources");
             sourceSet.getExtensions().add("smithy", sds);
             SOURCE_DIRS.forEach(sourceDir -> sds.srcDir(sourceDir.replace("$name", name)));
-            project.getLogger().debug("Adding Smithy extension to {} Java convention", name);
+            LOGGER.fine(String.format("Adding Smithy extension to %s Java convention", name));
 
             // Include Smithy models and the generated manifest in the JAR.
             if (name.equals("main")) {
                 File metaInf = SmithyUtils.getSmithyResourceTempDir(project).getParentFile().getParentFile();
-                project.getLogger().debug("Registering Smithy resource artifacts with Java resources: {}", metaInf);
+                LOGGER.fine(String.format("Registering Smithy resource artifacts with Java resources: %s", metaInf));
                 sourceSet.getResources().srcDir(metaInf);
             }
         }

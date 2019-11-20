@@ -4,7 +4,7 @@
 // plugin validates the JAR with Smithy model discovery.
 
 plugins {
-    id("software.amazon.smithy").version("0.4.0")
+    id("software.amazon.smithy").version("0.4.1")
 }
 
 buildscript {
@@ -13,7 +13,7 @@ buildscript {
     }
     dependencies {
         // This dependency is required to build the model.
-        classpath("software.amazon.smithy:smithy-aws-traits:0.9.4")
+        classpath("software.amazon.smithy:smithy-aws-traits:0.9.5")
     }
 }
 
@@ -23,11 +23,11 @@ repositories {
 }
 
 dependencies {
-    implementation("software.amazon.smithy:smithy-model:0.9.4")
+    implementation("software.amazon.smithy:smithy-model:0.9.5")
 
     // This dependency is used in the projected model, so it's required here too.
     // This should fail to build since this is missing.
-    //implementation("software.amazon.smithy:smithy-aws-traits:0.9.4")
+    //implementation("software.amazon.smithy:smithy-aws-traits:0.9.5")
 }
 
 configure<software.amazon.smithy.gradle.SmithyExtension> {

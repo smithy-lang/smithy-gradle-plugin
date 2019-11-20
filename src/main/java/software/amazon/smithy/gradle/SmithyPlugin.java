@@ -37,7 +37,7 @@ import software.amazon.smithy.utils.ListUtils;
  */
 public final class SmithyPlugin implements Plugin<Project> {
 
-    private static final String DEFAULT_CLI_VERSION = "0.9.4";
+    private static final String DEFAULT_CLI_VERSION = "0.9.5";
     private static final List<String> SOURCE_DIRS = ListUtils.of(
             "model", "src/$name/smithy", "src/$name/resources/META-INF/smithy");
     private static final Logger LOGGER = Logger.getLogger(SmithyPlugin.class.getName());

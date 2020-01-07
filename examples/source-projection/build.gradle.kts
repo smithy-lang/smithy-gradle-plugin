@@ -1,7 +1,7 @@
 // This example builds the model and places it in the JAR.
 
 plugins {
-    id("software.amazon.smithy").version("0.4.1")
+    id("software.amazon.smithy").version("0.4.2")
 }
 
 repositories {
@@ -10,8 +10,8 @@ repositories {
 }
 
 dependencies {
-    implementation("software.amazon.smithy:smithy-model:0.9.5")
-    implementation("software.amazon.smithy:smithy-aws-traits:0.9.5")
+    implementation("software.amazon.smithy:smithy-model:0.9.6")
+    implementation("software.amazon.smithy:smithy-aws-traits:0.9.6")
 }
 
 configure<software.amazon.smithy.gradle.SmithyExtension> {

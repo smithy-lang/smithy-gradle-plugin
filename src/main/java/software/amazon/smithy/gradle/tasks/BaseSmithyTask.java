@@ -18,6 +18,7 @@ package software.amazon.smithy.gradle.tasks;
 import java.util.logging.Logger;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.FileCollection;
+import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.Optional;
@@ -51,11 +52,11 @@ abstract class BaseSmithyTask extends DefaultTask {
         }
 
         if (models == null) {
-            FileCollection resolvedModels = SmithyUtils.getSmithyModelSources(getProject());
+            SourceDirectorySet resolvedModels = SmithyUtils.getSmithyModelSources(getProject());
             LOGGER.finer(() -> String.format(
                     "Setting models of %s to %s from SmithyExtension",
                     getClass().getName(), resolvedModels.getAsPath()));
-            setModels(resolvedModels);
+            setModels(resolvedModels.getSourceDirectories());
         }
     }
 

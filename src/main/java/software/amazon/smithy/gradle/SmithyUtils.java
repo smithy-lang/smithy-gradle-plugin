@@ -27,6 +27,7 @@ import java.util.logging.Logger;
 import org.gradle.api.GradleException;
 import org.gradle.api.Project;
 import org.gradle.api.file.FileCollection;
+import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.tasks.SourceSetContainer;
 import software.amazon.smithy.cli.SmithyCli;
@@ -76,13 +77,14 @@ public final class SmithyUtils {
      * @param project Project to inspect.
      * @return Returns the Smithy model sources.
      */
-    public static FileCollection getSmithyModelSources(Project project) {
+    public static SourceDirectorySet getSmithyModelSources(Project project) {
         return getSmithySourceDirectory(project, MAIN_SOURCE_SET);
     }
 
     @SuppressWarnings("unchecked")
-    private static FileCollection getSmithySourceDirectory(Project project, String name) {
-        return (FileCollection) project.getConvention()
+    private static SourceDirectorySet getSmithySourceDirectory(Project project, String name) {
+        // Grab a list of all the files and directories to mark as sources.
+        return (SourceDirectorySet) project.getConvention()
                 .getPlugin(JavaPluginConvention.class)
                 .getSourceSets()
                 .getByName(name)

@@ -36,6 +36,8 @@ public class MultipleSourcesTest {
                     "build/smithyprojections/multiple-sources/source/sources/a.smithy",
                     "build/smithyprojections/multiple-sources/source/sources/b.smithy",
                     "build/smithyprojections/multiple-sources/source/sources/c.smithy",
+                    "build/smithyprojections/multiple-sources/source/sources/nested/foo.smithy",
+                    "build/smithyprojections/multiple-sources/source/sources/nested/more/baz.smithy",
                     "build/smithyprojections/multiple-sources/source/sources/manifest",
                     "build/libs/multiple-sources.jar");
             Utils.assertJarContains(buildDir,
@@ -43,7 +45,9 @@ public class MultipleSourcesTest {
                     "META-INF/smithy/manifest",
                     "META-INF/smithy/a.smithy",
                     "META-INF/smithy/b.smithy",
-                    "META-INF/smithy/c.smithy");
+                    "META-INF/smithy/c.smithy",
+                    "META-INF/smithy/nested/foo.smithy",
+                    "META-INF/smithy/nested/more/baz.smithy");
         });
     }
 }

@@ -37,7 +37,7 @@ import software.amazon.smithy.utils.ListUtils;
  */
 public final class SmithyPlugin implements Plugin<Project> {
 
-    private static final String DEFAULT_CLI_VERSION = "0.9.5";
+    private static final String DEFAULT_CLI_VERSION = "0.9.6";
     private static final List<String> SOURCE_DIRS = ListUtils.of(
             "model", "src/$name/smithy", "src/$name/resources/META-INF/smithy");
     private static final Logger LOGGER = Logger.getLogger(SmithyPlugin.class.getName());
@@ -62,13 +62,14 @@ public final class SmithyPlugin implements Plugin<Project> {
     }
 
     private void registerSmithyBuildTask(SmithyBuildJar buildTask, Project project) {
-        if (buildTask.isEnabled()) {
-            // Smithy should build before the assemble task if no jar is being created, otherwise, compileJava.
-            if (!project.getTasks().getByName("jar").getEnabled()) {
-                project.getTasks().getByName("assemble").dependsOn(buildTask);
-            } else {
-                project.getTasks().getByName("compileJava").dependsOn(buildTask);
-            }
+        if (!buildTask.isEnabled()) {
+            LOGGER.info("Smithy build task is not enabled");
+        } else if (!project.getTasks().getByName("jar").getEnabled()) {
+            LOGGER.info("Smithy build task is enabled. Running Smithy before 'assemble'");
+            project.getTasks().getByName("assemble").dependsOn(buildTask);
+        } else {
+            LOGGER.info("Smithy build task is enabled. Running Smithy before 'processResources'");
+            project.getTasks().getByName("processResources").dependsOn(buildTask);
         }
     }
 

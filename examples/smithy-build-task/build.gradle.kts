@@ -6,7 +6,7 @@ import software.amazon.smithy.gradle.tasks.SmithyBuild
 // and the classpath used when building.
 
 plugins {
-    id("software.amazon.smithy").version("0.4.1")
+    id("software.amazon.smithy").version("0.4.2")
 }
 
 repositories {
@@ -15,7 +15,7 @@ repositories {
 }
 
 dependencies {
-    implementation("software.amazon.smithy:smithy-model:0.9.5")
+    implementation("software.amazon.smithy:smithy-model:0.9.6")
 }
 
 tasks["jar"].enabled = false

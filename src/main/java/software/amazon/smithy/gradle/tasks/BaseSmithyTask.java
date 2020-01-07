@@ -50,14 +50,6 @@ abstract class BaseSmithyTask extends DefaultTask {
                     getClass().getName(), extension.getAllowUnknownTraits()));
             setAllowUnknownTraits(extension.getAllowUnknownTraits());
         }
-
-        if (models == null) {
-            SourceDirectorySet resolvedModels = SmithyUtils.getSmithyModelSources(getProject());
-            LOGGER.finer(() -> String.format(
-                    "Setting models of %s to %s from SmithyExtension",
-                    getClass().getName(), resolvedModels.getAsPath()));
-            setModels(resolvedModels.getSourceDirectories());
-        }
     }
 
     /**
@@ -75,7 +67,13 @@ abstract class BaseSmithyTask extends DefaultTask {
     @InputFiles
     @Optional
     public final FileCollection getModels() {
-        return models == null ? getProject().files() : models;
+        if (models == null) {
+            SourceDirectorySet resolvedModels = SmithyUtils.getSmithyModelSources(getProject());
+            LOGGER.finer(() -> "Automatically found models: " + resolvedModels.getAsPath());
+            return resolvedModels.getSourceDirectories();
+        }
+
+        return models;
     }
 
     /**

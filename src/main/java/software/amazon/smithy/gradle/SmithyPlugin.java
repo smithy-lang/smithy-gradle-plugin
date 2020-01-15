@@ -65,10 +65,17 @@ public final class SmithyPlugin implements Plugin<Project> {
         if (!buildTask.isEnabled()) {
             LOGGER.info("Smithy build task is not enabled");
         } else if (!project.getTasks().getByName("jar").getEnabled()) {
-            LOGGER.info("Smithy build task is enabled. Running Smithy before 'assemble'");
+            LOGGER.info("Running Smithy before 'assemble'");
             project.getTasks().getByName("assemble").dependsOn(buildTask);
         } else {
-            LOGGER.info("Smithy build task is enabled. Running Smithy before 'processResources'");
+            LOGGER.info("Running Smithy before 'processResources' and after 'compileJava'");
+            // The build task depends on compileJava because any dependencies
+            // in the same project need to build before this JAR is built so
+            // that their Smithy models can be detected and used to build this
+            // model.
+            buildTask.dependsOn("compileJava");
+            // The build task needs to run before processResources because
+            // artifacts from smithy build need to be considered for the JAR.
             project.getTasks().getByName("processResources").dependsOn(buildTask);
         }
     }

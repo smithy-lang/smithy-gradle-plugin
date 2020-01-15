@@ -211,6 +211,7 @@ public final class SmithyUtils {
                     cliClass.getDeclaredMethod("classLoader", ClassLoader.class).invoke(cli, classLoader);
                     cliClass.getDeclaredMethod("run", List.class).invoke(cli, arguments);
                 } catch (ReflectiveOperationException e) {
+                    LOGGER.severe("Reflection error: " + e);
                     throw new RuntimeException(e);
                 }
             });
@@ -222,13 +223,14 @@ public final class SmithyUtils {
             thread.start();
             thread.join();
             if (handler.e != null) {
+                LOGGER.severe("Enception handler: " + handler.e);
                 throw handler.e;
             }
 
             classLoader.close();
 
         } catch (Throwable e) {
-            throw new GradleException("Error running Smithy CLI (thread): " + e.getMessage(), e);
+            throw new GradleException("Error running Smithy CLI (thread): " + e, e);
         }
     }
 

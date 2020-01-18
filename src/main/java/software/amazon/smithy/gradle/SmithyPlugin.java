@@ -37,7 +37,7 @@ import software.amazon.smithy.utils.ListUtils;
  */
 public final class SmithyPlugin implements Plugin<Project> {
 
-    private static final String DEFAULT_CLI_VERSION = "0.9.6";
+    private static final String DEFAULT_CLI_VERSION = "0.9.7";
     private static final List<String> SOURCE_DIRS = ListUtils.of(
             "model", "src/$name/smithy", "src/$name/resources/META-INF/smithy");
     private static final Logger LOGGER = Logger.getLogger(SmithyPlugin.class.getName());
@@ -49,35 +49,22 @@ public final class SmithyPlugin implements Plugin<Project> {
 
         // Register the Smithy extension so that tasks can be configured.
         project.getExtensions().create("smithy", SmithyExtension.class);
+        addCliDependencies(project);
 
         // Register the "smithyBuildJar" task. It's configured once the extension is available.
         TaskProvider<SmithyBuildJar> provider = project.getTasks().register("smithyBuildJar", SmithyBuildJar.class);
 
-        // Can't read from the "smithy" extension until the "afterEvaluate" step.
-        project.afterEvaluate(p -> {
-            registerSourceSets(project);
-            addCliDependencies(project);
-            registerSmithyBuildTask(provider.get(), project);
+        // This is lazy task configuration that allows the SmithyBuildJar
+        // task to be configured and wired into the task graph, but only
+        // if it's actually needed, and (presumably) it's deferred until
+        // after user Gradle files can configure the task.
+        provider.configure(task -> {
+            task.dependsOn("compileJava");
         });
-    }
 
-    private void registerSmithyBuildTask(SmithyBuildJar buildTask, Project project) {
-        if (!buildTask.isEnabled()) {
-            LOGGER.info("Smithy build task is not enabled");
-        } else if (!project.getTasks().getByName("jar").getEnabled()) {
-            LOGGER.info("Running Smithy before 'assemble'");
-            project.getTasks().getByName("assemble").dependsOn(buildTask);
-        } else {
-            LOGGER.info("Running Smithy before 'processResources' and after 'compileJava'");
-            // The build task depends on compileJava because any dependencies
-            // in the same project need to build before this JAR is built so
-            // that their Smithy models can be detected and used to build this
-            // model.
-            buildTask.dependsOn("compileJava");
-            // The build task needs to run before processResources because
-            // artifacts from smithy build need to be considered for the JAR.
-            project.getTasks().getByName("processResources").dependsOn(buildTask);
-        }
+        project.getTasks().getByName("processResources").dependsOn(provider);
+
+        project.afterEvaluate(this::registerSourceSets);
     }
 
     /**

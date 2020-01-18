@@ -32,6 +32,7 @@ import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.gradle.testkit.runner.BuildResult;
+import org.gradle.testkit.runner.BuildTask;
 import org.gradle.testkit.runner.TaskOutcome;
 import org.junit.jupiter.api.Assertions;
 
@@ -99,7 +100,8 @@ public final class Utils {
     }
 
     public static void assertSmithyBuildDidNotRun(BuildResult result) {
-        Assertions.assertTrue(result.task(":smithyBuildJar") == null);
+        BuildTask task = result.task(":smithyBuildJar");
+        Assertions.assertTrue(task == null || task.getOutcome() == TaskOutcome.SKIPPED);
     }
 
     public static void assertValidationRan(BuildResult result) {

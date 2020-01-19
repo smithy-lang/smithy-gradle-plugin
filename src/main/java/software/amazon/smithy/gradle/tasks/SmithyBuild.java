@@ -18,7 +18,6 @@ package software.amazon.smithy.gradle.tasks;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.Optional;
@@ -36,8 +35,6 @@ import software.amazon.smithy.gradle.SmithyUtils;
  */
 public class SmithyBuild extends SmithyCliTask {
 
-    private static final Logger LOGGER = Logger.getLogger(SmithyBuild.class.getName());
-
     private FileCollection smithyBuildConfigs;
     private File outputDirectory;
 
@@ -48,8 +45,7 @@ public class SmithyBuild extends SmithyCliTask {
      */
     @OutputDirectory
     public File getOutputDirectory() {
-        SmithyExtension extension = getProject().getExtensions().getByType(SmithyExtension.class);
-        return SmithyUtils.resolveOutputDirectory(outputDirectory, extension, getProject());
+        return SmithyUtils.resolveOutputDirectory(outputDirectory, getProject());
     }
 
     /**
@@ -90,15 +86,12 @@ public class SmithyBuild extends SmithyCliTask {
 
     @TaskAction
     public void execute() {
-        super.execute();
-
         // Configure the task from the extension if things aren't already setup.
-        SmithyExtension extension = getProject().getExtensions().getByType(SmithyExtension.class);
+        SmithyExtension extension = SmithyUtils.getSmithyExtension(getProject());
 
         if (smithyBuildConfigs == null) {
-            LOGGER.finer(() -> String.format(
-                    "Setting smithyBuildConfigs of %s to %s from SmithyExtension",
-                    getClass().getName(), extension.getSmithyBuildConfigs()));
+            getLogger().debug("Setting smithyBuildConfigs of {} to {} from SmithyExtension",
+                              getClass().getName(), extension.getSmithyBuildConfigs());
             setSmithyBuildConfigs(extension.getSmithyBuildConfigs());
         }
 
@@ -109,7 +102,7 @@ public class SmithyBuild extends SmithyCliTask {
 
         getSmithyBuildConfigs().forEach(file -> {
             if (file.exists()) {
-                LOGGER.finest(() -> "Adding configuration file to CLI: " + file);
+                getLogger().debug("Adding configuration file to CLI: {}", file);
                 customArgs.add("--config");
                 customArgs.add(file.getAbsolutePath());
             }

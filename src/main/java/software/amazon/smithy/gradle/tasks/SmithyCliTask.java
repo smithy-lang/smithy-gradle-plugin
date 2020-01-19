@@ -17,7 +17,6 @@ package software.amazon.smithy.gradle.tasks;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.tasks.Classpath;
 import org.gradle.api.tasks.Input;
@@ -29,9 +28,6 @@ import software.amazon.smithy.gradle.SmithyUtils;
  * (that is, tasks that are meant to be run ad-hoc).
  */
 abstract class SmithyCliTask extends BaseSmithyTask {
-
-    private static final Logger LOGGER = Logger.getLogger(SmithyCliTask.class.getName());
-
     private FileCollection classpath;
     private FileCollection modelDiscoveryClasspath;
     private boolean disableModelDiscovery;
@@ -190,11 +186,11 @@ abstract class SmithyCliTask extends BaseSmithyTask {
             if (getAddCompileClasspath()) {
                 cliClasspath = cliClasspath.plus(SmithyUtils.getClasspath(getProject(), COMPILE_CLASSPATH));
             }
-            LOGGER.fine(String.format(
-                    "Configuring classpath: runtime: %s; compile: %s; buildscript: %s; updated from %s to %s",
+            getLogger().debug(
+                    "Configuring classpath: runtime: {}; compile: {}; buildscript: {}; updated from {} to {}",
                     addRuntimeClasspath, addCompileClasspath, addBuildScriptClasspath,
                     originalCliClasspath == null ? "null" : originalCliClasspath.getAsPath(),
-                    cliClasspath.getAsPath()));
+                    cliClasspath.getAsPath());
         }
 
         List<String> args = new ArrayList<>();
@@ -217,10 +213,10 @@ abstract class SmithyCliTask extends BaseSmithyTask {
             args.add("--");
             getModels().forEach(file -> {
                 if (file.exists()) {
-                    LOGGER.finest(() -> "Adding Smithy model file to CLI: " + file);
+                    getLogger().debug("Adding Smithy model file to CLI: {}", file);
                     args.add(file.getAbsolutePath());
                 } else {
-                    LOGGER.severe("Skipping Smithy model file because it does not exist: " + file);
+                    getLogger().error("Skipping Smithy model file because it does not exist: {}", file);
                 }
             });
         }

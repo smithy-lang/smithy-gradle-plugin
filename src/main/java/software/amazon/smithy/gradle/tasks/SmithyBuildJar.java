@@ -23,7 +23,6 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import org.gradle.api.GradleException;
 import org.gradle.api.file.FileCollection;
@@ -33,8 +32,6 @@ import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.TaskAction;
-import org.gradle.internal.logging.text.StyledTextOutput;
-import org.gradle.internal.logging.text.StyledTextOutputFactory;
 import org.gradle.jvm.tasks.Jar;
 import software.amazon.smithy.cli.BuildParameterBuilder;
 import software.amazon.smithy.gradle.SmithyExtension;
@@ -58,8 +55,6 @@ import software.amazon.smithy.gradle.SmithyUtils;
  */
 public class SmithyBuildJar extends BaseSmithyTask {
 
-    private static final Logger LOGGER = Logger.getLogger(SmithyBuildJar.class.getName());
-
     private String projection;
     private Set<String> projectionSourceTags = new TreeSet<>();
     private Set<String> tags = new TreeSet<>();
@@ -73,8 +68,7 @@ public class SmithyBuildJar extends BaseSmithyTask {
      */
     @OutputDirectory
     public File getOutputDirectory() {
-        SmithyExtension extension = getProject().getExtensions().getByType(SmithyExtension.class);
-        return SmithyUtils.resolveOutputDirectory(outputDirectory, extension, getProject());
+        return SmithyUtils.resolveOutputDirectory(outputDirectory, getProject());
     }
 
     /**
@@ -195,14 +189,11 @@ public class SmithyBuildJar extends BaseSmithyTask {
 
     @TaskAction
     public void execute() {
-        LOGGER.fine("Starting SmithyBuildJar task");
-        super.execute();
-
         // Configure the task from the extension if things aren't already setup.
-        SmithyExtension extension = getProject().getExtensions().getByType(SmithyExtension.class);
+        SmithyExtension extension = SmithyUtils.getSmithyExtension(getProject());
 
         if (projection == null) {
-            LOGGER.fine("Setting SmithyBuildJar projection from extension: " + extension.getProjection());
+            getLogger().debug("Setting SmithyBuildJar projection from extension: {}", extension.getProjection());
             setProjection(extension.getProjection());
         }
 
@@ -213,7 +204,7 @@ public class SmithyBuildJar extends BaseSmithyTask {
         // Merge or overwrite?
         if (smithyBuildConfigs == null) {
             setSmithyBuildConfigs(extension.getSmithyBuildConfigs());
-            LOGGER.fine("Setting SmithyBuildJar smithyBuildConfigs from extension: " + smithyBuildConfigs);
+            getLogger().debug("Setting SmithyBuildJar smithyBuildConfigs from extension: {}", smithyBuildConfigs);
         }
 
         writeHeading("Running smithy build");
@@ -223,7 +214,7 @@ public class SmithyBuildJar extends BaseSmithyTask {
             tags.add(getProject().getGroup().toString());
             tags.add(getProject().getGroup() + ":" + getProject().getName());
             tags.add(getProject().getGroup() + ":" + getProject().getName() + ":" + getProject().getVersion());
-            LOGGER.fine(() -> "Adding built-in Smithy JAR tags: " + tags);
+            getLogger().debug("Adding built-in Smithy JAR tags: {}", tags);
         }
 
         // Clear out the directories when rebuilding.
@@ -231,8 +222,7 @@ public class SmithyBuildJar extends BaseSmithyTask {
 
         BuildParameterBuilder builder = new BuildParameterBuilder();
         // Note: the runtime classpath extends from the compile classpath.
-        builder.libClasspath(SmithyUtils.getClasspath(getProject(), RUNTIME_CLASSPATH)
-                                     .plus(SmithyUtils.getClasspath(getProject(), COMPILE_CLASSPATH)).getAsPath());
+        builder.libClasspath(SmithyUtils.getClasspath(getProject(), RUNTIME_CLASSPATH).getAsPath());
         builder.buildClasspath(SmithyUtils.getBuildscriptClasspath(getProject()).getAsPath());
         builder.projectionSource(getProjection());
         builder.projectionSourceTags(getProjectionSourceTags());
@@ -265,14 +255,11 @@ public class SmithyBuildJar extends BaseSmithyTask {
 
         if (getProject().getTasks().getByName("jar").getEnabled()) {
             copyModelsToStaging();
-            addValidationTask();
             getProject().getTasks().withType(Jar.class, task -> {
-                LOGGER.info(() -> "Adding tags to manifest: " + tags);
+                getLogger().info("Adding tags to manifest: {}", tags);
                 Attributes attributes = task.getManifest().getAttributes();
                 attributes.put("Smithy-Tags", String.join(", ", getTags()));
             });
-        } else {
-            LOGGER.fine("The 'jar' task is disabled, so not performing validation");
         }
     }
 
@@ -283,7 +270,7 @@ public class SmithyBuildJar extends BaseSmithyTask {
 
             // Add a source set for the entire projection.
             String projectionSourceSetName = "smithy_" + projectionName;
-            LOGGER.info("Creating Smithy projection source set: " + projectionSourceSetName);
+            getLogger().info("Creating Smithy projection source set: {}", projectionSourceSetName);
             SmithyUtils.getSourceSets(getProject()).create(projectionSourceSetName, sourceSet -> {
                 sourceSet.resources(sds -> sds.srcDir(projection.toFile()));
             });
@@ -292,7 +279,7 @@ public class SmithyBuildJar extends BaseSmithyTask {
             for (Path plugin : getDirectories(projection)) {
                 String pluginName = projection.relativize(plugin).toString();
                 String pluginSourceSetName = projectionSourceSetName + "_" + pluginName;
-                LOGGER.info("Creating Smithy plugin source set: " + pluginSourceSetName);
+                getLogger().info("Creating Smithy plugin source set: {}", pluginSourceSetName);
                 SmithyUtils.getSourceSets(getProject()).create(pluginSourceSetName, sourceSet -> {
                     sourceSet.resources(sds -> sds.srcDir(plugin.toFile()));
                 });
@@ -319,34 +306,11 @@ public class SmithyBuildJar extends BaseSmithyTask {
         });
     }
 
-    // Only execute validation if smithy-build ran and a JAR is being created.
-    private void addValidationTask() {
-        Validate validateTask = getProject().getTasks().create(SMITHY_VALIDATE_TASK, Validate.class, task -> {
-            task.setAllowUnknownTraits(getAllowUnknownTraits());
-            // Use only model discovery with the built JAR + the runtime classpath when validating.
-            FileCollection validationCp = getProject().getTasks().getByName("jar").getOutputs().getFiles()
-                    .plus(SmithyUtils.getClasspath(getProject(), RUNTIME_CLASSPATH));
-            task.setClasspath(validationCp);
-            task.setModelDiscoveryClasspath(validationCp);
-            // Set to an empty collection to ensure it doesn't include the source models in the project.
-            task.setModels(getProject().files());
-        });
-
-        getProject().getTasks().getByName("assemble").doLast(t -> {
-            writeHeading("Validating the created JAR containing Smithy models");
-            validateTask.execute();
-        });
-    }
-
-    private void writeHeading(String text) {
-        StyledTextOutput output = getServices().get(StyledTextOutputFactory.class)
-                .create("smithy")
-                .style(StyledTextOutput.Style.Header);
-
+    protected void writeHeading(String text) {
         if (!getProjection().equals("source")) {
             text += " using the `" + getProjection() + "` projection";
         }
 
-        output.println(text);
+        super.writeHeading(text);
     }
 }

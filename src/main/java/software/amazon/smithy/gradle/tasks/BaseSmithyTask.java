@@ -15,14 +15,13 @@
 
 package software.amazon.smithy.gradle.tasks;
 
-import java.util.logging.Logger;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.FileCollection;
-import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.Optional;
-import software.amazon.smithy.gradle.SmithyExtension;
+import org.gradle.internal.logging.text.StyledTextOutput;
+import org.gradle.internal.logging.text.StyledTextOutputFactory;
 import software.amazon.smithy.gradle.SmithyUtils;
 import software.amazon.smithy.model.traits.DynamicTrait;
 
@@ -31,26 +30,11 @@ import software.amazon.smithy.model.traits.DynamicTrait;
  */
 abstract class BaseSmithyTask extends DefaultTask {
 
-    static final String SMITHY_VALIDATE_TASK = "smithyValidate";
     static final String RUNTIME_CLASSPATH = "runtimeClasspath";
     static final String COMPILE_CLASSPATH = "compileClasspath";
 
-    private static final Logger LOGGER = Logger.getLogger(BaseSmithyTask.class.getName());
-
     private FileCollection models;
     private boolean allowUnknownTraits;
-
-    protected void execute() {
-        // Configure the task from the extension if things aren't already setup.
-        SmithyExtension extension = getProject().getExtensions().getByType(SmithyExtension.class);
-
-        if (!allowUnknownTraits) {
-            LOGGER.finer(() -> String.format(
-                    "Setting allowUnknownTraits of %s to %s from SmithyExtension",
-                    getClass().getName(), extension.getAllowUnknownTraits()));
-            setAllowUnknownTraits(extension.getAllowUnknownTraits());
-        }
-    }
 
     /**
      * Gets the list of models to build/validate.
@@ -68,9 +52,7 @@ abstract class BaseSmithyTask extends DefaultTask {
     @Optional
     public final FileCollection getModels() {
         if (models == null) {
-            SourceDirectorySet resolvedModels = SmithyUtils.getSmithyModelSources(getProject());
-            LOGGER.finer(() -> "Automatically found models: " + resolvedModels.getAsPath());
-            return resolvedModels.getSourceDirectories();
+            return SmithyUtils.getSmithyModelSources(getProject()).getSourceDirectories();
         }
 
         return models;
@@ -106,5 +88,12 @@ abstract class BaseSmithyTask extends DefaultTask {
      */
     public final void setAllowUnknownTraits(boolean allowUnknownTraits) {
         this.allowUnknownTraits = allowUnknownTraits;
+    }
+
+    protected void writeHeading(String text) {
+        StyledTextOutput output = getServices().get(StyledTextOutputFactory.class)
+                .create("smithy")
+                .style(StyledTextOutput.Style.Header);
+        output.println(text);
     }
 }

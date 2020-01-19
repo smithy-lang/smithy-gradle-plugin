@@ -34,7 +34,7 @@ public class Validate extends SmithyCliTask {
 
     @TaskAction
     public void execute() {
-        super.execute();
+        writeHeading("Running smithy validate");
         executeCliProcess("validate", ListUtils.of(), getClasspath(), getModelDiscoveryClasspath());
     }
 }

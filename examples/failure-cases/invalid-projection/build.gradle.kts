@@ -1,7 +1,7 @@
 // This example attempts to use an invalid projection. The build will fail.
 
 plugins {
-    id("software.amazon.smithy").version("0.4.2")
+    id("software.amazon.smithy").version("0.4.3")
 }
 
 repositories {

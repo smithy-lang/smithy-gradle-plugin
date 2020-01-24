@@ -6,7 +6,7 @@ import software.amazon.smithy.gradle.tasks.SmithyBuild
 // and the classpath used when building.
 
 plugins {
-    id("software.amazon.smithy").version("0.4.2")
+    id("software.amazon.smithy").version("0.4.3")
 }
 
 repositories {

@@ -23,7 +23,7 @@ plugins {
 }
 
 group = "software.amazon.smithy"
-version = "0.4.2"
+version = "0.4.3"
 
 dependencies {
     implementation("software.amazon.smithy:smithy-model:0.9.7")

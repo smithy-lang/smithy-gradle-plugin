@@ -13,14 +13,14 @@ The following example configures a project to use the Smithy Gradle plugin:
 
 ```kotlin
 plugins {
-    id("software.amazon.smithy").version("0.4.3")
+    id("software.amazon.smithy").version("0.5.0")
 }
 ```
 
 
 ## Documentation
 
-See https://awslabs.github.io/smithy/guides/building-models/gradle-plugin.html
+See https://awslabs.github.io/smithy/1.0/guides/building-models/gradle-plugin.html
 
 
 ## License

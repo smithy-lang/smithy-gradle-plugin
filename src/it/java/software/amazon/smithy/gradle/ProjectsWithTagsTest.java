@@ -43,9 +43,9 @@ public class ProjectsWithTagsTest {
                     .assemble()
                     .unwrap();
 
-            Assertions.assertTrue(model.getShapeIndex().getShape(ShapeId.from("foo.baz#Integer")).isPresent());
-            Assertions.assertTrue(model.getShapeIndex().getShape(ShapeId.from("foo.baz#Float")).isPresent());
-            Assertions.assertTrue(model.getShapeIndex().getShape(ShapeId.from("smithy.example#Baz")).isPresent());
+            Assertions.assertTrue(model.getShape(ShapeId.from("foo.baz#Integer")).isPresent());
+            Assertions.assertTrue(model.getShape(ShapeId.from("foo.baz#Float")).isPresent());
+            Assertions.assertTrue(model.getShape(ShapeId.from("smithy.example#Baz")).isPresent());
         });
     }
 }

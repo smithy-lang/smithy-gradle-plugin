@@ -1,5 +1,5 @@
 plugins {
-    id("software.amazon.smithy").version("0.4.3")
+    id("software.amazon.smithy").version("0.5.0")
 }
 
 dependencies {

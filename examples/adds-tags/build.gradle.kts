@@ -1,7 +1,7 @@
 // This examples adds a Smithy tag to the built JAR.
 
 plugins {
-    id("software.amazon.smithy").version("0.4.3")
+    id("software.amazon.smithy").version("0.5.0")
 }
 
 group = "software.amazon.smithy"
@@ -13,7 +13,7 @@ repositories {
 }
 
 dependencies {
-    implementation("software.amazon.smithy:smithy-model:0.9.7")
+    implementation("software.amazon.smithy:smithy-model:1.0.0")
 }
 
 configure<software.amazon.smithy.gradle.SmithyExtension> {

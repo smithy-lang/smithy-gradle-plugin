@@ -39,7 +39,8 @@ import software.amazon.smithy.utils.ListUtils;
  */
 public final class SmithyPlugin implements Plugin<Project> {
 
-    private static final String DEFAULT_CLI_VERSION = "1.0.0";
+    // TODO: Is there a way to automatically detect the version resolved by the plugin?
+    private static final String DEFAULT_CLI_VERSION = "1.0.3";
     private static final List<String> SOURCE_DIRS = ListUtils.of(
             "model", "src/$name/smithy", "src/$name/resources/META-INF/smithy");
 

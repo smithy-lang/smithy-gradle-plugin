@@ -1,8 +1,11 @@
-// This example attempts to use an invalid projection. The build will fail.
+// This example is an integration test to ensure that projects with no models do not fail.
 
 plugins {
     id("software.amazon.smithy").version("0.5.1")
 }
+
+group = "software.amazon.smithy"
+version = "9.9.9"
 
 repositories {
     mavenLocal()
@@ -11,8 +14,4 @@ repositories {
 
 dependencies {
     implementation("software.amazon.smithy:smithy-model:[1.0, 2.0[")
-}
-
-configure<software.amazon.smithy.gradle.SmithyExtension> {
-    projection = "invalid"
 }

@@ -296,8 +296,14 @@ public class SmithyBuildJar extends BaseSmithyTask {
         Path sources = SmithyUtils.getProjectionPluginPath(getProject(), getProjection(), "sources");
 
         if (!Files.isDirectory(sources)) {
-            throw new GradleException("Smithy projection `" + getProjection() + "` not found. "
-                                      + "Is this projection defined in your smithy-build.json file?");
+            if (getProjection().equals("source")) {
+                getLogger().warn("No Smithy model files were found");
+            } else {
+                // This means the projection was explicitly set, so fail if no models were found.
+                throw new GradleException("Smithy projection `" + getProjection() + "` not found or does not "
+                                          + "contain any models. Is this projection defined in your "
+                                          + "smithy-build.json file?");
+            }
         }
 
         getProject().copy(c -> {

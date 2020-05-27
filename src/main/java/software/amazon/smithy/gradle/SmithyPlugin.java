@@ -39,8 +39,6 @@ import software.amazon.smithy.utils.ListUtils;
  */
 public final class SmithyPlugin implements Plugin<Project> {
 
-    // TODO: Is there a way to automatically detect the version resolved by the plugin?
-    private static final String DEFAULT_CLI_VERSION = "1.0.3";
     private static final List<String> SOURCE_DIRS = ListUtils.of(
             "model", "src/$name/smithy", "src/$name/resources/META-INF/smithy");
 
@@ -129,9 +127,9 @@ public final class SmithyPlugin implements Plugin<Project> {
         if (cliVersion != null) {
             project.getLogger().warn("(detected Smithy CLI version {})", cliVersion);
         } else {
-            // Finally, just guess the default version that the Gradle plugin knows about
-            cliVersion = DEFAULT_CLI_VERSION;
-            project.getLogger().warn("(assuming Smithy CLI version {})", DEFAULT_CLI_VERSION);
+            // Finally, scan the buildScript dependencies for a smithy-model dependency. This
+            // should always be found because the Gradle plugin has a dependency on it.
+            cliVersion = scanForSmithyCliVersion(project);
         }
 
         project.getDependencies().add(cli.getName(), "software.amazon.smithy:smithy-cli:" + cliVersion);
@@ -164,6 +162,27 @@ public final class SmithyPlugin implements Plugin<Project> {
 
     private static boolean isMatchingDependency(Dependency dependency, String name) {
         return Objects.equals(dependency.getGroup(), "software.amazon.smithy") && dependency.getName().equals(name);
+    }
+
+    private String scanForSmithyCliVersion(Project project) {
+        // Finally, scan the buildScript dependencies for a smithy-model dependency. This
+        // should be found because the Gradle plugin has a dependency on it.
+        for (File jar : project.getBuildscript().getConfigurations().getByName("classpath")) {
+            String name = jar.toString();
+            int smithyCliPosition = name.lastIndexOf("smithy-cli-");
+            if (smithyCliPosition > -1 && name.endsWith(".jar")) {
+                String cliVersion = name.substring(
+                        smithyCliPosition + "smithy-cli-".length(), name.length() - ".jar".length());
+                project.getLogger().warn("(scanned and found a Smithy CLI version {}. "
+                                         + "You will need to add an explicit dependency on smithy-model "
+                                         + "if publishing a JAR)", cliVersion);
+                return cliVersion;
+            }
+        }
+
+        // This should never happen since the smithy plugin has a dependency on smithy-cli.
+        throw new GradleException("Unable to determine a smithy-cli dependency version. Please add an "
+                                  + "explicit dependency on smithy-model.");
     }
 
     /**

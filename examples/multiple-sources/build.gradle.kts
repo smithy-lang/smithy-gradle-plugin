@@ -4,7 +4,7 @@
 // - src/main/resources/META-INF/smithy
 
 plugins {
-    id("software.amazon.smithy").version("0.5.1")
+    id("software.amazon.smithy").version("0.5.2")
 }
 
 repositories {

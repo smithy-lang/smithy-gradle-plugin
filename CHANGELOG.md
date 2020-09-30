@@ -1,11 +1,17 @@
 # Smithy Gradle Plugin Changelog
 
+## 0.5.2 (2020-09-30)
+
+### Bug Fixes
+
+* Fixed an issue where the system classpath separator was not used. ([#28](https://github.com/awslabs/smithy-gradle-plugin/pull/28))
+
 ## 0.5.1 (2020-05-27)
 
 ### Bug Fixes
 
 * Fix the behavior of building empty projects so that when no models can be
-  found, the Gradle plugin warns instead of fails. ([#24](hhttps://github.com/awslabs/smithy-gradle-plugin/pull/24))
+  found, the Gradle plugin warns instead of fails. ([#24](https://github.com/awslabs/smithy-gradle-plugin/pull/24))
   
 ### Features
 

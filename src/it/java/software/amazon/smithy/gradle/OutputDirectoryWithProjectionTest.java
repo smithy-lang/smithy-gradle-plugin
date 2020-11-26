@@ -18,7 +18,8 @@ package software.amazon.smithy.gradle;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.nio.file.Paths;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import org.gradle.testkit.runner.BuildResult;
 import org.gradle.testkit.runner.GradleRunner;
 import org.junit.jupiter.api.Test;
@@ -26,10 +27,12 @@ import org.junit.jupiter.api.Test;
 public class OutputDirectoryWithProjectionTest {
     @Test
     public void testOutputDirectory() {
-        File buildDir = Paths.get("/tmp/build-directory").toFile();
-        File outputDir = Paths.get("/tmp/output-directory").toFile();
+        String projectName = "output-directory-with-projection";
+        Path buildDirPath = Utils.createTempDir(projectName);
+        File buildDir = buildDirPath.toFile();
+        File outputDir = buildDirPath.resolve("build").resolve("nested-output-directory").toFile();
         try {
-            Utils.copyProject("output-directory-with-projection", buildDir);
+            Utils.copyProject(projectName, buildDir);
             BuildResult result = GradleRunner.create()
                     .withProjectDir(buildDir)
                     .withArguments("clean", "build", "--stacktrace")
@@ -54,8 +57,7 @@ public class OutputDirectoryWithProjectionTest {
         } catch (UncheckedIOException e) {
             throw e;
         } finally {
-                Utils.deleteTempDir(buildDir);
-                Utils.deleteTempDir(outputDir);
+            Utils.deleteTempDir(buildDir);
         }
     }
 }

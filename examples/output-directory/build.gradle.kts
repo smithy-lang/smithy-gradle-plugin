@@ -27,5 +27,6 @@ dependencies {
 }
 
 configure<software.amazon.smithy.gradle.SmithyExtension> {
-    outputDirectory = file("/tmp/output-directory")
+    // This could also be set to another directory outside the project's buildDir entirely.
+    outputDirectory = file(project.getBuildDir().toPath().resolve("nested-output-directory").toFile())
 }

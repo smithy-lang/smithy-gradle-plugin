@@ -67,6 +67,13 @@ public final class SmithyUtils {
      * @return Returns the resolved path.
      */
     public static Path getProjectionPluginPath(Project project, String projection, String plugin) {
+        SmithyExtension extension = getSmithyExtension(project);
+        if (extension.getOutputDirectory() != null) {
+            return extension.getOutputDirectory()
+                    .toPath()
+                    .resolve(projection)
+                    .resolve(plugin);
+        }
         return project.getBuildDir().toPath()
                 .resolve(SMITHY_PROJECTIONS)
                 .resolve(project.getName())

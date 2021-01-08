@@ -1,4 +1,4 @@
-// This examples adds a Smithy tag to the built JAR.
+// This example adds a Smithy tag to the built JAR.
 
 plugins {
     id("software.amazon.smithy").version("0.5.2")

@@ -13,12 +13,15 @@
  * permissions and limitations under the License.
  */
 
+import com.github.spotbugs.snom.Effort
+import com.github.spotbugs.snom.SpotBugsTask
+
 plugins {
     `java-gradle-plugin`
     `maven-publish`
     checkstyle
     jacoco
-    id("com.github.spotbugs") version "1.6.10"
+    id("com.github.spotbugs") version "4.7.0"
     id("com.gradle.plugin-publish") version "0.11.0"
 }
 
@@ -163,9 +166,9 @@ tasks["spotbugsTest"].enabled = false
 tasks["spotbugsIt"].enabled = false
 
 // Configure the bug filter for spotbugs.
-tasks.withType(com.github.spotbugs.SpotBugsTask::class) {
-    effort = "max"
-    excludeFilterConfig = project.resources.text.fromFile("${project.rootDir}/config/spotbugs/filter.xml")
+tasks.withType<SpotBugsTask>().configureEach {
+    effort.set(Effort.MAX)
+    excludeFilter.set(project.file("config/spotbugs/filter.xml"))
 }
 
 /*

@@ -1,5 +1,5 @@
 # Smithy Gradle Plugin
-[![Build Status](https://github.com/awslabs/smithy-gradle-plugin/workflows/ci/badge.svg)](https://github.com/awslabs/smithy-gradle-plugin/workflows/ci)
+[![Build Status](https://github.com/awslabs/smithy-gradle-plugin/workflows/ci/badge.svg)](https://github.com/awslabs/smithy-gradle-plugin/actions/workflows/ci.yml)
 
 This project integrates Smithy with Gradle. This plugin can build artifacts
 from Smithy models, generate JARs that contain Smithy models found in Java

@@ -1,7 +1,7 @@
 // This example fails to build due to a syntax error.
 
 plugins {
-    id("software.amazon.smithy").version("0.5.2")
+    id("software.amazon.smithy").version("0.5.3")
 }
 
 repositories {

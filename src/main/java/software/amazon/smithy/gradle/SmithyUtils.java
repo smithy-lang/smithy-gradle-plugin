@@ -16,9 +16,11 @@
 package software.amazon.smithy.gradle;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.net.URLConnection;
 import java.nio.file.Path;
 import java.security.AccessController;
 import java.security.PrivilegedExceptionAction;
@@ -33,6 +35,7 @@ import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.tasks.SourceSetContainer;
+import software.amazon.smithy.build.SmithyBuildException;
 import software.amazon.smithy.cli.Cli;
 import software.amazon.smithy.cli.SmithyCli;
 
@@ -248,6 +251,24 @@ public final class SmithyUtils {
 
     @SuppressWarnings("unchecked")
     private static void executeCliThread(Project project, List<String> arguments, FileCollection classpath) {
+        // URL caching must be disabled when running the Smithy CLI using a
+        // custom class loader. An "empty" resource was added to the Gradle
+        // plugin to provide access to the global URL-wide caching behavior
+        // provided by URLConnection#setDefaultUseCaches. Setting that to
+        // false on any URLConnection disables caching on all URLConnections.
+        // Not doing this will lead to consistent errors like
+        // java.util.zip.ZipException: ZipFile invalid LOC header (bad signature)
+        // The default caching setting is restored after invoking the CLI.
+        URLConnection cacheBuster;
+        boolean isCachingEnabled;
+        try {
+            cacheBuster = SmithyUtils.class.getResource("empty").openConnection();
+            isCachingEnabled = cacheBuster.getDefaultUseCaches();
+            cacheBuster.setDefaultUseCaches(false);
+        } catch (IOException e) {
+            throw new SmithyBuildException(e);
+        }
+
         // Create a custom class loader to run within the context of.
         Set<File> files = classpath.getFiles();
         URL[] paths = new URL[files.size()];
@@ -307,6 +328,9 @@ public final class SmithyUtils {
             } while (current != null);
             logger.error(message);
             throw new GradleException(message, e);
+        } finally {
+            // Restore URL caching to the previous value.
+            cacheBuster.setDefaultUseCaches(isCachingEnabled);
         }
     }
 

@@ -1,5 +1,10 @@
 # Smithy Gradle Plugin Changelog
 
+## 0.5.3 (TBD)
+
+* Fixed the `ZipFile invalid LOC header (bad signature)` error that was caused by
+  changing resource files.
+
 ## 0.5.2 (2020-09-30)
 
 ### Bug Fixes

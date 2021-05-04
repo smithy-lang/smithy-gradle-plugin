@@ -1,9 +1,13 @@
 # Smithy Gradle Plugin Changelog
 
-## 0.5.3 (TBD)
+## 0.5.3 (2021-05-05)
 
 * Fixed the `ZipFile invalid LOC header (bad signature)` error that was caused by
-  changing resource files.
+  changing resource files. ([#40](https://github.com/awslabs/smithy-gradle-plugin/pull/40))
+* Upgrade to Gradle 6. ([#38](https://github.com/awslabs/smithy-gradle-plugin/pull/38))
+* Added documentation to plugin examples. ([#35](https://github.com/awslabs/smithy-gradle-plugin/pull/35))
+* Fixed plugin path resolution when an `outputDirectory` has been configured.
+  ([#31](https://github.com/awslabs/smithy-gradle-plugin/pull/31))
 
 ## 0.5.2 (2020-09-30)
 

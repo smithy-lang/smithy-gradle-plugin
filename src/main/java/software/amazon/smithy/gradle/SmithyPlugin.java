@@ -25,11 +25,13 @@ import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.artifacts.DependencySet;
+import org.gradle.api.file.DuplicatesStrategy;
 import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.TaskProvider;
+import org.gradle.language.jvm.tasks.ProcessResources;
 import software.amazon.smithy.gradle.tasks.SmithyBuildJar;
 import software.amazon.smithy.gradle.tasks.Validate;
 import software.amazon.smithy.utils.ListUtils;
@@ -83,7 +85,15 @@ public final class SmithyPlugin implements Plugin<Project> {
             buildJarTask.getInputs().files(smithyCliFiles);
         });
 
-        project.getTasks().getByName("processResources").dependsOn(buildJarProvider);
+        // This plugin supports loading Smithy models from various locations, including
+        // META-INF/smithy. It also creates a staging directory for all of the merged
+        // resources that were found in each search location. This can cause conflicts
+        // between the META-INF/smithy files and staging directory, so we need to
+        // ignore duplicate conflicts.
+        ProcessResources task = project.getTasks().withType(ProcessResources.class).getByName("processResources");
+        task.setDuplicatesStrategy(DuplicatesStrategy.EXCLUDE);
+        task.dependsOn(buildJarProvider);
+
         project.getTasks().getByName("test").dependsOn(validateProvider);
     }
 

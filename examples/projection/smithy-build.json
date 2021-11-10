@@ -1,6 +1,15 @@
 {
   "version": "1.0",
   "projections": {
-    "foo": {}
+      "foo": {
+            "transforms": [
+                {
+                    "name": "excludeTraits",
+                    "args": {
+                        "traits": ["smithy.api#documentation"]
+                    }
+                }
+            ]
+      }
   }
 }

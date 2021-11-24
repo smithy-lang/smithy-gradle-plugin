@@ -26,13 +26,11 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 import org.gradle.api.GradleException;
 import org.gradle.api.file.FileCollection;
-import org.gradle.api.java.archives.Attributes;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.TaskAction;
-import org.gradle.jvm.tasks.Jar;
 import software.amazon.smithy.cli.BuildParameterBuilder;
 import software.amazon.smithy.gradle.SmithyExtension;
 import software.amazon.smithy.gradle.SmithyUtils;
@@ -57,7 +55,6 @@ public class SmithyBuildJar extends BaseSmithyTask {
 
     private String projection;
     private Set<String> projectionSourceTags = new TreeSet<>();
-    private Set<String> tags = new TreeSet<>();
     private FileCollection smithyBuildConfigs;
     private File outputDirectory;
 
@@ -157,31 +154,6 @@ public class SmithyBuildJar extends BaseSmithyTask {
         this.projectionSourceTags.addAll(projectionSourceTags);
     }
 
-    /**
-     * Get the tags that are added to the JAR.
-     *
-     * <p>These tags are placed in the META-INF/MANIFEST.MF attribute named
-     * "Smithy-Tags" as a comma separated list. JARs with Smithy-Tags can be
-     * queried when building projections so that the Smithy models found in
-     * each matching JAR are placed into the projection JAR.
-     *
-     * @return Returns the Smithy-Tags values that will be added to the created JAR.
-     */
-    @Input
-    public Set<String> getTags() {
-        return tags;
-    }
-
-    /**
-     * Sets the tags that are added that the JAR manifest in "Smithy-Tags".
-     *
-     * @param tags Smithy-Tags to add to the JAR.
-     * @see #getTags()
-     */
-    public void setTags(Set<String> tags) {
-        this.tags.addAll(tags);
-    }
-
     @OutputDirectory
     public File getSmithyResourceStagingDir() {
         return SmithyUtils.getSmithyResourceTempDir(getProject());
@@ -199,7 +171,6 @@ public class SmithyBuildJar extends BaseSmithyTask {
 
         // Merge tags from the extension into the task.
         projectionSourceTags.addAll(extension.getProjectionSourceTags());
-        tags.addAll(extension.getTags());
 
         // Merge or overwrite?
         if (smithyBuildConfigs == null) {
@@ -208,14 +179,6 @@ public class SmithyBuildJar extends BaseSmithyTask {
         }
 
         writeHeading("Running smithy build");
-
-        // Always add the group, the group + ":" + name, and the group + ":" + name + ":" + version as tags.
-        if (!getProject().getGroup().toString().isEmpty()) {
-            tags.add(getProject().getGroup().toString());
-            tags.add(getProject().getGroup() + ":" + getProject().getName());
-            tags.add(getProject().getGroup() + ":" + getProject().getName() + ":" + getProject().getVersion());
-            getLogger().debug("Adding built-in Smithy JAR tags: {}", tags);
-        }
 
         // Clear out the directories when rebuilding.
         getProject().delete(getSmithyResourceStagingDir().getParentFile().getParentFile());
@@ -255,11 +218,6 @@ public class SmithyBuildJar extends BaseSmithyTask {
 
         if (getProject().getTasks().getByName("jar").getEnabled()) {
             copyModelsToStaging();
-            getProject().getTasks().withType(Jar.class, task -> {
-                getLogger().info("Adding tags to manifest: {}", tags);
-                Attributes attributes = task.getManifest().getAttributes();
-                attributes.put("Smithy-Tags", String.join(", ", getTags()));
-            });
         }
     }
 

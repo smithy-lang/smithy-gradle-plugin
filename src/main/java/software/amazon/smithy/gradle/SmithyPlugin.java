@@ -33,6 +33,7 @@ import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.language.jvm.tasks.ProcessResources;
 import software.amazon.smithy.gradle.tasks.SmithyBuildJar;
+import software.amazon.smithy.gradle.tasks.SmithyTagsTask;
 import software.amazon.smithy.gradle.tasks.Validate;
 import software.amazon.smithy.utils.ListUtils;
 
@@ -59,6 +60,10 @@ public final class SmithyPlugin implements Plugin<Project> {
         // Register the "smithyBuildJar" task. It's configured once the extension is available.
         TaskProvider<SmithyBuildJar> buildJarProvider = project.getTasks()
                 .register("smithyBuildJar", SmithyBuildJar.class);
+
+        // Register the "smithyTags" task.
+        TaskProvider<SmithyTagsTask> smithyTagsProvider = project.getTasks()
+                .register("smithyTags", SmithyTagsTask.class);
 
         validateProvider.configure(validateTask -> {
             validateTask.dependsOn("jar");
@@ -93,6 +98,14 @@ public final class SmithyPlugin implements Plugin<Project> {
         ProcessResources task = project.getTasks().withType(ProcessResources.class).getByName("processResources");
         task.setDuplicatesStrategy(DuplicatesStrategy.EXCLUDE);
         task.dependsOn(buildJarProvider);
+
+        smithyTagsProvider.configure(smithyTagsTask -> {
+            Task jarTask = project.getTasks().getByName("jar");
+            // Only run the smithyTags task if the jar task is enabled.
+            smithyTagsTask.setEnabled(jarTask.getEnabled());
+        });
+
+        project.getTasks().getByName("jar").dependsOn(smithyTagsProvider);
 
         project.getTasks().getByName("test").dependsOn(validateProvider);
     }

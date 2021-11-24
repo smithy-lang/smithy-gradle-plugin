@@ -18,6 +18,8 @@ package software.amazon.smithy.gradle;
 import java.io.File;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+import java.util.TreeSet;
 import org.gradle.api.GradleException;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -27,13 +29,15 @@ import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.artifacts.DependencySet;
 import org.gradle.api.file.DuplicatesStrategy;
 import org.gradle.api.file.SourceDirectorySet;
+import org.gradle.api.java.archives.Attributes;
 import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.TaskProvider;
+import org.gradle.jvm.tasks.Jar;
 import org.gradle.language.jvm.tasks.ProcessResources;
 import software.amazon.smithy.gradle.tasks.SmithyBuildJar;
-import software.amazon.smithy.gradle.tasks.SmithyTagsTask;
+import software.amazon.smithy.gradle.tasks.SmithyTagsAction;
 import software.amazon.smithy.gradle.tasks.Validate;
 import software.amazon.smithy.utils.ListUtils;
 
@@ -60,10 +64,6 @@ public final class SmithyPlugin implements Plugin<Project> {
         // Register the "smithyBuildJar" task. It's configured once the extension is available.
         TaskProvider<SmithyBuildJar> buildJarProvider = project.getTasks()
                 .register("smithyBuildJar", SmithyBuildJar.class);
-
-        // Register the "smithyTags" task.
-        TaskProvider<SmithyTagsTask> smithyTagsProvider = project.getTasks()
-                .register("smithyTags", SmithyTagsTask.class);
 
         validateProvider.configure(validateTask -> {
             validateTask.dependsOn("jar");
@@ -99,15 +99,37 @@ public final class SmithyPlugin implements Plugin<Project> {
         task.setDuplicatesStrategy(DuplicatesStrategy.EXCLUDE);
         task.dependsOn(buildJarProvider);
 
-        smithyTagsProvider.configure(smithyTagsTask -> {
-            Task jarTask = project.getTasks().getByName("jar");
-            // Only run the smithyTags task if the jar task is enabled.
-            smithyTagsTask.setEnabled(jarTask.getEnabled());
-        });
+        Jar jar = project.getTasks().withType(Jar.class).getByName("jar");
+//        jar.doFirst(unused -> {
+//            addSmithyTags(jar, project, extension);
+//        });
 
-        project.getTasks().getByName("jar").dependsOn(smithyTagsProvider);
+//        jar.doFirst(new Action<Task>() {
+//            @Override
+//            public void execute(Task task) {
+//                addSmithyTags(jar, project, extension);
+//            }
+//        });
+
+        jar.doFirst(new SmithyTagsAction());
 
         project.getTasks().getByName("test").dependsOn(validateProvider);
+    }
+
+    private void addSmithyTags(Jar jar, Project project, SmithyExtension extension) {
+        Set<String> tags = new TreeSet<>(extension.getTags());
+
+        // Always add the group, the group + ":" + name, and the group + ":" + name + ":" + version as tags.
+        if (!project.getGroup().toString().isEmpty()) {
+            tags.add(project.getGroup().toString());
+            tags.add(project.getGroup() + ":" + project.getName());
+            tags.add(project.getGroup() + ":" + project.getName() + ":" + project.getVersion());
+            jar.getLogger().info("Adding built-in Smithy JAR tags: {}", tags);
+        }
+
+        jar.getLogger().info("Adding tags to manifest: {}", tags);
+        Attributes attributes = jar.getManifest().getAttributes();
+        attributes.put("Smithy-Tags", String.join(", ", tags));
     }
 
     /**

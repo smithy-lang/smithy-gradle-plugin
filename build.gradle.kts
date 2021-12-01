@@ -26,7 +26,7 @@ plugins {
 }
 
 group = "software.amazon.smithy"
-version = "0.5.3"
+version = "0.6.0"
 
 dependencies {
     implementation("software.amazon.smithy:smithy-model:[1.0, 2.0[")

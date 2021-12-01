@@ -1,5 +1,16 @@
 # Smithy Gradle Plugin Changelog
 
+## 0.6.0 (2021-12-01)
+
+### Features
+
+* Upgraded to Gradle 7.1. ([#43](https://github.com/awslabs/smithy-gradle-plugin/pull/43))
+
+### Bug Fixes
+
+* Fixed duplicate JAR entry issue. ([#43](https://github.com/awslabs/smithy-gradle-plugin/pull/43))
+* Fixed the issue where Smithy-Tags would disappear when `jar` task was re-run. ([#47](https://github.com/awslabs/smithy-gradle-plugin/pull/47))
+
 ## 0.5.3 (2021-05-05)
 
 * Fixed the `ZipFile invalid LOC header (bad signature)` error that was caused by

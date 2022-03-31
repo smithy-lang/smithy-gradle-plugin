@@ -169,9 +169,8 @@ public final class SmithyUtils {
      * @return Returns the default output directory.
      */
     private static File getProjectionOutputDir(Project project) {
-        return project.getProjectDir()
+        return project.getBuildDir()
                 .toPath()
-                .resolve("build")
                 .resolve(SMITHY_PROJECTIONS)
                 .resolve(project.getName())
                 .toFile();

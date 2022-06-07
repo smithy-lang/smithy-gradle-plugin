@@ -16,9 +16,7 @@
 package software.amazon.smithy.gradle;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import org.gradle.testkit.runner.BuildResult;
 import org.gradle.testkit.runner.GradleRunner;
@@ -34,6 +32,7 @@ public class OutputDirectoryTest {
         try {
             Utils.copyProject(projectName, buildDir);
             BuildResult result = GradleRunner.create()
+                    .forwardOutput()
                     .withProjectDir(buildDir)
                     .withArguments("clean", "build", "--stacktrace")
                     .build();

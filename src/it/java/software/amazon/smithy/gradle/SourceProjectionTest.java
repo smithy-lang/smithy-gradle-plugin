@@ -24,6 +24,7 @@ public class SourceProjectionTest {
     public void testSourceProjection() {
         Utils.withCopy("source-projection", buildDir -> {
             BuildResult result = GradleRunner.create()
+                    .forwardOutput()
                     .withProjectDir(buildDir)
                     .withArguments("clean", "build", "--stacktrace", "--debug")
                     .build();

@@ -32,6 +32,7 @@ public class AddsTagsTest {
     public void addsSmithyTagsToJars() {
         Utils.withCopy("adds-tags", buildDir -> {
             BuildResult result = GradleRunner.create()
+                    .forwardOutput()
                     .withProjectDir(buildDir)
                     .withArguments("clean", "build", "--stacktrace")
                     .build();

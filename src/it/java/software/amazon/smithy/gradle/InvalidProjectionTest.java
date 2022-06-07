@@ -25,6 +25,7 @@ public class InvalidProjectionTest {
     public void testProjection() {
         Utils.withCopy("failure-cases/invalid-projection", buildDir -> {
             BuildResult result = GradleRunner.create()
+                    .forwardOutput()
                     .withProjectDir(buildDir)
                     .withArguments("clean", "build", "--stacktrace")
                     .buildAndFail();

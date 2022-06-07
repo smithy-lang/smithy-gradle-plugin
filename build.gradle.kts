@@ -15,14 +15,16 @@
 
 import com.github.spotbugs.snom.Effort
 import com.github.spotbugs.snom.SpotBugsTask
+import com.adarshr.gradle.testlogger.TestLoggerExtension;
 
 plugins {
     `java-gradle-plugin`
     `maven-publish`
     checkstyle
     jacoco
-    id("com.github.spotbugs") version "4.7.0"
+    id("com.github.spotbugs") version "4.7.1"
     id("com.gradle.plugin-publish") version "0.11.0"
+    id("com.adarshr.test-logger") version "3.2.0"
 }
 
 group = "software.amazon.smithy"
@@ -52,6 +54,23 @@ java {
 // Use Junit5's test runner.
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+configure<TestLoggerExtension> {
+    showExceptions = true
+    showStackTraces = true
+    showFullStackTraces = false
+    showCauses = true
+    showSummary = true
+    showPassed = true
+    showSkipped = true
+    showFailed = true
+    showOnlySlow = false
+    showStandardStreams = true
+    showPassedStandardStreams = false
+    showSkippedStandardStreams = false
+    showFailedStandardStreams = true
+    logLevel = LogLevel.LIFECYCLE
 }
 
 // Reusable license copySpec

@@ -28,6 +28,7 @@ public class SmithyBuildTaskTest {
 
     private void run(File buildDir) {
         BuildResult result = GradleRunner.create()
+                .forwardOutput()
                 .withProjectDir(buildDir)
                 .withArguments("build", "--stacktrace")
                 .build();

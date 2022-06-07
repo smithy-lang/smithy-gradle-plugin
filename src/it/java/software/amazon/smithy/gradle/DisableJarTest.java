@@ -24,6 +24,7 @@ public class DisableJarTest {
     public void testProjection() {
         Utils.withCopy("disable-jar", buildDir -> {
             BuildResult result = GradleRunner.create()
+                    .forwardOutput()
                     .withProjectDir(buildDir)
                     .withArguments("clean", "build", "--stacktrace")
                     .build();

@@ -34,7 +34,6 @@ public class SmithyBuildTaskTest {
                 .build();
 
         Utils.assertSmithyBuildDidNotRun(result);
-        Utils.assertValidationDidNotRun(result);
         Utils.assertArtifactsCreated(
                 buildDir,
                 "build/smithyprojections/smithy-build-task/source/build-info/smithy-build-info.json",

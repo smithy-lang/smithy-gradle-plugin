@@ -26,7 +26,6 @@ import java.security.AccessController;
 import java.security.PrivilegedExceptionAction;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Consumer;
 import org.gradle.api.GradleException;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
@@ -36,7 +35,6 @@ import org.gradle.api.logging.Logger;
 import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.tasks.SourceSetContainer;
 import software.amazon.smithy.build.SmithyBuildException;
-import software.amazon.smithy.cli.Cli;
 import software.amazon.smithy.cli.SmithyCli;
 
 /**
@@ -289,15 +287,12 @@ public final class SmithyUtils {
 
             // Reflection is used to make calls on the loaded SmithyCli object.
             String smithyCliName = SmithyCli.class.getCanonicalName();
-            String cliName = Cli.class.getCanonicalName();
 
             Thread thread = new Thread(() -> {
                 try {
-                    Class cliClass = classLoader.loadClass(cliName);
                     Class smithyCliClass = classLoader.loadClass(smithyCliName);
                     Object cli = smithyCliClass.getDeclaredMethod("create").invoke(null);
                     smithyCliClass.getDeclaredMethod("classLoader", ClassLoader.class).invoke(cli, classLoader);
-                    overrideCliStdout(cliClass, logger);
                     smithyCliClass.getDeclaredMethod("run", List.class).invoke(cli, arguments);
                 } catch (ReflectiveOperationException e) {
                     logger.info("Error executing Smithy CLI (ReflectiveOperationException)", e);
@@ -330,41 +325,6 @@ public final class SmithyUtils {
         } finally {
             // Restore URL caching to the previous value.
             cacheBuster.setDefaultUseCaches(isCachingEnabled);
-        }
-    }
-
-    // ** This is a hack! **
-    //
-    // Gradle attempts to intercept writing to System.out and System.err by
-    // sending each write to Gradle's logging system. However, when paired with
-    // org.gradle.parallel=true, Gradle sometimes writes stdout and sometimes
-    // it doesn't. This implies that their logging implementation and the way
-    // they intercept stderr and stdout is not thread-safe. Smithy's build
-    // process is run inside of a thread so that we can use the same JVM process
-    // but completely change the thread's ClassLoader using the appropriate
-    // dependencies (e.g., runtime vs buildscript). Smithy then further
-    // utilized thread pools when building projections and plugins. Somewhere
-    // along the way, thread-safety is lost and the Smithy CLI's writing to
-    // stdout is lost.
-    //
-    // This hack required that a new method was introduced to the Smithy CLI
-    // that uses a Consumer<String> to write a line of text. By default, the
-    // CLI writes to System.out.println and System.err.println, but this change
-    // cause the Smithy CLI to write warning messages to the provided Logger.
-    // Why warning? Changing the logging level of a task also appears to be
-    // unreliable. Maybe there's a way to do it so that we can log using info
-    // and then change the log level to info, but I couldn't find it.
-    @SuppressWarnings("unchecked")
-    private static void overrideCliStdout(Class cliClass, Logger logger) {
-        try {
-            cliClass.getDeclaredMethod("setStdout", Consumer.class).invoke(null, new Consumer<String>() {
-                @Override
-                public void accept(String s) {
-                    logger.warn(s);
-                }
-            });
-        } catch (ReflectiveOperationException e) {
-            logger.warn("Found an old version of Smithy CLI that does not support Cli#setStdout");
         }
     }
 

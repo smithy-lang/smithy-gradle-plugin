@@ -27,6 +27,7 @@ import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Locale;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
@@ -105,11 +106,8 @@ public final class Utils {
     }
 
     public static void assertValidationRan(BuildResult result) {
-        Assertions.assertTrue(result.getOutput().contains("Smithy validation complete"));
-    }
-
-    public static void assertValidationDidNotRun(BuildResult result) {
-        Assertions.assertFalse(result.getOutput().contains("Smithy validation complete"));
+        // e.g., Validated 120 shapes
+        Assertions.assertTrue(result.getOutput().contains("shapes"));
     }
 
     public static void assertArtifactsCreated(File projectDir, String... paths) {

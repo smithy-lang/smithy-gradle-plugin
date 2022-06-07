@@ -30,7 +30,6 @@ public class DisableJarTest {
                     .build();
 
             Utils.assertSmithyBuildRan(result);
-            Utils.assertValidationDidNotRun(result);
             Utils.assertArtifactsCreated(buildDir,
                     "build/smithyprojections/disable-jar/source/build-info/smithy-build-info.json",
                     "build/smithyprojections/disable-jar/source/model/model.json",

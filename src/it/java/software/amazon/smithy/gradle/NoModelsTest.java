@@ -24,6 +24,7 @@ public class NoModelsTest {
     public void createsJarWithNoModels() {
         Utils.withCopy("no-models", buildDir -> {
             BuildResult result = GradleRunner.create()
+                    .forwardOutput()
                     .withProjectDir(buildDir)
                     .withArguments("clean", "build", "--stacktrace")
                     .build();

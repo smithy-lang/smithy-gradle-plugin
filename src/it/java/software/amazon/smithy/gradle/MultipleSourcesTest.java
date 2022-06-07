@@ -24,6 +24,7 @@ public class MultipleSourcesTest {
     public void testProjection() {
         Utils.withCopy("multiple-sources", buildDir -> {
             BuildResult result = GradleRunner.create()
+                    .forwardOutput()
                     .withProjectDir(buildDir)
                     .withArguments("clean", "build", "--stacktrace")
                     .build();

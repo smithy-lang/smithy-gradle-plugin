@@ -24,6 +24,7 @@ public class ScansForCliVersionTest {
     public void scansForCliVersion() {
         Utils.withCopy("scans-for-cli-version", buildDir -> {
             BuildResult result = GradleRunner.create()
+                    .forwardOutput()
                     .withProjectDir(buildDir)
                     .withArguments("clean", "build", "--stacktrace")
                     .build();

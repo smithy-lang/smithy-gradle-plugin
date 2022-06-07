@@ -24,6 +24,7 @@ public class ProjectionTest {
     public void testProjection() {
         Utils.withCopy("projection", buildDir -> {
             BuildResult result = GradleRunner.create()
+                    .forwardOutput()
                     .withProjectDir(buildDir)
                     .withArguments("clean", "build", "--stacktrace")
                     .build();

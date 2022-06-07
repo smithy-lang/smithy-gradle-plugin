@@ -23,6 +23,7 @@ public class SyntaxErrorTest {
     public void testFailsWithSyntaxError() {
         Utils.withCopy("failure-cases/syntax-error", buildDir -> {
             GradleRunner.create()
+                    .forwardOutput()
                     .withProjectDir(buildDir)
                     .withArguments("clean", "build", "--stacktrace")
                     .buildAndFail();

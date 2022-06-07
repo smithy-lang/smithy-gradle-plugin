@@ -27,6 +27,7 @@ public class ProjectsWithTagsTest {
     public void testProjectionWithSourceTags() {
         Utils.withCopy("projects-with-tags", buildDir -> {
             BuildResult result = GradleRunner.create()
+                    .forwardOutput()
                     .withProjectDir(buildDir)
                     .withArguments("clean", "build", "--stacktrace")
                     .build();

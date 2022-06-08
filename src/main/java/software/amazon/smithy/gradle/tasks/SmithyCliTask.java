@@ -21,6 +21,7 @@ import org.gradle.api.file.FileCollection;
 import org.gradle.api.tasks.Classpath;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.Optional;
+import org.gradle.workers.WorkerExecutor;
 import software.amazon.smithy.gradle.SmithyUtils;
 
 /**
@@ -221,6 +222,7 @@ abstract class SmithyCliTask extends BaseSmithyTask {
             });
         }
 
-        SmithyUtils.executeCli(getProject(), args, cliClasspath);
+        WorkerExecutor executor = getServices().get(WorkerExecutor.class);
+        SmithyUtils.executeCli(executor, getProject(), args, cliClasspath);
     }
 }

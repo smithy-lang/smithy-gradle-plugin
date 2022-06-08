@@ -31,6 +31,7 @@ import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.workers.WorkerExecutor;
 import software.amazon.smithy.cli.BuildParameterBuilder;
 import software.amazon.smithy.gradle.SmithyExtension;
 import software.amazon.smithy.gradle.SmithyUtils;
@@ -207,7 +208,8 @@ public class SmithyBuildJar extends BaseSmithyTask {
 
         BuildParameterBuilder.Result result = builder.build();
         Object[] jars = result.classpath.split(System.getProperty("path.separator"));
-        SmithyUtils.executeCli(getProject(), result.args, getProject().files(jars));
+        WorkerExecutor executor = getServices().get(WorkerExecutor.class);
+        SmithyUtils.executeCli(executor, getProject(), result.args, getProject().files(jars));
 
         // Copy generated files where they're needed and register source sets.
         try {

@@ -22,20 +22,26 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.net.URLConnection;
 import java.nio.file.Path;
-import java.security.AccessController;
-import java.security.PrivilegedExceptionAction;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
+import org.gradle.api.Action;
 import org.gradle.api.GradleException;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.SourceDirectorySet;
-import org.gradle.api.logging.Logger;
 import org.gradle.api.plugins.JavaPluginConvention;
+import org.gradle.api.provider.ListProperty;
 import org.gradle.api.tasks.SourceSetContainer;
+import org.gradle.workers.ClassLoaderWorkerSpec;
+import org.gradle.workers.WorkAction;
+import org.gradle.workers.WorkParameters;
+import org.gradle.workers.WorkQueue;
+import org.gradle.workers.WorkerExecutor;
 import software.amazon.smithy.build.SmithyBuildException;
-import software.amazon.smithy.cli.SmithyCli;
+import software.amazon.smithy.utils.SmithyInternalApi;
 
 /**
  * General utility methods used throughout the plugin.
@@ -199,18 +205,33 @@ public final class SmithyUtils {
      * @param arguments CLI arguments.
      * @param classpath Classpath to use when running the CLI. Uses buildScript when not defined.
      */
-    public static void executeCli(Project project, List<String> arguments, FileCollection classpath) {
+    public static void executeCli(
+            WorkerExecutor executor,
+            Project project,
+            List<String> arguments,
+            FileCollection classpath
+    ) {
         FileCollection resolvedClasspath = resolveCliClasspath(project, classpath);
+
         boolean fork = getSmithyExtension(project).getFork();
         project.getLogger().info("Executing Smithy CLI in a {}: {}; using classpath {}",
                                  fork ? "process" : "thread",
                                  String.join(" ", arguments),
                                  resolvedClasspath.getAsPath());
-        if (fork) {
-            executeCliProcess(project, arguments, resolvedClasspath);
-        } else {
-            executeCliThread(project, arguments, resolvedClasspath);
-        }
+        Action<? super ClassLoaderWorkerSpec> config = spec -> spec.getClasspath().setFrom(resolvedClasspath);
+        WorkQueue queue = fork ? executor.processIsolation(config) : executor.classLoaderIsolation(config);
+
+        queue.submit(RunCli.class, params -> {
+            params.getArguments().set(arguments);
+
+            // The isolated classloader WorkQueue doesn't seem to be as isolated as we need
+            // for running the Smithy CLI. Relying on it rather than creating a custom
+            // URLClassLoader causes the classpath to seem to inherit cached JARs from places
+            // like ~/.gradle/caches/jars-9.
+            params.getClassPath().setFrom(resolvedClasspath);
+        });
+
+        queue.await();
     }
 
     private static FileCollection resolveCliClasspath(Project project, FileCollection cliClasspath) {
@@ -238,36 +259,33 @@ public final class SmithyUtils {
         return cliClasspath;
     }
 
-    private static void executeCliProcess(Project project, List<String> arguments, FileCollection classpath) {
-        project.javaexec(t -> {
-            t.setArgs(arguments);
-            t.setClasspath(classpath);
-            t.setMain(SmithyCli.class.getCanonicalName());
-        });
+    @SmithyInternalApi
+    public abstract static class CliConfig implements WorkParameters {
+        abstract ListProperty<String> getArguments();
+
+        abstract ConfigurableFileCollection getClassPath();
     }
 
-    @SuppressWarnings("unchecked")
-    private static void executeCliThread(Project project, List<String> arguments, FileCollection classpath) {
-        // URL caching must be disabled when running the Smithy CLI using a
-        // custom class loader. An "empty" resource was added to the Gradle
-        // plugin to provide access to the global URL-wide caching behavior
-        // provided by URLConnection#setDefaultUseCaches. Setting that to
-        // false on any URLConnection disables caching on all URLConnections.
-        // Not doing this will lead to consistent errors like
-        // java.util.zip.ZipException: ZipFile invalid LOC header (bad signature)
-        // The default caching setting is restored after invoking the CLI.
-        URLConnection cacheBuster;
-        boolean isCachingEnabled;
-        try {
-            cacheBuster = SmithyUtils.class.getResource("empty").openConnection();
-            isCachingEnabled = cacheBuster.getDefaultUseCaches();
-            cacheBuster.setDefaultUseCaches(false);
-        } catch (IOException e) {
-            throw new SmithyBuildException(e);
+    @SmithyInternalApi
+    public abstract static class RunCli implements WorkAction<CliConfig> {
+        @Override
+        public void execute() {
+            withClassloader(getParameters().getClassPath().getFiles(), classLoader -> {
+                withCacheBuster(() -> {
+                    try {
+                        Class<?> smithyCliClass = classLoader.loadClass("software.amazon.smithy.cli.SmithyCli");
+                        Object cli = smithyCliClass.getDeclaredMethod("create").invoke(null);
+                        smithyCliClass.getDeclaredMethod("run", List.class)
+                                .invoke(cli, getParameters().getArguments().get());
+                    } catch (ReflectiveOperationException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
+            });
         }
+    }
 
-        // Create a custom class loader to run within the context of.
-        Set<File> files = classpath.getFiles();
+    private static void withClassloader(Set<File> files, Consumer<ClassLoader> consumer) {
         URL[] paths = new URL[files.size()];
         int i = 0;
 
@@ -279,61 +297,47 @@ public final class SmithyUtils {
             }
         }
 
-        Logger logger = project.getLogger();
-
-        // Need to run this in a doPrivileged to pass SpotBugs.
-        try (URLClassLoader classLoader = AccessController.doPrivileged(
-                (PrivilegedExceptionAction<URLClassLoader>) () -> new URLClassLoader(paths))) {
-
-            // Reflection is used to make calls on the loaded SmithyCli object.
-            String smithyCliName = SmithyCli.class.getCanonicalName();
-
-            Thread thread = new Thread(() -> {
-                try {
-                    Class smithyCliClass = classLoader.loadClass(smithyCliName);
-                    Object cli = smithyCliClass.getDeclaredMethod("create").invoke(null);
-                    smithyCliClass.getDeclaredMethod("classLoader", ClassLoader.class).invoke(cli, classLoader);
-                    smithyCliClass.getDeclaredMethod("run", List.class).invoke(cli, arguments);
-                } catch (ReflectiveOperationException e) {
-                    logger.info("Error executing Smithy CLI (ReflectiveOperationException)", e);
-                    throw new RuntimeException(e);
-                }
-            });
-
-            // Configure the thread to re-throw exception and use our custom class loader.
-            thread.setContextClassLoader(classLoader);
-            ExceptionHandler handler = new ExceptionHandler();
-            thread.setUncaughtExceptionHandler(handler);
-            thread.start();
-            thread.join();
-
-            if (handler.e != null) {
-                logger.info("Error executing Smithy CLI (thread handler)", handler.e);
-                throw handler.e;
-            }
-
-        } catch (Throwable e) {
-            // Find the originating exception message.
-            String message;
-            Throwable current = e;
-            do {
-                message = current.getMessage();
-                current = current.getCause();
-            } while (current != null);
-            logger.error(message);
-            throw new GradleException(message, e);
-        } finally {
-            // Restore URL caching to the previous value.
-            cacheBuster.setDefaultUseCaches(isCachingEnabled);
+        try (URLClassLoader classLoader = new URLClassLoader(paths)) {
+            consumer.accept(classLoader);
+        } catch (IOException e) {
+            throw unwrapException(e);
         }
     }
 
-    private static final class ExceptionHandler implements Thread.UncaughtExceptionHandler {
-        volatile Throwable e;
+    private static void withCacheBuster(Runnable runnable) {
+        // URL caching must be disabled when running the Smithy CLI using a
+        // custom class loader. An "empty" resource was added to the Gradle
+        // plugin to provide access to the global URL-wide caching behavior
+        // provided by URLConnection#setDefaultUseCaches. Setting that to
+        // false on any URLConnection disables caching on all URLConnections.
+        // Not doing this will lead to consistent errors like
+        // java.util.zip.ZipException: ZipFile invalid LOC header (bad signature)
+        // The default caching setting is restored after invoking the CLI.
+        URLConnection cacheBuster = null;
+        boolean isCachingEnabled = false;
 
-        @Override
-        public void uncaughtException(Thread t, Throwable e) {
-            this.e = e;
+        try {
+            cacheBuster = SmithyUtils.class.getResource("empty").openConnection();
+            isCachingEnabled = cacheBuster.getDefaultUseCaches();
+            cacheBuster.setDefaultUseCaches(false);
+            runnable.run();
+        } catch (IOException e) {
+            throw new SmithyBuildException(e);
+        } finally {
+            if (cacheBuster != null) {
+                cacheBuster.setDefaultUseCaches(isCachingEnabled);
+            }
+        }
+    }
+
+    private static RuntimeException unwrapException(Throwable current) {
+        while (current.getCause() != null) {
+            current = current.getCause();
+        }
+        if (current instanceof RuntimeException) {
+            return (RuntimeException) current;
+        } else {
+            return new GradleException(current.getMessage(), current);
         }
     }
 }

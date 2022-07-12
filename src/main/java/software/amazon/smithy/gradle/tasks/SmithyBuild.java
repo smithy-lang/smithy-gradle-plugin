@@ -18,8 +18,10 @@ package software.amazon.smithy.gradle.tasks;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.tasks.InputFiles;
+import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.TaskAction;
@@ -33,19 +35,31 @@ import software.amazon.smithy.gradle.SmithyUtils;
  * <p>See the {@link SmithyBuildJar} task for building JARs for
  * projects.
  */
-public class SmithyBuild extends SmithyCliTask {
+public abstract class SmithyBuild extends SmithyCliTask {
 
     private FileCollection smithyBuildConfigs;
-    private File outputDirectory;
+
+    public SmithyBuild() {
+        getOutputDir().convention(SmithyUtils.outputDirectory(getProject()));
+    }
 
     /**
      * Gets the output directory for running Smithy build.
      *
-     * @return Returns the output directory.
+     * @return Returns the output directory, lazily evaluated.
      */
     @OutputDirectory
+    abstract DirectoryProperty getOutputDir();
+
+    /**
+     * Gets the output directory for running Smithy build.
+     *
+     * @return Returns the output directory, eagerly evaluated.
+     */
+    @Internal
+    @Deprecated
     public File getOutputDirectory() {
-        return SmithyUtils.resolveOutputDirectory(outputDirectory, getProject());
+        return getOutputDir().get().getAsFile();
     }
 
     /**
@@ -55,8 +69,9 @@ public class SmithyBuild extends SmithyCliTask {
      *
      * @param outputDirectory Output directory to set.
      */
+    @Deprecated
     public void setOutputDirectory(File outputDirectory) {
-        this.outputDirectory = outputDirectory;
+        getOutputDir().fileValue(outputDirectory);
     }
 
     /**
@@ -96,7 +111,7 @@ public class SmithyBuild extends SmithyCliTask {
         }
 
         // Clear out the build directory when rebuilding.
-        getProject().delete(getOutputDirectory());
+        getProject().delete(getOutputDir());
 
         List<String> customArgs = new ArrayList<>();
 
@@ -109,7 +124,7 @@ public class SmithyBuild extends SmithyCliTask {
         });
 
         customArgs.add("--output");
-        customArgs.add(getOutputDirectory().toString());
+        customArgs.add(getOutputDir().getAsFile().get().toString());
         executeCliProcess("build", customArgs, getClasspath(), getModelDiscoveryClasspath());
     }
 }

@@ -25,9 +25,11 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 import org.gradle.api.GradleException;
+import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFiles;
+import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.TaskAction;
@@ -52,21 +54,33 @@ import software.amazon.smithy.gradle.SmithyUtils;
  * internal models, but it also means that dependencies may need to be
  * specified both in the buildscript and in the normal dependencies block.
  */
-public class SmithyBuildJar extends BaseSmithyTask {
+public abstract class SmithyBuildJar extends BaseSmithyTask {
 
     private String projection;
     private Set<String> projectionSourceTags = new TreeSet<>();
     private FileCollection smithyBuildConfigs;
-    private File outputDirectory;
+
+    public SmithyBuildJar() {
+        getOutputDir().convention(SmithyUtils.outputDirectory(getProject()));
+    }
 
     /**
      * Gets the output directory for running Smithy build.
      *
-     * @return Returns the output directory.
+     * @return Returns the output directory, lazily evaluated.
      */
     @OutputDirectory
+    abstract DirectoryProperty getOutputDir();
+
+    /**
+     * Gets the output directory for running Smithy build.
+     *
+     * @return Returns the output directory, eagerly evaluated.
+     */
+    @Internal
+    @Deprecated
     public File getOutputDirectory() {
-        return SmithyUtils.resolveOutputDirectory(outputDirectory, getProject());
+        return getOutputDir().get().getAsFile();
     }
 
     /**
@@ -76,8 +90,9 @@ public class SmithyBuildJar extends BaseSmithyTask {
      *
      * @param outputDirectory Output directory to set.
      */
+    @Deprecated
     public void setOutputDirectory(File outputDirectory) {
-        this.outputDirectory = outputDirectory;
+        getOutputDir().fileValue(outputDirectory);
     }
 
     /**
@@ -192,8 +207,8 @@ public class SmithyBuildJar extends BaseSmithyTask {
         builder.projectionSourceTags(getProjectionSourceTags());
         builder.allowUnknownTraits(getAllowUnknownTraits());
 
-        if (getOutputDirectory() != null) {
-            builder.output(getOutputDirectory().getAbsolutePath());
+        if (getOutputDir().isPresent()) {
+            builder.output(getOutputDir().getAsFile().get().getAbsolutePath());
         }
 
         getSmithyBuildConfigs().forEach(config -> builder.addConfigIfExists(config.getAbsolutePath()));
@@ -213,7 +228,7 @@ public class SmithyBuildJar extends BaseSmithyTask {
 
         // Copy generated files where they're needed and register source sets.
         try {
-            createSourceSets(getOutputDirectory().toPath());
+            createSourceSets(getOutputDir().getAsFile().get().toPath());
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

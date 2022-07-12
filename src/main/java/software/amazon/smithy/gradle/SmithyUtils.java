@@ -30,10 +30,13 @@ import org.gradle.api.GradleException;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.file.ConfigurableFileCollection;
+import org.gradle.api.file.Directory;
 import org.gradle.api.file.FileCollection;
+import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.provider.ListProperty;
+import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.SourceSetContainer;
 import org.gradle.workers.ClassLoaderWorkerSpec;
 import org.gradle.workers.WorkAction;
@@ -167,35 +170,31 @@ public final class SmithyUtils {
     }
 
     /**
-     * Gets the path to the default output directory of projections.
+     * Gets the provider for the default output directory of projections.
      *
      * @param project Project to inspect.
      * @return Returns the default output directory.
      */
-    private static File getProjectionOutputDir(Project project) {
-        return project.getBuildDir()
-                .toPath()
-                .resolve(SMITHY_PROJECTIONS)
-                .resolve(project.getName())
-                .toFile();
+    private static Provider<Directory> getProjectionOutputDirProperty(Project project) {
+        return project.getLayout()
+            .getBuildDirectory()
+            .dir(SMITHY_PROJECTIONS + File.separator + project.getName());
     }
 
     /**
-     * Resolves the appropriate output directory for Smithy artifacts.
+     * Returns the output directory for Smithy artifacts. The default location will be used unless overridden through
+     * the {@link SmithyExtension}.
      *
-     * @param currentTaskValue The possibly null value currently set on a task.
      * @param project The project to query.
      * @return Returns the resolved directory.
      */
-    public static File resolveOutputDirectory(File currentTaskValue, Project project) {
-        if (currentTaskValue != null) {
-            return currentTaskValue;
-        }
-
+    public static Provider<Directory> outputDirectory(Project project) {
         SmithyExtension extension = getSmithyExtension(project);
-        return extension.getOutputDirectory() != null
-               ? extension.getOutputDirectory()
-               : SmithyUtils.getProjectionOutputDir(project);
+        ProjectLayout layout = project.getLayout();
+
+        Provider<Directory> defaultLocation = getProjectionOutputDirProperty(project);
+        Provider<Directory> override = layout.dir(project.provider(extension::getOutputDirectory));
+        return override.orElse(defaultLocation);
     }
 
     /**

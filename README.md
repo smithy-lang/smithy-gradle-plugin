@@ -21,7 +21,7 @@ plugins {
 
 ## Documentation
 
-See https://awslabs.github.io/smithy/1.0/guides/building-models/gradle-plugin.html
+See https://awslabs.github.io/smithy/2.0/guides/building-models/gradle-plugin.html
 
 
 ## License

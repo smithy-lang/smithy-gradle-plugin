@@ -23,7 +23,7 @@ plugins {
     checkstyle
     jacoco
     id("com.github.spotbugs") version "4.7.1"
-    id("com.gradle.plugin-publish") version "0.11.0"
+    id("com.gradle.plugin-publish") version "1.0.0"
     id("com.adarshr.test-logger") version "3.2.0"
 }
 
@@ -134,12 +134,7 @@ repositories {
 
 publishing {
     publications {
-        create<MavenPublication>("mavenJava") {
-            from(components["java"])
-
-            // Ship the source and javadoc jars.
-            artifact(tasks["sourcesJar"])
-            artifact(tasks["javadocJar"])
+        create<MavenPublication>("pluginMaven") {
         }
     }
 }

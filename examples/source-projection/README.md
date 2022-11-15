@@ -15,4 +15,4 @@ Gradle to use public sources.
 
 ## See Also
 
-[Building a source model](https://awslabs.github.io/smithy/1.0/guides/building-models/gradle-plugin.html#building-a-source-model)
+[Building a source model](https://smithy.io/2.0/guides/building-models/gradle-plugin.html#building-a-source-model)

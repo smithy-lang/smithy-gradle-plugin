@@ -15,4 +15,4 @@ Gradle to use public sources.
 
 ## See Also
 
-[Projection tags](https://awslabs.github.io/smithy/1.0/guides/building-models/gradle-plugin.html#projection-tags)
+[Projection tags](https://smithy.io/2.0/guides/building-models/gradle-plugin.html#projection-tags)

@@ -14,4 +14,4 @@ Gradle to use public sources.
 
 ## See Also
 
-[Generating a projection](https://awslabs.github.io/smithy/1.0/guides/building-models/gradle-plugin.html#generating-a-projection)
+[Generating a projection](https://smithy.io/2.0/guides/building-models/gradle-plugin.html#generating-a-projection)

@@ -14,6 +14,6 @@ Gradle to use public sources.
 
 Since this example has no models, you will need to add them yourself. To do this,
 create a directory called `model` and add your new model files there. See the
-`Multiple Sources` project or the documentation [here](https://awslabs.github.io/smithy/1.0/guides/building-models/gradle-plugin.html#smithy-model-sources)
+`Multiple Sources` project or the documentation [here](https://smithy.io/2.0/guides/building-models/gradle-plugin.html#smithy-model-sources)
 for other locations models are read from by default. Models may also be placed in
-custom locations using [`imports` in your `smithy-build.json`](https://awslabs.github.io/smithy/1.0/guides/building-models/build-config.html)
+custom locations using [`imports` in your `smithy-build.json`](https://smithy.io/2.0/guides/building-models/build-config.html)

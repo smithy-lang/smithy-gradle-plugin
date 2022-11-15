@@ -19,6 +19,6 @@ Gradle to use public sources.
 
 ## See Also
 
-[Smithy model sources](https://awslabs.github.io/smithy/1.0/guides/building-models/gradle-plugin.html#smithy-model-sources)
+[Smithy model sources](https://smithy.io/2.0/guides/building-models/gradle-plugin.html#smithy-model-sources)
 
-[`smithy-build.json`'s `imports`](https://awslabs.github.io/smithy/1.0/guides/building-models/build-config.html?highlight=imports)
+[`smithy-build.json`'s `imports`](https://smithy.io/2.0/guides/building-models/build-config.html?highlight=imports)

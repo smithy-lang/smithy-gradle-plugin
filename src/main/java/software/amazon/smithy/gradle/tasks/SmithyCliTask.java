@@ -17,7 +17,11 @@ package software.amazon.smithy.gradle.tasks;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import org.gradle.StartParameter;
 import org.gradle.api.file.FileCollection;
+import org.gradle.api.logging.LogLevel;
+import org.gradle.api.logging.configuration.ShowStacktrace;
 import org.gradle.api.tasks.Classpath;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.Optional;
@@ -206,6 +210,39 @@ abstract class SmithyCliTask extends BaseSmithyTask {
             args.add(modelDiscoveryClasspath.getAsPath());
         } else if (!disableModelDiscovery) {
             args.add("--discover");
+        }
+
+        // Add --stacktrace and --logging settings based on Gradle's settings.
+        StartParameter startParameter = getProject().getGradle().getStartParameter();
+
+        ShowStacktrace showStacktrace = startParameter.getShowStacktrace();
+        if (showStacktrace == ShowStacktrace.ALWAYS || showStacktrace == ShowStacktrace.ALWAYS_FULL) {
+            args.add("--stacktrace");
+        }
+
+        LogLevel level = startParameter.getLogLevel();
+        switch (level) {
+            case DEBUG:
+                args.add("--debug");
+                break;
+            case LIFECYCLE: // The default setting in Gradle, so use Smithy's default of WARNING.
+            case WARN:
+                args.add("--logging");
+                args.add(Level.WARNING.toString());
+                break;
+            case QUIET:
+                args.add("--logging");
+                args.add(Level.OFF.toString());
+                break;
+            case ERROR:
+                args.add("--logging");
+                args.add(Level.SEVERE.toString());
+                break;
+            case INFO:
+            default:
+                args.add("--logging");
+                args.add(Level.INFO.toString());
+                break;
         }
 
         args.addAll(customArguments);

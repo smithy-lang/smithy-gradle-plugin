@@ -140,7 +140,7 @@ public final class SmithyPlugin implements Plugin<Project> {
         DependencySet existing = cli.getAllDependencies();
 
         if (existing.stream().anyMatch(d -> isMatchingDependency(d, "smithy-cli"))) {
-            project.getLogger().warn("(using explicitly configured Smithy CLI)");
+            project.getLogger().info("(using explicitly configured Smithy CLI)");
             return;
         }
 
@@ -148,7 +148,7 @@ public final class SmithyPlugin implements Plugin<Project> {
         String cliVersion = detectCliVersionInDependencies(SmithyUtils.getClasspath(project, "runtimeClasspath"));
 
         if (cliVersion != null) {
-            project.getLogger().warn("(detected Smithy CLI version {})", cliVersion);
+            project.getLogger().info("(detected Smithy CLI version {})", cliVersion);
         } else {
             // Finally, scan the buildScript dependencies for a smithy-model dependency. This
             // should always be found because the Gradle plugin has a dependency on it.
@@ -196,7 +196,7 @@ public final class SmithyPlugin implements Plugin<Project> {
             if (smithyCliPosition > -1 && name.endsWith(".jar")) {
                 String cliVersion = name.substring(
                         smithyCliPosition + "smithy-cli-".length(), name.length() - ".jar".length());
-                project.getLogger().warn("(scanned and found a Smithy CLI version {}. "
+                project.getLogger().info("(scanned and found a Smithy CLI version {}. "
                                          + "You will need to add an explicit dependency on smithy-model "
                                          + "if publishing a JAR)", cliVersion);
                 return cliVersion;

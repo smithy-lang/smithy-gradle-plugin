@@ -74,8 +74,7 @@ public class ProjectionTest {
                     .withProjectDir(buildDir)
                     .withArguments("clean", "build", "--info")
                     .build();
-
-            assertThat(result.getOutput(), containsString("[INFO] Validating"));
+            assertThat(result.getOutput(), containsString("[INFO] Smithy validation complete"));
         });
     }
 

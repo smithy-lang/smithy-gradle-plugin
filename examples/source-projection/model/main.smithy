@@ -1,8 +1,10 @@
-namespace smithy.example
+$version: "2"
+namespace example.weather
+use aws.protocols#restJson1
+use example.weather.operations#OperationWithMixin
 
-structure Baz {
-  foo: String
+@restJson1
+service Weather {
+    version: "2006-03-01"
+    operations: [OperationWithMixin]
 }
-
-@aws.auth#unsignedPayload
-operation Foo {}

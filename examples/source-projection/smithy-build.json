@@ -1,6 +1,46 @@
 {
-  "version": "1.0",
+  "version": "2.0",
   "projections": {
-    "foo": {}
+    "baseline": {
+      "transforms": [
+//        {
+//          "name": "excludeShapesByTrait",
+//          "args": {
+//            "traits": ["smithy.api#internal"]
+//          }
+//        },
+//        {
+//          "name": "excludeShapesByTag",
+//          "args": {
+//            "tags": ["internal"]
+//          }
+//        },
+//        {
+//          "name": "excludeTraitsByTag",
+//          "args": {
+//            "tags": ["internal"]
+//          }
+//        },
+////        {
+////          "name": "removeUnusedShapes",
+////          "args": {}
+////        },
+//        {
+//          "name": "excludeMetadata",
+//          "args": {
+//            "keys": [
+//              "validators"
+//            ]
+//          }
+//        },
+//        {
+//          "name": "filterSuppressions",
+//          "args": {
+//            "removeUnused": true,
+//            "removeReasons": true
+//          }
+//        }
+      ]
+    }
   }
 }

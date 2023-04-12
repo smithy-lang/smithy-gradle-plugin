@@ -17,6 +17,14 @@ import com.github.spotbugs.snom.Effort
 import com.github.spotbugs.snom.SpotBugsTask
 import com.adarshr.gradle.testlogger.TestLoggerExtension;
 
+group = "software.amazon.smithy"
+version = "0.6.0"
+description = "This project integrates Smithy with Gradle. This plugin can build artifacts " +
+        "from Smithy models, generate JARs that contain Smithy models found in Java " +
+        "projects, and generate JARs that contain filtered *projections* of Smithy " +
+        "models."
+
+
 plugins {
     `java-gradle-plugin`
     `maven-publish`
@@ -26,9 +34,6 @@ plugins {
     id("com.gradle.plugin-publish") version "0.11.0"
     id("com.adarshr.test-logger") version "3.2.0"
 }
-
-group = "software.amazon.smithy"
-version = "0.6.0"
 
 dependencies {
     implementation("software.amazon.smithy:smithy-model:[1.0, 2.0[")
@@ -134,12 +139,30 @@ repositories {
 
 publishing {
     publications {
-        create<MavenPublication>("mavenJava") {
-            from(components["java"])
-
-            // Ship the source and javadoc jars.
-            artifact(tasks["sourcesJar"])
-            artifact(tasks["javadocJar"])
+        create<MavenPublication>("pluginMaven") {
+            pom {
+                description.set(project.description)
+                url.set("https://github.com/awslabs/smithy-gradle-plugin")
+                licenses {
+                    license {
+                        name.set("Apache License 2.0")
+                        url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+                        distribution.set("repo")
+                    }
+                }
+                developers {
+                    developer {
+                        id.set("smithy")
+                        name.set("Smithy")
+                        organization.set("Amazon Web Services")
+                        organizationUrl.set("https://aws.amazon.com")
+                        roles.add("developer")
+                    }
+                }
+                scm {
+                    url.set("https://github.com/awslabs/smithy-gradle-plugin.git")
+                }
+            }
         }
     }
 }
@@ -194,16 +217,12 @@ tasks.withType<SpotBugsTask>().configureEach {
  * Gradle plugins
  * ====================================================
  */
-
 gradlePlugin {
     plugins {
         create("software.amazon.smithy") {
             id = "software.amazon.smithy"
             displayName = "Smithy Gradle Plugin"
-            description = "This project integrates Smithy with Gradle. This plugin can build artifacts " +
-                    "from Smithy models, generate JARs that contain Smithy models found in Java " +
-                    "projects, and generate JARs that contain filtered *projections* of Smithy " +
-                    "models."
+            description = project.description
             implementationClass = "software.amazon.smithy.gradle.SmithyPlugin"
         }
     }

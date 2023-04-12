@@ -15,9 +15,9 @@
 ### Bug Fixes
 
 * Correctly bind extensions to tasks ([#75](https://github.com/awslabs/smithy-gradle-plugin/pull/75))
-* Fixed modifiesLogging test to handle new logging in Validate command ([#70](https://github.com/awslabs/smithy-gradle-plugin/pull/70))
+* Fix modifiesLogging test to handle new logging in Validate command ([#70](https://github.com/awslabs/smithy-gradle-plugin/pull/70))
 * Ensure that stderrr/stdout are printed by each integration test ([#55](https://github.com/awslabs/smithy-gradle-plugin/pull/55))
-* Fixed buildDir not being respected ([#52](https://github.com/awslabs/smithy-gradle-plugin/pull/52))
+* Fix buildDir not being respected ([#52](https://github.com/awslabs/smithy-gradle-plugin/pull/52))
 
 ## 0.6.0 (2021-12-01)
 

@@ -35,7 +35,6 @@ import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.workers.WorkerExecutor;
 import software.amazon.smithy.cli.BuildParameterBuilder;
-import software.amazon.smithy.gradle.SmithyExtension;
 import software.amazon.smithy.gradle.SmithyUtils;
 
 /**
@@ -177,23 +176,6 @@ public abstract class SmithyBuildJar extends BaseSmithyTask {
 
     @TaskAction
     public void execute() {
-        // Configure the task from the extension if things aren't already setup.
-        SmithyExtension extension = SmithyUtils.getSmithyExtension(getProject());
-
-        if (projection == null) {
-            getLogger().debug("Setting SmithyBuildJar projection from extension: {}", extension.getProjection());
-            setProjection(extension.getProjection());
-        }
-
-        // Merge tags from the extension into the task.
-        projectionSourceTags.addAll(extension.getProjectionSourceTags());
-
-        // Merge or overwrite?
-        if (smithyBuildConfigs == null) {
-            setSmithyBuildConfigs(extension.getSmithyBuildConfigs());
-            getLogger().debug("Setting SmithyBuildJar smithyBuildConfigs from extension: {}", smithyBuildConfigs);
-        }
-
         writeHeading("Running smithy build");
 
         // Clear out the directories when rebuilding.

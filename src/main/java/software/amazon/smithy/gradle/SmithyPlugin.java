@@ -32,6 +32,7 @@ import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.language.jvm.tasks.ProcessResources;
+import software.amazon.smithy.gradle.tasks.SmithyBuild;
 import software.amazon.smithy.gradle.tasks.SmithyBuildJar;
 import software.amazon.smithy.gradle.tasks.SmithyTagsTask;
 import software.amazon.smithy.gradle.tasks.Validate;
@@ -84,10 +85,17 @@ public final class SmithyPlugin implements Plugin<Project> {
             registerSourceSets(project);
             addCliDependencies(project);
             buildJarTask.setAllowUnknownTraits(extension.getAllowUnknownTraits());
+            buildJarTask.setSmithyBuildConfigs(extension.getSmithyBuildConfigs());
+            buildJarTask.setProjection(extension.getProjection());
+            buildJarTask.getProjectionSourceTags().addAll(extension.getProjectionSourceTags());
             // We need to manually add these files as a dependency because we
             // dynamically inject the Smithy CLI JARs into the classpath.
             Configuration smithyCliFiles = project.getConfigurations().getByName("smithyCli");
             buildJarTask.getInputs().files(smithyCliFiles);
+        });
+
+        project.getTasks().withType(SmithyBuild.class).configureEach(smithyBuild -> {
+            smithyBuild.setSmithyBuildConfigs(extension.getSmithyBuildConfigs());
         });
 
         // This plugin supports loading Smithy models from various locations, including
@@ -103,6 +111,7 @@ public final class SmithyPlugin implements Plugin<Project> {
             Task jarTask = project.getTasks().getByName("jar");
             // Only run the smithyTags task if the jar task is enabled.
             smithyTagsTask.setEnabled(jarTask.getEnabled());
+            smithyTagsTask.getTags().addAll(extension.getTags());
         });
 
         project.getTasks().getByName("jar").dependsOn(smithyTagsProvider);

@@ -25,7 +25,6 @@ import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.TaskAction;
-import software.amazon.smithy.gradle.SmithyExtension;
 import software.amazon.smithy.gradle.SmithyUtils;
 
 /**
@@ -101,15 +100,6 @@ public abstract class SmithyBuild extends SmithyCliTask {
 
     @TaskAction
     public void execute() {
-        // Configure the task from the extension if things aren't already setup.
-        SmithyExtension extension = SmithyUtils.getSmithyExtension(getProject());
-
-        if (smithyBuildConfigs == null) {
-            getLogger().debug("Setting smithyBuildConfigs of {} to {} from SmithyExtension",
-                              getClass().getName(), extension.getSmithyBuildConfigs());
-            setSmithyBuildConfigs(extension.getSmithyBuildConfigs());
-        }
-
         // Clear out the build directory when rebuilding.
         getProject().delete(getOutputDir());
 

@@ -24,8 +24,6 @@ import org.gradle.api.tasks.TaskAction;
 import org.gradle.internal.logging.text.StyledTextOutput;
 import org.gradle.internal.logging.text.StyledTextOutputFactory;
 import org.gradle.jvm.tasks.Jar;
-import software.amazon.smithy.gradle.SmithyExtension;
-import software.amazon.smithy.gradle.SmithyUtils;
 
 /**
  * Adds Smithy-Tags to the JAR built by the {@link Jar} Task.
@@ -68,10 +66,6 @@ public class SmithyTagsTask extends DefaultTask {
             getLogger().info("'jar' task is not enabled, so nothing to do in 'smithyTags'");
             return;
         }
-
-        // Configure the task from the extension if things aren't already setup.
-        SmithyExtension extension = SmithyUtils.getSmithyExtension(getProject());
-        tags.addAll(extension.getTags());
 
         // Always add the group, the group + ":" + name, and the group + ":" + name + ":" + version as tags.
         if (!getProject().getGroup().toString().isEmpty()) {

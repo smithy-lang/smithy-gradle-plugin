@@ -143,6 +143,11 @@ repositories {
 publishing {
     publications {
         create<MavenPublication>("pluginMaven") {
+            
+            // Ship the source and javadoc jars.
+            artifact(tasks["sourcesJar"])
+            artifact(tasks["javadocJar"])
+
             pom {
                 description.set(project.description)
                 url.set("https://github.com/awslabs/smithy-gradle-plugin")

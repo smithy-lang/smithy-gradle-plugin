@@ -19,4 +19,13 @@
     <Match>
         <Class name="~Test\.java$"/>
     </Match>
+
+    <!-- Excessive Defensive copies. -->
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP"/>
+    </Match>
+
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+    </Match>
 </FindBugsFilter>

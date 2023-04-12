@@ -15,8 +15,7 @@
 
 import com.github.spotbugs.snom.Effort
 import com.github.spotbugs.snom.SpotBugsTask
-import com.adarshr.gradle.testlogger.TestLoggerExtension;
-import java.nio.charset.Charset
+import com.adarshr.gradle.testlogger.TestLoggerExtension
 
 group = "software.amazon.smithy"
 // Load the version from VERSION File.
@@ -33,8 +32,8 @@ plugins {
     `maven-publish`
     checkstyle
     jacoco
-    id("com.github.spotbugs") version "4.7.1"
-    id("com.gradle.plugin-publish") version "0.11.0"
+    id("com.github.spotbugs") version "5.0.14"
+    id("com.gradle.plugin-publish") version "1.2.0"
     id("com.adarshr.test-logger") version "3.2.0"
 }
 
@@ -143,11 +142,6 @@ repositories {
 publishing {
     publications {
         create<MavenPublication>("pluginMaven") {
-            
-            // Ship the source and javadoc jars.
-            artifact(tasks["sourcesJar"])
-            artifact(tasks["javadocJar"])
-
             pom {
                 description.set(project.description)
                 url.set("https://github.com/awslabs/smithy-gradle-plugin")

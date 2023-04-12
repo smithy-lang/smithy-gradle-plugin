@@ -16,14 +16,17 @@
 import com.github.spotbugs.snom.Effort
 import com.github.spotbugs.snom.SpotBugsTask
 import com.adarshr.gradle.testlogger.TestLoggerExtension;
+import java.nio.charset.Charset
 
 group = "software.amazon.smithy"
-version = "0.6.0"
+// Load the version from VERSION File.
+version = project.file("VERSION").readText().replace(System.lineSeparator(), "")
 description = "This project integrates Smithy with Gradle. This plugin can build artifacts " +
         "from Smithy models, generate JARs that contain Smithy models found in Java " +
         "projects, and generate JARs that contain filtered *projections* of Smithy " +
         "models."
 
+println("Smithy version: '${version}'")
 
 plugins {
     `java-gradle-plugin`

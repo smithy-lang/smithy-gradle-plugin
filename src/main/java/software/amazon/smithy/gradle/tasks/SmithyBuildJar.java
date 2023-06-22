@@ -69,7 +69,7 @@ public abstract class SmithyBuildJar extends BaseSmithyTask {
      * @return Returns the output directory, lazily evaluated.
      */
     @OutputDirectory
-    abstract DirectoryProperty getOutputDir();
+    public abstract DirectoryProperty getOutputDir();
 
     /**
      * Gets the output directory for running Smithy build.

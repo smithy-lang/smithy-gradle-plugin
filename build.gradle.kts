@@ -16,6 +16,7 @@
 import com.github.spotbugs.snom.Effort
 import com.github.spotbugs.snom.SpotBugsTask
 import com.adarshr.gradle.testlogger.TestLoggerExtension
+import org.apache.tools.ant.filters.ReplaceTokens
 
 group = "software.amazon.smithy"
 // Load the version from VERSION File.
@@ -25,7 +26,7 @@ description = "This project integrates Smithy with Gradle. This plugin can build
         "projects, and generate JARs that contain filtered *projections* of Smithy " +
         "models."
 
-println("Smithy version: '${version}'")
+println("Smithy-Gradle-Plugin version: '${version}'")
 
 plugins {
     `java-gradle-plugin`
@@ -41,6 +42,7 @@ dependencies {
     implementation("software.amazon.smithy:smithy-model:[1.0, 2.0[")
     implementation("software.amazon.smithy:smithy-build:[1.0, 2.0[")
     implementation("software.amazon.smithy:smithy-cli:[1.0, 2.0[")
+    implementation("software.amazon.smithy:smithy-syntax:[1.0, 2.0[")
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.4.0")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.4.0")
@@ -61,6 +63,8 @@ java {
 // Use Junit5's test runner.
 tasks.withType<Test> {
     useJUnitPlatform()
+    // Override version in tests
+    environment( "smithygradle.version.override", "0.0.Alpha-Test");
 }
 
 configure<TestLoggerExtension> {
@@ -112,6 +116,12 @@ sourceSets {
         compileClasspath += sourceSets["main"].output + configurations["testRuntimeClasspath"]
         runtimeClasspath += output + compileClasspath + sourceSets["test"].runtimeClasspath
     }
+}
+
+// Update the version.properties file to reflect current version of project
+tasks.withType<ProcessResources> {
+    include("**/*")
+    filter<ReplaceTokens>("tokens" to mapOf("SmithyGradleVersion" to version))
 }
 
 tasks.register<Test>("integTest") {
@@ -192,9 +202,9 @@ tasks["test"].finalizedBy(tasks["jacocoTestReport"])
 // Configure jacoco to generate an HTML report.
 tasks.jacocoTestReport {
     reports {
-        xml.isEnabled = false
-        csv.isEnabled = false
-        html.destination = file("$buildDir/reports/jacoco")
+        xml.required.set(false)
+        csv.required.set(false)
+        html.outputLocation.set(file("$buildDir/reports/jacoco"))
     }
 }
 

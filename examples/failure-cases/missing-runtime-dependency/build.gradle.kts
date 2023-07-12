@@ -4,6 +4,7 @@
 // plugin validates the JAR with Smithy model discovery.
 
 plugins {
+    `java-library`
     id("software.amazon.smithy").version("0.7.0")
 }
 
@@ -30,6 +31,6 @@ dependencies {
     //implementation("software.amazon.smithy:smithy-aws-traits:[1.0, 2.0[")
 }
 
-configure<software.amazon.smithy.gradle.SmithyExtension> {
-    projection = "foo"
+smithy {
+    sourceProjection.set("foo")
 }

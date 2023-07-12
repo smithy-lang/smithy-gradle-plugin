@@ -1,6 +1,7 @@
 // This example is an integration test to ensure that projects with no models do not fail.
 
 plugins {
+    `java-library`
     id("software.amazon.smithy").version("0.7.0")
 }
 
@@ -10,8 +11,4 @@ version = "9.9.9"
 repositories {
     mavenLocal()
     mavenCentral()
-}
-
-dependencies {
-    implementation("software.amazon.smithy:smithy-model:[1.0, 2.0[")
 }

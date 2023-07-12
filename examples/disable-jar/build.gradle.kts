@@ -1,6 +1,7 @@
 // This example builds Smithy models but does not create a JAR.
 
 plugins {
+    `java-library`
     id("software.amazon.smithy").version("0.7.0")
 }
 

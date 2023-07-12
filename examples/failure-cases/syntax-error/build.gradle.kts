@@ -1,6 +1,7 @@
 // This example fails to build due to a syntax error.
 
 plugins {
+    `java-library`
     id("software.amazon.smithy").version("0.7.0")
 }
 

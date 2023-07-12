@@ -1,16 +1,6 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License").
- * You may not use this file except in compliance with the License.
- * A copy of the License is located at
- *
- *  http://aws.amazon.com/apache2.0
- *
- * or in the "license" file accompanying this file. This file is distributed
- * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
- * express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 package software.amazon.smithy.gradle;
@@ -37,6 +27,7 @@ import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Provider;
+import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.SourceSetContainer;
 import org.gradle.workers.ClassLoaderWorkerSpec;
 import org.gradle.workers.WorkAction;
@@ -44,7 +35,9 @@ import org.gradle.workers.WorkParameters;
 import org.gradle.workers.WorkQueue;
 import org.gradle.workers.WorkerExecutor;
 import software.amazon.smithy.build.SmithyBuildException;
+import software.amazon.smithy.gradle.internal.CliDependencyResolver;
 import software.amazon.smithy.utils.SmithyInternalApi;
+import software.amazon.smithy.utils.StringUtils;
 
 /**
  * General utility methods used throughout the plugin.
@@ -71,22 +64,16 @@ public final class SmithyUtils {
     /**
      * Gets the path to a projection plugins output.
      *
-     * @param project Project to inspect.
+     * @param smithyOutputDirectory output directory to get plugin path from
      * @param projection Projection name.
      * @param plugin Plugin name.
      * @return Returns the resolved path.
      */
-    public static Path getProjectionPluginPath(Project project, String projection, String plugin) {
-        SmithyExtension extension = getSmithyExtension(project);
-        if (extension.getOutputDirectory() != null) {
-            return extension.getOutputDirectory()
-                    .toPath()
-                    .resolve(projection)
-                    .resolve(plugin);
+    public static Path getProjectionPluginPath(File smithyOutputDirectory, String projection, String plugin) {
+        if (!smithyOutputDirectory.isDirectory()) {
+            throw new RuntimeException("Expected directory for outputDir but found file");
         }
-        return project.getBuildDir().toPath()
-                .resolve(SMITHY_PROJECTIONS)
-                .resolve(project.getName())
+        return smithyOutputDirectory.toPath()
                 .resolve(projection)
                 .resolve(plugin);
     }
@@ -142,28 +129,23 @@ public final class SmithyUtils {
         return project.getConfigurations().getByName(configurationName);
     }
 
-    /**
-     * Gets the buildscript classpath of a project.
-     *
-     * @param project Project to inspect.
-     * @return Returns the classpath.
-     */
-    public static Configuration getBuildscriptClasspath(Project project) {
-        return project.getBuildscript().getConfigurations().getByName("classpath");
-    }
-
+    // TODO: should this be in the jar staging task?
     /**
      * Gets the path to the temp directory where Smithy model resources are placed
      * in the generated JAR of a project.
      *
-     * @param project Project to inspect.
+     * The name of the task is used so that multiple staging directories can be
+     * created without conflicts. The task name must uniquely identify the task
+     * within a project so there is no concern of task naming collision.
+     *
+     * @param taskName name of the task using this Temp directory
+     * @param outputDir output directory to inspect.
      * @return Returns the classpath.
      */
-    public static File getSmithyResourceTempDir(Project project) {
-        return project.getBuildDir()
-                .toPath()
+    public static File getSmithyResourceTempDir(String taskName, File outputDir) {
+        return outputDir.toPath()
                 .resolve("tmp")
-                .resolve("smithy-inf")
+                .resolve("staging-" + taskName)
                 .resolve("META-INF")
                 .resolve("smithy")
                 .toFile();
@@ -175,7 +157,7 @@ public final class SmithyUtils {
      * @param project Project to inspect.
      * @return Returns the default output directory.
      */
-    private static Provider<Directory> getProjectionOutputDirProperty(Project project) {
+    public static Provider<Directory> getProjectionOutputDirProperty(Project project) {
         return project.getLayout()
             .getBuildDirectory()
             .dir(SMITHY_PROJECTIONS + File.separator + project.getName());
@@ -193,31 +175,26 @@ public final class SmithyUtils {
         ProjectLayout layout = project.getLayout();
 
         Provider<Directory> defaultLocation = getProjectionOutputDirProperty(project);
-        Provider<Directory> override = layout.dir(project.provider(extension::getOutputDirectory));
+        Provider<Directory> override = layout.dir(extension.getOutputDirectory());
         return override.orElse(defaultLocation);
     }
 
     /**
      * Executes the Smithy CLI in a separate thread or process.
      *
-     * @param project Gradle project being built.
+     * @param executor WorkerExecutor to use for executing CLI command.
      * @param arguments CLI arguments.
-     * @param classpath Classpath to use when running the CLI. Uses buildScript when not defined.
+     * @param cliClasspath Classpath to use when running the CLI.
+     * @param fork whether to fork a new process or not
      */
     public static void executeCli(
             WorkerExecutor executor,
-            Project project,
             List<String> arguments,
-            FileCollection classpath
+            FileCollection cliClasspath,
+            boolean fork
     ) {
-        FileCollection resolvedClasspath = resolveCliClasspath(project, classpath);
-
-        boolean fork = getSmithyExtension(project).getFork();
-        project.getLogger().info("Executing Smithy CLI in a {}: {}; using classpath {}",
-                                 fork ? "process" : "thread",
-                                 String.join(" ", arguments),
-                                 resolvedClasspath.getAsPath());
-        Action<? super ClassLoaderWorkerSpec> config = spec -> spec.getClasspath().setFrom(resolvedClasspath);
+        CliDependencyResolver.validateCliClasspath(cliClasspath);
+        Action<? super ClassLoaderWorkerSpec> config = spec -> spec.getClasspath().setFrom(cliClasspath);
         WorkQueue queue = fork ? executor.processIsolation(config) : executor.classLoaderIsolation(config);
 
         queue.submit(RunCli.class, params -> {
@@ -227,35 +204,10 @@ public final class SmithyUtils {
             // for running the Smithy CLI. Relying on it rather than creating a custom
             // URLClassLoader causes the classpath to seem to inherit cached JARs from places
             // like ~/.gradle/caches/jars-9.
-            params.getClassPath().setFrom(resolvedClasspath);
+            params.getClassPath().setFrom(cliClasspath);
         });
 
         queue.await();
-    }
-
-    private static FileCollection resolveCliClasspath(Project project, FileCollection cliClasspath) {
-        if (cliClasspath == null) {
-            FileCollection buildScriptCp = SmithyUtils.getBuildscriptClasspath(project);
-            project.getLogger().info("Smithy CLI classpath is null, so using buildscript: {}", buildScriptCp);
-            return resolveCliClasspath(project, buildScriptCp);
-        }
-
-        // Add the CLI classpath if it's missing from the given classpath.
-        if (!cliClasspath.getAsPath().contains("smithy-cli")) {
-            FileCollection defaultCliCp = SmithyUtils.getSmithyCliClasspath(project);
-            project.getLogger().info("Adding CLI classpath to command: {}", defaultCliCp.getAsPath());
-            cliClasspath = cliClasspath.plus(defaultCliCp);
-        } else {
-            project.getLogger().info("Smithy CLI classpath already has the CLI in it");
-        }
-
-        for (File f : cliClasspath) {
-            if (!f.exists()) {
-                project.getLogger().error("CLI classpath JAR does not exist: {}", f);
-            }
-        }
-
-        return cliClasspath;
     }
 
     @SmithyInternalApi
@@ -338,5 +290,10 @@ public final class SmithyUtils {
         } else {
             return new GradleException(current.getMessage(), current);
         }
+    }
+
+    static String getRelativeSourceSetName(String sourceSetName, String name) {
+        return sourceSetName.equals(SourceSet.MAIN_SOURCE_SET_NAME)
+                ? name : sourceSetName + StringUtils.capitalize(name);
     }
 }

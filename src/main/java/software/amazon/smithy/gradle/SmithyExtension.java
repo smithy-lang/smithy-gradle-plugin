@@ -1,60 +1,63 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License").
- * You may not use this file except in compliance with the License.
- * A copy of the License is located at
- *
- *  http://aws.amazon.com/apache2.0
- *
- * or in the "license" file accompanying this file. This file is distributed
- * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
- * express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 package software.amazon.smithy.gradle;
 
 import java.io.File;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import org.gradle.api.NamedDomainObjectContainer;
+import org.gradle.api.Project;
 import org.gradle.api.file.FileCollection;
-import org.gradle.internal.impldep.org.eclipse.jgit.annotations.Nullable;
+import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.provider.Property;
+import org.gradle.api.provider.SetProperty;
+import software.amazon.smithy.gradle.internal.DefaultSmithySourceDirectorySet;
 import software.amazon.smithy.model.traits.DynamicTrait;
 
 /**
  * Gradle configuration settings for Smithy.
  */
-public class SmithyExtension {
+public abstract class SmithyExtension {
+    private static final String SMITHY_BUILD_CONFIG_DEFAULT = "smithy-build.json";
+    private static final String SMITHY_SOURCE_PROJECTION_DEFAULT = "source";
 
-    private FileCollection smithyBuildConfigs;
-    private String projection = "source";
-    private Set<String> projectionSourceTags = new LinkedHashSet<>();
-    private Set<String> tags = new LinkedHashSet<>();
-    private boolean allowUnknownTraits;
-    private File outputDirectory;
-    private boolean fork;
+    private final NamedDomainObjectContainer<SmithySourceDirectorySet> sourceSets;
+
+    public SmithyExtension(Project project) {
+        // set defaults
+        getSmithyBuildConfigs().convention(project.files(SMITHY_BUILD_CONFIG_DEFAULT));
+        getSourceProjection().convention(SMITHY_SOURCE_PROJECTION_DEFAULT);
+        getFork().convention(false);
+        getFormat().convention(true);
+        getAllowUnknownTraits().convention(false);
+
+        ObjectFactory objectFactory = project.getObjects();
+        this.sourceSets = objectFactory.domainObjectContainer(SmithySourceDirectorySet.class,
+                name -> objectFactory.newInstance(DefaultSmithySourceDirectorySet.class,
+                        objectFactory.sourceDirectorySet(name, name + " Smithy sources"))
+        );
+    }
+
+    public NamedDomainObjectContainer<SmithySourceDirectorySet> getSourceSets() {
+        return this.sourceSets;
+    }
 
     /**
-     * Gets the projection name in use by the extension.
+     * Gets a custom collection of smithy-build.json files to use when
+     * building the model.
+     *
+     * @return Returns the collection of build configurations.
+     */
+    public abstract Property<FileCollection> getSmithyBuildConfigs();
+
+
+    /**
+     * Gets the projection name in use by the extension as the source (primary) projection.
      *
      * @return Returns the projection name and defaults to "source".
      */
-    public String getProjection() {
-        return projection;
-    }
-
-    /**
-     * Sets the projection name.
-     *
-     * <p>There must be a corresponding projection definition in the
-     * {@code smithy-build.json} file of the project.
-     *
-     * @param projection Projection to set.
-     */
-    public void setProjection(String projection) {
-        this.projection = projection;
-    }
+    public abstract Property<String> getSourceProjection();
 
     /**
      * Get the tags that are searched for in classpaths when determining which
@@ -69,20 +72,7 @@ public class SmithyExtension {
      *
      * @return Returns the tags. This will never return null.
      */
-    public final Set<String> getProjectionSourceTags() {
-        return projectionSourceTags;
-    }
-
-    /**
-     * Set the projection source tags.
-     *
-     * @param projectionSourceTags Tags to search for.
-     * @see #getProjectionSourceTags()
-     */
-    public final void setProjectionSourceTags(Set<String> projectionSourceTags) {
-        this.projectionSourceTags.clear();
-        this.projectionSourceTags.addAll(projectionSourceTags);
-    }
+    public abstract SetProperty<String> getProjectionSourceTags();
 
     /**
      * Get the tags that are added to the JAR.
@@ -94,43 +84,10 @@ public class SmithyExtension {
      *
      * @return Returns the Smithy-Tags values that will be added to the created JAR.
      */
-    public Set<String> getTags() {
-        return tags;
-    }
+    public abstract SetProperty<String> getTags();
 
     /**
-     * Sets the tags that are added that the JAR manifest in "Smithy-Tags".
-     *
-     * @param tags Smithy-Tags to add to the JAR.
-     * @see #getTags()
-     */
-    public void setTags(Set<String> tags) {
-        this.tags.clear();
-        this.tags.addAll(tags);
-    }
-
-    /**
-     * Gets a custom collection of smithy-build.json files to use when
-     * building the model.
-     *
-     * @return Returns the collection of build configurations.
-     */
-    public @Nullable FileCollection getSmithyBuildConfigs() {
-        return smithyBuildConfigs;
-    }
-
-    /**
-     * Sets a custom collection of smithy-build.json files to use when
-     * building the model.
-     *
-     * @param smithyBuildConfigs Sets the collection of build configurations.
-     */
-    public void setSmithyBuildConfigs(FileCollection smithyBuildConfigs) {
-        this.smithyBuildConfigs = smithyBuildConfigs;
-    }
-
-    /**
-     * Gets whether or not unknown traits in the model should be ignored.
+     * Gets whether unknown traits in the model should be ignored.
      *
      * <p>By default, the build will fail if unknown traits are encountered.
      * This can be set to true to allow unknown traits to pass through the
@@ -138,57 +95,32 @@ public class SmithyExtension {
      *
      * @return Returns true if unknown traits are allowed.
      */
-    public boolean getAllowUnknownTraits() {
-        return allowUnknownTraits;
-    }
+    public abstract Property<Boolean> getAllowUnknownTraits();
 
     /**
-     * Sets whether or not unknown traits are ignored.
+     * Gets whether to execute the format task on files in the Smithy source set
      *
-     * @param allowUnknownTraits Set to true to ignore unknown traits.
+     * <p>By default formatting is run on all `.smithy` files in the Smithy
+     * source set.
      */
-    public void setAllowUnknownTraits(boolean allowUnknownTraits) {
-        this.allowUnknownTraits = allowUnknownTraits;
-    }
+    public abstract Property<Boolean> getFormat();
 
     /**
-     * Gets whether or not to fork when running the Smithy CLI.
+     * Gets whether to fork when running the Smithy CLI.
      *
      * <p>By default, the CLI is run in the same process as Gradle,
-     * but inside of a thread with a custom class loader. This should
-     * work in most cases, but there is an option to run inside of a
+     * but inside a thread with a custom class loader. This should
+     * work in most cases, but there is an option to run inside a
      * process if necessary.
      *
      * @return Returns true if the CLI should fork.
      */
-    public boolean getFork() {
-        return fork;
-    }
-
-    /**
-     * Sets whether or not to fork when running the Smithy CLI.
-     *
-     * @param fork Set to true to fork when running the Smithy CLI.
-     */
-    public void setFork(boolean fork) {
-        this.fork = fork;
-    }
-
-    /**
-     * Sets the output directory of running Smithy Build.
-     *
-     * @param outputDirectory Output directory to set.
-     */
-    public void setOutputDirectory(File outputDirectory) {
-        this.outputDirectory = outputDirectory;
-    }
+    public abstract Property<Boolean> getFork();
 
     /**
      * Gets the output directory for running Smithy build.
      *
      * @return Returns the output directory.
      */
-    public @Nullable File getOutputDirectory() {
-        return outputDirectory;
-    }
+    public abstract Property<File> getOutputDirectory();
 }

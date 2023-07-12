@@ -2,6 +2,7 @@
 // found by scanning buildScript dependencies.
 
 plugins {
+    `java-library`
     id("software.amazon.smithy").version("0.7.0")
 }
 

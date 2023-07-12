@@ -1,17 +1,8 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License").
- * You may not use this file except in compliance with the License.
- * A copy of the License is located at
- *
- *  http://aws.amazon.com/apache2.0
- *
- * or in the "license" file accompanying this file. This file is distributed
- * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
- * express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * SPDX-License-Identifier: Apache-2.0
  */
+
 
 package software.amazon.smithy.gradle;
 
@@ -28,6 +19,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
@@ -38,6 +30,8 @@ import org.gradle.testkit.runner.TaskOutcome;
 import org.junit.jupiter.api.Assertions;
 
 public final class Utils {
+    private static final String SMITHY_BUILD_TASK_NAME = ":smithyBuild";
+
     private Utils() {}
 
     public static Path createTempDir(String name) {
@@ -97,11 +91,11 @@ public final class Utils {
     }
 
     public static void assertSmithyBuildRan(BuildResult result) {
-        Assertions.assertTrue(result.task(":smithyBuildJar").getOutcome() == TaskOutcome.SUCCESS);
+        Assertions.assertSame(Objects.requireNonNull(result.task(SMITHY_BUILD_TASK_NAME)).getOutcome(), TaskOutcome.SUCCESS);
     }
 
     public static void assertSmithyBuildDidNotRun(BuildResult result) {
-        BuildTask task = result.task(":smithyBuildJar");
+        BuildTask task = result.task(SMITHY_BUILD_TASK_NAME);
         Assertions.assertTrue(task == null || task.getOutcome() == TaskOutcome.SKIPPED);
     }
 

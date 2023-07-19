@@ -13,8 +13,7 @@ import org.junit.jupiter.api.Test;
 public class SmithyBuildTaskTest {
     @Test
     public void testCustomBuild() {
-        // TODO: Fix
-        //Utils.withCopy("smithy-build-task", this::run);
+        Utils.withCopy("smithy-build-task", this::run);
     }
 
     private void run(File buildDir) {

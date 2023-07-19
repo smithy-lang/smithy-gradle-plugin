@@ -36,5 +36,6 @@ public class MultipleSourcesTest {
 //                    "META-INF/smithy/nested/foo.smithy",
 //                    "META-INF/smithy/nested/more/baz.smithy");
 //        });
+//    }
     }
 }

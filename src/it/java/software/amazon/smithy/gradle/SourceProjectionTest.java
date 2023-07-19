@@ -20,7 +20,33 @@ public class SourceProjectionTest {
                     .withArguments("clean", "build", "--stacktrace", "--debug")
                     .build();
 
-            System.out.println("BLERG BLERG : " + result.getTasks());
+            Utils.assertSmithyBuildRan(result);
+            Utils.assertValidationRan(result);
+            Utils.assertArtifactsCreated(buildDir,
+                    "build/smithyprojections/source-projection/source/build-info/smithy-build-info.json",
+                    "build/smithyprojections/source-projection/source/model/model.json",
+                    "build/smithyprojections/source-projection/source/sources/main.smithy",
+                    "build/smithyprojections/source-projection/source/sources/manifest",
+                    "build/smithyprojections/source-projection/foo/build-info/smithy-build-info.json",
+                    "build/smithyprojections/source-projection/foo/model/model.json",
+                    "build/smithyprojections/source-projection/foo/sources/manifest",
+                    "build/smithyprojections/source-projection/foo/sources/model.json",
+                    "build/libs/source-projection.jar");
+            Utils.assertJarContains(buildDir, "build/libs/source-projection.jar",
+                    "META-INF/smithy/manifest",
+                    "META-INF/smithy/main.smithy");
+        });
+    }
+
+    @Test
+    public void testSourceProjectionWithConfigurationCaching() {
+        Utils.withCopy("source-projection", buildDir -> {
+            BuildResult result = GradleRunner.create()
+                    .forwardOutput()
+                    .withProjectDir(buildDir)
+                    .withArguments("clean", "build", "--stacktrace", "--debug", "--configuration-cache")
+                    .build();
+
             Utils.assertSmithyBuildRan(result);
             Utils.assertValidationRan(result);
             Utils.assertArtifactsCreated(buildDir,

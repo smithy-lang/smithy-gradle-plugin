@@ -64,7 +64,7 @@ public class BuildDependenciesTest {
             // Check that the model does have at least the basic shapes we expect
             assertTrue(model.getShape(ShapeId.from("smithy.example#Foo")).isPresent());
             assertTrue(model.getShape(ShapeId.from("smithy.example#Baz")).isPresent());
-            
+
             // Validate that model does **not** contain build dep shapes
             assertFalse(model.getShape(ShapeId.from("smithy.example.internal#InternalStructure")).isPresent());
             assertFalse(model.getShape(ShapeId.from("aws.auth#unsignedPayload")).isPresent());

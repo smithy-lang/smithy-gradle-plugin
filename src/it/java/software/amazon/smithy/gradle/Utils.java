@@ -18,7 +18,6 @@ import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Locale;
 import java.util.Objects;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;

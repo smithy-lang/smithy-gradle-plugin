@@ -30,9 +30,9 @@ public final class SmithyManifestUpdateAction implements Action<Task> {
         this.tags.addAll(tags);
     }
 
-    // Note: this is necessary because "doFirst" only allows actions with Task inputs
     @Override
     public void execute(@Nonnull Task task) {
+        // Note: this is necessary because "doFirst" only allows actions with Task inputs
         if (!(task instanceof Jar)) {
             throw new GradleException("SmithyManifestUpdateAction expected task of type Jar but found "
                     + task.getClass());

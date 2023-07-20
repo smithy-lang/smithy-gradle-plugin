@@ -7,11 +7,11 @@ package software.amazon.smithy.gradle.internal;
 
 import java.io.File;
 import java.util.Objects;
+import java.util.Optional;
 import org.gradle.api.GradleException;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
-import org.gradle.api.artifacts.DependencySet;
 import org.gradle.api.file.FileCollection;
 
 
@@ -46,12 +46,12 @@ public final class CliDependencyResolver {
         Configuration cli = getCliConfiguration(project);
 
         // Prefer explicitly set dependency first.
-        DependencySet existing = cli.getAllDependencies();
-        if (existing.stream().anyMatch(d -> isMatchingDependency(d, SMITHY_CLI_DEP_NAME))) {
+        Optional<Dependency> explicitCliDepOptional = cli.getAllDependencies().stream()
+                .filter(d -> isMatchingDependency(d, SMITHY_CLI_DEP_NAME))
+                .findFirst();
+        if (explicitCliDepOptional.isPresent()) {
             project.getLogger().info("(using explicitly configured Smithy CLI)");
-            return existing.stream()
-                    .filter(d -> isMatchingDependency(d, SMITHY_CLI_DEP_NAME))
-                    .findFirst().get().getVersion();
+            return explicitCliDepOptional.get().getVersion();
         }
 
         // Force projects in the main smithy repo to use an explicit smithy cli dependency

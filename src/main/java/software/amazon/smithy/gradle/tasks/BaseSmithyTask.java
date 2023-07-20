@@ -29,13 +29,14 @@ import org.gradle.workers.WorkerExecutor;
  */
 @DisableCachingByDefault(because = "Abstract super-class, not to be instantiated directly")
 abstract class BaseSmithyTask extends DefaultTask {
+    protected final StartParameter startParameter;
+
     BaseSmithyTask() {
         getFork().convention(false);
         getShowStackTrace().convention(ShowStacktrace.INTERNAL_EXCEPTIONS);
-
-        // TODO: is it ok to set the default classpaths here?
         getResolvedCliClasspath().convention(getProject().getConfigurations().getByName("smithyCli"));
         getDiscoveryClasspath().convention(getProject().getConfigurations().getByName("smithyBuildDep"));
+        startParameter = getProject().getGradle().getStartParameter();
     }
 
 
@@ -128,7 +129,6 @@ abstract class BaseSmithyTask extends DefaultTask {
             args.add("--stacktrace");
         }
 
-        StartParameter startParameter = getProject().getGradle().getStartParameter();
         switch (startParameter.getLogLevel()) {
             case DEBUG:
                 args.add("--debug");

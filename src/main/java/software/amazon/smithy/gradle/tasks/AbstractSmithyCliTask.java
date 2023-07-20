@@ -8,6 +8,7 @@ package software.amazon.smithy.gradle.tasks;
 import java.util.ArrayList;
 import java.util.List;
 import org.gradle.api.file.FileCollection;
+import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.Optional;
@@ -21,7 +22,11 @@ import software.amazon.smithy.gradle.SmithyUtils;
  */
 @DisableCachingByDefault(because = "Abstract super-class, not to be instantiated directly")
 abstract class AbstractSmithyCliTask extends BaseSmithyTask {
-    AbstractSmithyCliTask() {
+
+    protected final ObjectFactory objectFactory;
+
+    AbstractSmithyCliTask(ObjectFactory objectFactory) {
+        this.objectFactory = objectFactory;
         getAllowUnknownTraits().convention(false);
     }
 
@@ -29,21 +34,11 @@ abstract class AbstractSmithyCliTask extends BaseSmithyTask {
      *
      * <p> Defaults to {@code true}
      *
-     * @return flag indicating state of allowUnkownTraits setting
+     * @return flag indicating state of allowUnknownTraits setting
      */
     @Input
     @Optional
     public abstract Property<Boolean> getAllowUnknownTraits();
-
-    /**
-     *
-     */
-    final void executeCliProcess(String command,
-                                 List<String> additionalArgs,
-                                 FileCollection sources
-    ) {
-        executeCliProcess(command, additionalArgs, sources, null, true);
-    }
 
     /**
      * Executes the given CLI command.

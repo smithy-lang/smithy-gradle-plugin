@@ -7,6 +7,7 @@ package software.amazon.smithy.gradle.tasks;
 
 import javax.inject.Inject;
 import org.gradle.api.file.FileCollection;
+import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.Classpath;
@@ -31,10 +32,13 @@ import software.amazon.smithy.utils.ListUtils;
  * is used.
  */
 public abstract class SmithyValidateTask extends AbstractSmithyCliTask {
+    public static final String DESCRIPTION = "Validates a jar containing smithy models.";
 
     @Inject
-    public SmithyValidateTask() {
+    public SmithyValidateTask(ObjectFactory objectFactory) {
+        super(objectFactory);
         getDisableModelDiscovery().convention(true);
+        setDescription(DESCRIPTION);
     }
 
     @InputFiles
@@ -55,7 +59,7 @@ public abstract class SmithyValidateTask extends AbstractSmithyCliTask {
     @Optional
     public abstract Property<Boolean> getDisableModelDiscovery();
 
-    /** The cli execution classpath for this task is different than other build
+    /** The cli execution classpath for this task is different from other build
      * tasks because we do NOT want to include the discovery classpath for this
      * task.
      *
@@ -73,7 +77,7 @@ public abstract class SmithyValidateTask extends AbstractSmithyCliTask {
 
         // Set models to an empty collection so source models are not included in validation path.
         executeCliProcess("validate", ListUtils.of(),
-                getProject().files(),
+                objectFactory.fileCollection(),
                 getModelDiscoveryClasspath().getOrNull(),
                 getDisableModelDiscovery().get()
         );

@@ -15,19 +15,16 @@ public class SmithyBuildTaskTest {
     @BeforeEach
     public void init() {
         testProject = ProjectBuilder.builder().build();
-
-        // TODO remove?
         testProject.getConfigurations().create("smithyCli");
         testProject.getConfigurations().create("smithyBuildDep");
-
     }
 
     @Test
     public void validateDefaults() {
         SmithyBuildTask buildTask = testProject.getTasks().create("smithyUnitTestBuild", SmithyBuildTask.class);
 
-        // TODO add additional defaults
         assertEquals(buildTask.getFork().get(), false);
         assertEquals(buildTask.getShowStackTrace().get(), ShowStacktrace.INTERNAL_EXCEPTIONS);
+        assertEquals(buildTask.getSourceProjection().get(), "source");
     }
 }

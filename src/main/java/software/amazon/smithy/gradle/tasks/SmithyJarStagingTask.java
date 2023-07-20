@@ -12,26 +12,32 @@ import javax.inject.Inject;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
 import org.gradle.api.file.DirectoryProperty;
+import org.gradle.api.file.FileSystemOperations;
+import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputDirectory;
 import org.gradle.api.tasks.Internal;
-import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.TaskAction;
 import software.amazon.smithy.gradle.SmithyUtils;
 
 
 public abstract class SmithyJarStagingTask extends DefaultTask {
+    private static final String DESCRIPTION = "Stages smithy models for addition to a jar file.";
     private static final String SOURCES_PLUGIN_NAME = "sources";
     private static final String SOURCE_PROJECTION = "source";
 
-    // Set up defaults
+    private final FileSystemOperations fileSystemOperations;
+
     @Inject
-    public SmithyJarStagingTask() {
+    public SmithyJarStagingTask(FileSystemOperations fileSystemOperations,
+                                ProjectLayout projectLayout) {
+        this.fileSystemOperations = fileSystemOperations;
         getProjection().convention(SOURCE_PROJECTION);
-        getBaseBuildDir().convention(getProject().getLayout().getBuildDirectory());
+        getOutputDir().set(projectLayout.getBuildDirectory().getLocationOnly());
+        setDescription(DESCRIPTION);
     }
 
     @InputDirectory
@@ -40,9 +46,10 @@ public abstract class SmithyJarStagingTask extends DefaultTask {
     @Input
     public abstract Property<String> getProjection();
 
-    @InputDirectory
-    @Optional
-    public abstract DirectoryProperty getBaseBuildDir();
+    // Marked as internal so that it is not checked for caching, although it can be used as
+    // an input property.
+    @Internal
+    public abstract DirectoryProperty getOutputDir();
 
     @Internal
     Provider<Path> getSourcesPluginPath() {
@@ -52,15 +59,19 @@ public abstract class SmithyJarStagingTask extends DefaultTask {
 
     @Internal
     Provider<File> getSmithyResourceTempDir() {
-        return getBaseBuildDir().getAsFile()
-                .map(base -> SmithyUtils.getSmithyResourceTempDir(getName(), base));
+        return getOutputDir().getAsFile().map(file ->
+                SmithyUtils.getSmithyResourceTempDir(getName(), file));
     }
 
     @OutputDirectory
     public Provider<File> getSmithyStagingDir() {
          return getSmithyResourceTempDir()
-                 .map(File::getParentFile)
                  .map(File::getParentFile);
+    }
+
+    @OutputDirectory
+    public Provider<File> getSmithyMetaInfDir() {
+        return  getSmithyStagingDir().map(File::getParentFile);
     }
 
     @TaskAction
@@ -69,7 +80,7 @@ public abstract class SmithyJarStagingTask extends DefaultTask {
         Path sources = getSourcesPluginPath().get();
         validateSources(sources);
 
-        getProject().copy(c -> {
+        fileSystemOperations.copy(c -> {
             c.from(sources.toFile());
             c.into(getSmithyResourceTempDir().get());
         });

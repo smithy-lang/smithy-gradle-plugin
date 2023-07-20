@@ -22,6 +22,6 @@ public class SmithyJarStagingTaskTest {
                 SmithyJarStagingTask.class);
 
         assertEquals(stagingTask.getProjection().get(), "source");
-        assertEquals(stagingTask.getBaseBuildDir().get(), testProject.getLayout().getBuildDirectory().get());
+        assertEquals(stagingTask.getOutputDir().get(), testProject.getLayout().getBuildDirectory().get());
     }
 }

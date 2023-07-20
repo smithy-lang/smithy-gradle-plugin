@@ -13,10 +13,7 @@ public class SmithyFormatTaskTest {
 
     @BeforeEach
     public void init() {
-
         testProject = ProjectBuilder.builder().build();
-
-        // TODO: remove?
         testProject.getConfigurations().create("smithyCli");
         testProject.getConfigurations().create("smithyBuildDep");
     }

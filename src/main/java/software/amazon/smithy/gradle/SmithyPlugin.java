@@ -58,7 +58,6 @@ public final class SmithyPlugin implements Plugin<Project> {
     private Project project;
     private SmithyExtension smithyExtension;
 
-
     @Override
     public void apply(@Nonnull Project project) {
         this.project = project;
@@ -69,6 +68,7 @@ public final class SmithyPlugin implements Plugin<Project> {
 
         // Register the Smithy extension so that tasks can be configured.
         smithyExtension = project.getExtensions().create("smithy", SmithyExtension.class);
+        validateExtension(smithyExtension);
 
         // resolve and configure smithy-cli dependencies
         // These are all added to a configuration named `smithyCli`
@@ -76,38 +76,28 @@ public final class SmithyPlugin implements Plugin<Project> {
         // so it will include all runtime deps
         String cliVersion = CliDependencyResolver.resolve(project);
 
-        // Register a smithy sourceSet as an extension for each existing sourceSet
+        // Register a smithy sourceSet as an extension of the main source set
         project.getExtensions().getByType(SourceSetContainer.class).forEach(sourceSet -> {
-            // TODO is this needed?
-            if (sourceSet.getName().equals(SourceSet.TEST_SOURCE_SET_NAME)) {
-                return;
-            }
-
             SmithySourceDirectorySet sds = registerSourceSets(sourceSet);
             createSmithyBuildConfiguration(project, sourceSet);
 
-            TaskProvider<SmithyBuildTask> buildProvider = addBuildTaskForSourceSet(sourceSet, sds);
-            // Smithy format is not available in some early versions of the CLI
             if (smithyExtension.getFormat().get() && cliVersionSupportsFormat(cliVersion)) {
                 addFormatTaskForSourceSet(sourceSet, sds);
             }
 
-            // MUST execute after project has evaluated or else the jar enable settings
-            // will not be resolved
-            project.afterEvaluate(projectAfterEvaluation -> {
-                // Added Smithy Java tasks should only be added if the java plugin has been applied and the
-                // jar task is enabled because these tasks depend on the jar task.
-                // This uses the "withPlugin" method to ensure the java plugin is applied first
-                if (projectAfterEvaluation.getPluginManager().hasPlugin("java")
-                        && projectAfterEvaluation.getTasks().getByName(JavaPlugin.JAR_TASK_NAME).getEnabled()
-                ) {
-                    addJavaTasksForSourceSet(sourceSet, buildProvider);
-                }
-            });
+            if (sourceSet.getName().equals(SourceSet.MAIN_SOURCE_SET_NAME)) {
+                TaskProvider<SmithyBuildTask> buildProvider = addBuildTaskForSourceSet(sourceSet, sds);
+
+                // Must execute after project has evaluated or else the enable settings will not be resolved
+                project.afterEvaluate(projectAfterEvaluation -> {
+                    projectAfterEvaluation.getPluginManager().withPlugin("java", plugin -> {
+                        addJavaTasksForSourceSet(sourceSet, buildProvider);
+                    });
+                });
+            }
         });
-
-
     }
+
 
     private static void validateGradleVersion() {
         if (GradleVersion.current().compareTo(MINIMUM_GRADLE_VERSION) < 0) {
@@ -146,6 +136,19 @@ public final class SmithyPlugin implements Plugin<Project> {
         }
     }
 
+    private static void validateExtension(SmithyExtension smithyExtension) {
+        // Set source projection settings
+        // We can only set source projections for projections other than source.
+        if (!smithyExtension.getProjectionSourceTags().isPresent()
+                && smithyExtension.getSourceProjection().get().equals("source")) {
+            throw new GradleException("Projection source tags set with source projection. "
+                    + "Set a value for the `sourceProjection` that matches a projection defined "
+                    + "in one of the smithy-build configs for this project.");
+        }
+    }
+
+
+    // TODO: Out of date documentation
     /**
      * Adds Smithy model files to the Java resources source sets of main and test.
      *
@@ -154,7 +157,6 @@ public final class SmithyPlugin implements Plugin<Project> {
      * {@code src/test/resources/META-INF/smithy}. This code will add these
      * directories to the appropriate existing Java source sets as extensions.
      * Access to these source sets is provided by
-     * {@link SmithyUtils#getSmithyModelSources}.
      *
      * <p>Additionally, this code adds the "manifest" plugin output of smithy
      * build to the "main" source set's resources, making them show up in the
@@ -173,8 +175,9 @@ public final class SmithyPlugin implements Plugin<Project> {
     }
 
     /**
-     * Creates a 'smithyBuild' configuration for the given source set. This
-     * configuration is used to configure the model discovery classpath and users can
+     * Creates a 'smithyBuild' configuration for the given source set.
+     *
+     * <p>This configuration is used to configure the model discovery classpath and users can
      * configure dependencies on this configuration that they want included during the
      * build step but not included as dependencies of their jars.
      */
@@ -189,12 +192,13 @@ public final class SmithyPlugin implements Plugin<Project> {
         config.setTransitive(true);
 
         // Discovery classpath includes all runtime classpath configurations as well
-       config.extendsFrom(project.getConfigurations().getByName("runtimeClasspath"));
+       config.extendsFrom(project.getConfigurations().getByName(JavaPlugin.RUNTIME_CLASSPATH_CONFIGURATION_NAME));
 
         return config;
     }
 
     private TaskProvider<SmithyBuildTask> addBuildTaskForSourceSet(SourceSet sourceSet, SmithySourceDirectorySet sds) {
+
         String taskName = SmithyUtils.getRelativeSourceSetName(sourceSet.getName(), BUILD_TASK_NAME);
         TaskProvider<SmithyBuildTask> buildTaskTaskProvider = project.getTasks()
                 .register(taskName, SmithyBuildTask.class,
@@ -202,36 +206,20 @@ public final class SmithyPlugin implements Plugin<Project> {
                         // Configure basic extension settings
                         build.setDescription("Builds Smithy models for " + sourceSet.getName() + " source set.");
                         build.getAllowUnknownTraits().set(smithyExtension.getAllowUnknownTraits());
-                        build.getModels().set(sds);
+                        build.getModels().set(sds.getSourceDirectories());
                         build.getFork().set(smithyExtension.getFork());
                         build.getSmithyBuildConfigs().set(smithyExtension.getSmithyBuildConfigs());
-
-                        // Set source projection settings
-                        // We can only set source projections for projections other than source.
-                        if (!smithyExtension.getProjectionSourceTags().isPresent()
-                                && smithyExtension.getSourceProjection().get().equals("source")) {
-                            throw new GradleException("Projection source tags set with source projection. "
-                                    + "Set a value for the `sourceProjection` that matches a projection defined "
-                                    + "in one of the smithy-build configs for this project.");
-                        }
                         build.getSourceProjection().set(smithyExtension.getSourceProjection());
                         build.getProjectionSourceTags().set(smithyExtension.getProjectionSourceTags());
-
-                        // Resolve build and CLI classpaths
-                        build.getResolvedCliClasspath().set(CliDependencyResolver.getCliConfiguration(project));
-                        String buildConfigName = SmithyUtils.getRelativeSourceSetName(sourceSet.getName(),
-                                BUILD_CONFIG_TYPE);
-                        build.getDiscoveryClasspath().set(SmithyUtils.getClasspath(project, buildConfigName));
                         build.getOutputDir().set(SmithyUtils.outputDirectory(project));
+                        // this allows the main smithy build task to show up when running `gradle tasks`
+                        build.setGroup(LifecycleBasePlugin.BUILD_GROUP);
                     });
 
-
-        // TODO: Is this the correct dep tree for non-main source sets?
-        // Add the main smithy build task as a dependency of the build task
         if (sourceSet.getName().equals(SourceSet.MAIN_SOURCE_SET_NAME)) {
             project.getTasks().getByName("build").dependsOn(buildTaskTaskProvider);
-            // this allows the main smithy build task to show up when running `gradle tasks`
-            buildTaskTaskProvider.configure(task -> task.setGroup(LifecycleBasePlugin.BUILD_GROUP));
+        } else if (sourceSet.getName().equals(SourceSet.TEST_SOURCE_SET_NAME)) {
+            project.getTasks().getByName("test").dependsOn(buildTaskTaskProvider);
         }
 
         return buildTaskTaskProvider;
@@ -243,38 +231,35 @@ public final class SmithyPlugin implements Plugin<Project> {
         TaskProvider<SmithyFormatTask> smithyFormat = project.getTasks().register(taskName, SmithyFormatTask.class,
                 formatTask -> {
                     formatTask.getModels().set(sds.getSourceDirectories());
-                    formatTask.getResolvedCliClasspath().set(CliDependencyResolver.getCliConfiguration(project));
-                    String buildConfigName = SmithyUtils.getRelativeSourceSetName(sourceSet.getName(),
-                            BUILD_CONFIG_TYPE);
-                    formatTask.getDiscoveryClasspath().set(SmithyUtils.getClasspath(project, buildConfigName));
                 });
 
         if (sourceSet.getName().equals(SourceSet.MAIN_SOURCE_SET_NAME)) {
             project.getTasks().getByName("build").dependsOn(smithyFormat);
+        } else if (sourceSet.getName().equals(SourceSet.TEST_SOURCE_SET_NAME)) {
+            project.getTasks().getByName("test").dependsOn(smithyFormat);
         }
+
     }
 
     private void addJavaTasksForSourceSet(SourceSet sourceSet, TaskProvider<SmithyBuildTask> buildTaskTaskProvider) {
+        Task jarTask = project.getTasks().getByName(JavaPlugin.JAR_TASK_NAME);
+
         // Set up staging task
-        String taskName = SmithyUtils.getRelativeSourceSetName(sourceSet.getName(), "smithyJarStaging");
         TaskProvider<SmithyJarStagingTask> jarStagingTaskProvider = project.getTasks()
-                .register(taskName, SmithyJarStagingTask.class, stagingTask -> {
+                .register("smithyJarStaging", SmithyJarStagingTask.class, stagingTask -> {
+                    stagingTask.mustRunAfter(buildTaskTaskProvider);
                     stagingTask.getInputDirectory().set(buildTaskTaskProvider.get().getOutputDir());
                     stagingTask.getProjection().set(smithyExtension.getSourceProjection());
+                    // Only enable this task if the jar task and build task are also enabled.
+                    stagingTask.setEnabled(jarTask.getEnabled() && buildTaskTaskProvider.get().getEnabled());
                 });
+        jarTask.dependsOn(jarStagingTaskProvider);
 
-        // TODO: Is this really needed? Why is this detected as implicit dep?
-        jarStagingTaskProvider.get().dependsOn(project.getTasks().getByName("compileJava"));
-        // END TODO
-
-        // TODO: does this need to be limited to just main source set? Could we do for all source sets
         // Include Smithy models and the generated manifest in the JAR by adding them to the resources source set.
-        if (sourceSet.getName().equals(SourceSet.MAIN_SOURCE_SET_NAME)) {
-            File metaInf = SmithyUtils.getSmithyResourceTempDir(taskName,
-                    project.getBuildDir()).getParentFile().getParentFile();
-            project.getLogger().debug("Registering Smithy resource artifacts with Java resources: {}", metaInf);
-            sourceSet.getResources().srcDir(metaInf);
-        }
+        File metaInf = jarStagingTaskProvider.get().getSmithyMetaInfDir().get();
+        project.getLogger().debug("Registering Smithy resource artifacts with Java resources: {}", metaInf);
+        sourceSet.getResources().srcDir(metaInf);
+
 
         // This plugin supports loading Smithy models from various locations, including
         // META-INF/smithy. It also creates a staging directory for all the merged
@@ -286,34 +271,24 @@ public final class SmithyPlugin implements Plugin<Project> {
         task.dependsOn(jarStagingTaskProvider);
 
 
-        Task jarTask = project.getTasks().getByName(JavaPlugin.JAR_TASK_NAME);
-        jarTask.dependsOn(jarStagingTaskProvider);
-
         // Update manifest with smithy build info and source tags
         jarTask.doFirst("updateJarManifest",
                 new SmithyManifestUpdateAction(project, smithyExtension.getTags().get()));
 
-        String validateTaskName = SmithyUtils.getRelativeSourceSetName(sourceSet.getName(), "smithyJarValidate");
         TaskProvider<SmithyValidateTask> validateTaskProvider = project.getTasks()
-                .register(validateTaskName, SmithyValidateTask.class, validateTask -> {
-                    validateTask.dependsOn(JavaPlugin.JAR_TASK_NAME);
+                .register("smithyJarValidate", SmithyValidateTask.class, validateTask -> {
+                    validateTask.dependsOn(jarTask);
 
-                    // Only execute validation if the jar task and staging tasks worked
+                    // Only enable validation if the jar Task is also enabled
                     validateTask.setEnabled(jarTask.getEnabled());
-                    validateTask.onlyIf(t -> jarTask.getDidWork());
 
                     validateTask.getJarToValidate().set(jarTask.getOutputs().getFiles());
                     validateTask.getAllowUnknownTraits().set(smithyExtension.getAllowUnknownTraits());
 
-                    // Add to verification group, so it shows up when listing tasks
+                    // Add to verification group, so this tasks shows up in the output of `gradle tasks`
                     validateTask.setGroup(LifecycleBasePlugin.VERIFICATION_GROUP);
-                    validateTask.setDescription("Validates jar created by smithyBuildJar task.");
-
-                    Configuration cliConfiguration = CliDependencyResolver.getCliConfiguration(project);
-                    validateTask.getResolvedCliClasspath().set(cliConfiguration);
                 });
-
-         project.getTasks().getByName("test").dependsOn(validateTaskProvider);
+        project.getTasks().getByName("test").dependsOn(validateTaskProvider);
 
     }
 }

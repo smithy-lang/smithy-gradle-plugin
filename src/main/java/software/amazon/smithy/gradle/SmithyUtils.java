@@ -13,22 +13,19 @@ import java.net.URLClassLoader;
 import java.net.URLConnection;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 import org.gradle.api.Action;
 import org.gradle.api.GradleException;
 import org.gradle.api.Project;
-import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.Directory;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.ProjectLayout;
-import org.gradle.api.file.SourceDirectorySet;
-import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.SourceSet;
-import org.gradle.api.tasks.SourceSetContainer;
 import org.gradle.workers.ClassLoaderWorkerSpec;
 import org.gradle.workers.WorkAction;
 import org.gradle.workers.WorkParameters;
@@ -43,11 +40,7 @@ import software.amazon.smithy.utils.StringUtils;
  * General utility methods used throughout the plugin.
  */
 public final class SmithyUtils {
-
     public static final String SMITHY_PROJECTIONS = "smithyprojections";
-    private static final String MAIN_SOURCE_SET = "main";
-    private static final String SMITHY_SOURCE_SET_EXTENSION = "smithy";
-    private static final String SOURCE_SETS_PROPERTY = "sourceSets";
 
     private SmithyUtils() {}
 
@@ -79,62 +72,10 @@ public final class SmithyUtils {
     }
 
     /**
-     * Gets the source sets of a project.
-     *
-     * @param project Project to inspect.
-     * @return Returns the project's source sets.
-     */
-    public static SourceSetContainer getSourceSets(Project project) {
-        return (SourceSetContainer) project.getProperties().get(SOURCE_SETS_PROPERTY);
-    }
-
-    /**
-     * Gets the Smithy model sources of the "main" source set.
-     *
-     * @param project Project to inspect.
-     * @return Returns the Smithy model sources.
-     */
-    public static SourceDirectorySet getSmithyModelSources(Project project) {
-        return getSmithySourceDirectory(project, MAIN_SOURCE_SET);
-    }
-
-    private static SourceDirectorySet getSmithySourceDirectory(Project project, String name) {
-        // Grab a list of all the files and directories to mark as sources.
-        return (SourceDirectorySet) project.getConvention()
-                .getPlugin(JavaPluginConvention.class)
-                .getSourceSets()
-                .getByName(name)
-                .getExtensions()
-                .getByName(SMITHY_SOURCE_SET_EXTENSION);
-    }
-
-    /**
-     * Gets the classpath used with the "smithyCli" configuration.
-     *
-     * @param project Project to inspect.
-     * @return Returns the Smithy CLI classpath used to run the CLI.
-     */
-    private static Configuration getSmithyCliClasspath(Project project) {
-        return getClasspath(project, "smithyCli");
-    }
-
-    /**
-     * Gets the classpath of a project by name.
-     *
-     * @param project Project to inspect.
-     * @param configurationName Name of the classpath to retrieve.
-     * @return Returns the classpath.
-     */
-    public static Configuration getClasspath(Project project, String configurationName) {
-        return project.getConfigurations().getByName(configurationName);
-    }
-
-    // TODO: should this be in the jar staging task?
-    /**
      * Gets the path to the temp directory where Smithy model resources are placed
      * in the generated JAR of a project.
      *
-     * The name of the task is used so that multiple staging directories can be
+     * <p>The name of the task is used so that multiple staging directories can be
      * created without conflicts. The task name must uniquely identify the task
      * within a project so there is no concern of task naming collision.
      *
@@ -268,7 +209,7 @@ public final class SmithyUtils {
         boolean isCachingEnabled = false;
 
         try {
-            cacheBuster = SmithyUtils.class.getResource("empty").openConnection();
+            cacheBuster = Objects.requireNonNull(SmithyUtils.class.getResource("empty")).openConnection();
             isCachingEnabled = cacheBuster.getDefaultUseCaches();
             cacheBuster.setDefaultUseCaches(false);
             runnable.run();

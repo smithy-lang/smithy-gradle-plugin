@@ -8,6 +8,3 @@ repositories {
     mavenLocal()
     mavenCentral()
 }
-
-
-

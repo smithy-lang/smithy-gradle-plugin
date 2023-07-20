@@ -14,7 +14,7 @@ The following example configures a project to use the Smithy Gradle plugin:
 
 ```kotlin
 plugins {
-    id("software.amazon.smithy").version("0.7.0")
+    id("software.amazon.smithy").version("0.8.0")
 }
 ```
 

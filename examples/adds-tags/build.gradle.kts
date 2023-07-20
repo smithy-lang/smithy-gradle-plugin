@@ -2,7 +2,7 @@
 
 plugins {
     `java-library`
-    id("software.amazon.smithy").version("0.7.0")
+    id("software.amazon.smithy").version("0.8.0")
 }
 
 group = "software.amazon.smithy"

@@ -230,18 +230,15 @@ tasks.withType<SpotBugsTask>().configureEach {
  * ====================================================
  */
 gradlePlugin {
+    website.set("https://github.com/awslabs/smithy")
+    vcsUrl.set("https://github.com/awslabs/smithy")
     plugins {
         create("software.amazon.smithy") {
             id = "software.amazon.smithy"
             displayName = "Smithy Gradle Plugin"
             description = project.description
             implementationClass = "software.amazon.smithy.gradle.SmithyPlugin"
+            tags.set(listOf("smithy", "api", "building"))
         }
     }
-}
-
-pluginBundle {
-    website = "https://github.com/awslabs/smithy"
-    vcsUrl = "https://github.com/awslabs/smithy"
-    tags = listOf("smithy", "api", "building")
 }

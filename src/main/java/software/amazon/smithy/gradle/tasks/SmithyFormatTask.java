@@ -14,7 +14,6 @@ import software.amazon.smithy.utils.ListUtils;
 
 public abstract class SmithyFormatTask extends AbstractSmithyCliTask {
     private static final String DESCRIPTION = "Formats smithy models.";
-
     @Inject
     public SmithyFormatTask(ObjectFactory objectFactory) {
         super(objectFactory);

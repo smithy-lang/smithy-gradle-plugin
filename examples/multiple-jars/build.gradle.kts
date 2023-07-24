@@ -18,7 +18,6 @@ val stagingTask = tasks.create<SmithyJarStagingTask>("stageSmithySources") {
 // Set up tasks that build source and javadoc jars.
 tasks.register<Jar>("sourcesJar") {
     from(sourceSets.main.get().allJava)
-    // Ensures the `smithy` directory is used not `META-INF`
     metaInf.from(stagingTask.smithyStagingDir.get())
     archiveClassifier.set("sources")
 }
@@ -26,7 +25,6 @@ tasks.register<Jar>("sourcesJar") {
 // Update the task with the smithy action
 tasks["sourcesJar"].doFirst(SmithyManifestUpdateAction(project, setOf("a", "b", "c")))
 tasks["sourcesJar"].dependsOn("stageSmithySources")
-tasks["sourcesJar"].dependsOn("compileJava")
 
 // Make sure the build task executes the sources Jar build
 tasks["build"].dependsOn("sourcesJar")

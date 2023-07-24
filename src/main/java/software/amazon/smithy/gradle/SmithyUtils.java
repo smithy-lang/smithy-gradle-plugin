@@ -40,7 +40,7 @@ import software.amazon.smithy.utils.StringUtils;
  * General utility methods used throughout the plugin.
  */
 public final class SmithyUtils {
-    public static final String SMITHY_PROJECTIONS = "smithyprojections";
+    private static final String SMITHY_PROJECTIONS = "smithyprojections";
 
     private SmithyUtils() {}
 

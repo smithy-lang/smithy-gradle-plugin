@@ -19,7 +19,11 @@ import org.gradle.jvm.tasks.Jar;
 import org.gradle.util.GradleVersion;
 import software.amazon.smithy.gradle.SmithyGradleVersion;
 
-
+/**
+ * Action used to update a JAR's manifest with Smithy-specific attributes.
+ *
+ * <p>This action adds projection tags to JAR manifest via the {@code SmithyTags} property
+ */
 public final class SmithyManifestUpdateAction implements Action<Task> {
     private static final String BUILD_TIMESTAMP_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
 

@@ -26,13 +26,10 @@ import software.amazon.smithy.utils.ListUtils;
  * to ensure that it uses an explicit classpath that ensures that the
  * generated JAR works correctly when used alongside its dependencies.
  *
- * <p>The CLI version used to validate the generated JAR is picked by
- * searching for smithy-model in the runtime dependencies. If found,
- * the same version of the CLI is used. If not found, a default version
- * is used.
  */
 public abstract class SmithyValidateTask extends AbstractSmithyCliTask {
-    public static final String DESCRIPTION = "Validates a jar containing smithy models.";
+    private static final String DESCRIPTION = "Validates a jar containing smithy models.";
+
 
     @Inject
     public SmithyValidateTask(ObjectFactory objectFactory) {
@@ -41,16 +38,36 @@ public abstract class SmithyValidateTask extends AbstractSmithyCliTask {
         setDescription(DESCRIPTION);
     }
 
+    /**
+     * Jar file to use as a source for the Smithy CLI validate command.
+     *
+     * <p>This is a required input for the {@link SmithyValidateTask}. In general
+     * this should be the output of a {@link org.gradle.jvm.tasks.Jar task}. For example:
+     *
+     * <pre>
+     *     Task jarTask = project.getTasks()
+     *      .getByName(JavaPlugin.JAR_TASK_NAME);
+     *     ...
+     *     validateTask.getJarToValidate().set(
+     *      jarTask.getOutputs().getFiles());
+     * </pre>
+     */
     @InputFiles
     public abstract Property<FileCollection> getJarToValidate();
 
+    /**
+     * Classpath used for discovery of additional Smithy models during cli execution.
+     *
+     * <p>Defaults to an empty collection.
+     */
     @Classpath
     @Optional
     public abstract Property<FileCollection> getModelDiscoveryClasspath();
 
-    /** Disable model discovery.
+    /**
+     * Disable model discovery.
      *
-     * <p> Defaults to false. This option is ignored if an explicit model discovery classpath is provided
+     * <p>Defaults to false. This option is ignored if an explicit model discovery classpath is provided
      * in the {@code getModelDiscoveryClasspath()} property.
      *
      * @return flag indicating whether to disable model discovery
@@ -59,7 +76,10 @@ public abstract class SmithyValidateTask extends AbstractSmithyCliTask {
     @Optional
     public abstract Property<Boolean> getDisableModelDiscovery();
 
-    /** The cli execution classpath for this task is different from other build
+    /**
+     * Gets the classpath to use when executing the Smithy CLI.
+     *
+     * <p>The cli execution classpath for this task is different from other build
      * tasks because we do NOT want to include the discovery classpath for this
      * task.
      *

@@ -39,6 +39,11 @@ public abstract class SmithyExtension {
         );
     }
 
+    /**
+     * Collection of {@link org.gradle.api.file.SourceDirectorySet} associated with the {@link SmithyExtension}.
+     *
+     * @return container containing {@code SourceDirectorySet}s associated with {@link SmithyExtension}.
+     */
     public NamedDomainObjectContainer<SmithySourceDirectorySet> getSourceSets() {
         return this.sourceSets;
     }

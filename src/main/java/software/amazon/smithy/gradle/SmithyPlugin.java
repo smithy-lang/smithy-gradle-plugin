@@ -52,9 +52,6 @@ public final class SmithyPlugin implements Plugin<Project> {
             "org.jetbrains.kotlin.android"
     );
 
-    private static final List<String> SOURCE_DIRS = ListUtils.of(
-            "model", "src/$name/smithy", "src/$name/resources/META-INF/smithy");
-
     private Project project;
     private SmithyExtension smithyExtension;
 
@@ -148,19 +145,13 @@ public final class SmithyPlugin implements Plugin<Project> {
     }
 
 
-    // TODO: Out of date documentation
     /**
-     * Adds Smithy model files to the Java resources source sets of main and test.
+     * Registers a custom Smithy source set as an extension of a given source set.
      *
-     * <p>Smithy models can be placed in {@code model/}, {@code src/main/smithy},
-     * {@code src/test/smithy}, {@code src/main/resources/META-INF/smithy}, and
-     * {@code src/test/resources/META-INF/smithy}. This code will add these
-     * directories to the appropriate existing Java source sets as extensions.
-     * Access to these source sets is provided by
-     *
-     * <p>Additionally, this code adds the "manifest" plugin output of smithy
-     * build to the "main" source set's resources, making them show up in the
-     * generated JAR.
+     * <p>Smithy models can be placed in {@code model/}, {@code src/$sourceSetName/smithy},
+     * {@code src/$sourceSetName/smithy}, {@code src/$sourceSetName/resources/META-INF/smithy}, and
+     * {@code src/$sourceSetName/resources/META-INF/smithy}. This code will add these
+     * directories to the specified source set as a "smithy" extension.
      *
      * @param sourceSet root sourceSet to add extensions to
      */
@@ -168,7 +159,8 @@ public final class SmithyPlugin implements Plugin<Project> {
         // Add the smithy source set as an extension
         SmithySourceDirectorySet sds = smithyExtension.getSourceSets().create(sourceSet.getName());
         sourceSet.getExtensions().add(SmithySourceDirectorySet.NAME, sds);
-        SOURCE_DIRS.forEach(sourceDir -> sds.srcDir(sourceDir.replace("$name", sourceSet.getName())));
+        SmithySourceDirectorySet.SOURCE_DIRS.forEach(sourceDir ->
+                sds.srcDir(sourceDir.replace("$name", sourceSet.getName())));
         sds.include("**/*.smithy");
 
         return sds;

@@ -14,7 +14,9 @@ import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.file.FileCollection;
 
-
+/**
+ * Utility class used to resolve the CLI version and associated CLI dependencies.
+ */
 public final class CliDependencyResolver {
     private static final String DEPENDENCY_NOTATION = "software.amazon.smithy:smithy-cli:%s";
     private static final String CLI_CONFIGURATION_NAME = "smithyCli";
@@ -79,7 +81,13 @@ public final class CliDependencyResolver {
         return cliVersion;
     }
 
-    // Check if there's a dependency on smithy-model somewhere, and assume that version.
+    /**
+     * Check if there's a dependency on smithy-model somewhere, and assume that version.
+     *
+     * @param configuration configuration to search for CLI version
+     * @return version of cli available in configuration
+     *
+     */
     public static String detectCliVersionInDependencies(Configuration configuration) {
         return configuration.getAllDependencies().stream()
                 .filter(d -> isMatchingDependency(d, "smithy-model"))
@@ -115,12 +123,17 @@ public final class CliDependencyResolver {
                 + "explicit dependency on smithy-model.");
     }
 
+
+    /**
+     * Gets the smithy cli configuration for a project.
+     *
+     * @param project to search for cli configuration on
+     * @return configuration used for the cli
+     */
     public static Configuration getCliConfiguration(Project project) {
         if (project.getConfigurations().findByName(CLI_CONFIGURATION_NAME) != null) {
             return project.getConfigurations().getByName(CLI_CONFIGURATION_NAME);
         } else {
-            // NOTE: the requirement of having the runtime classpath config drives the need for
-            // the prerequisite plugins
             return project.getConfigurations().create(CLI_CONFIGURATION_NAME)
                     .extendsFrom(project.getConfigurations().getByName(RUNTIME_CLASSPATH_CONFIG));
         }
@@ -142,6 +155,11 @@ public final class CliDependencyResolver {
         }
     }
 
+    /**
+     * Checks that the provided classpath contains the smithy cli.
+     *
+     * @param cliClasspath classpath to validate
+     */
     public static void validateCliClasspath(FileCollection cliClasspath) {
         if (!cliClasspath.getAsPath().contains("smithy-cli")) {
             throw new GradleException("Could not find `smithy-cli` in the CLI classpath");

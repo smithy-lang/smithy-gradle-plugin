@@ -31,6 +31,13 @@ import software.amazon.smithy.gradle.SmithyUtils;
 import software.amazon.smithy.gradle.internal.ProjectionArtifactDirectoryContainer;
 import software.amazon.smithy.gradle.internal.SmithyArtifactDirectoryContainer;
 
+/**
+ * Executes the Smithy CLI {@code build} command.
+ *
+ * <p>This task will build all projections specified in the smithy-build configs provided
+ * as task inputs.
+ *
+ */
 public abstract class SmithyBuildTask extends AbstractSmithyCliTask {
 
     private final NamedDomainObjectContainer<ProjectionArtifactDirectoryContainer> projections;
@@ -49,12 +56,27 @@ public abstract class SmithyBuildTask extends AbstractSmithyCliTask {
         );
     }
 
+    /**
+     * Named container of all generated artifacts grouped by projection name.
+     */
     @Internal
     public NamedDomainObjectContainer<ProjectionArtifactDirectoryContainer> getProjections() {
         return projections;
     }
 
 
+    /**
+     * Tags that are searched for in classpaths when determining which
+     * models are projected into the created JAR.
+     *
+     * <p>This plugin will look through the JARs in the discovery classpath
+     * to see if they contain a META-INF/MANIFEST.MF attribute named
+     * "Smithy-Tags" that matches any of the given projection source tags.
+     * The Smithy models found in each matching JAR are copied into the
+     * JAR being projected. This allows a projection JAR to aggregate models
+     * into a single JAR.
+     *
+     */
     @Input
     @Optional
     public abstract SetProperty<String> getProjectionSourceTags();
@@ -79,18 +101,24 @@ public abstract class SmithyBuildTask extends AbstractSmithyCliTask {
     public abstract Property<Boolean> getAllowUnknownTraits();
 
 
+    /**
+     * Projection to treat as the "source" or primary projection.
+     */
     @Input
     @Optional
     public abstract Property<String> getSourceProjection();
 
 
+    /**
+     * Output directory for Smithy build artifacts.
+     */
     @OutputDirectory
     @Optional
     public abstract DirectoryProperty getOutputDir();
 
     /** Read-only property.
      *
-     * @return list of absolute paths of model files
+     * @return list of absolute paths of model files.
      */
     @Internal
     List<String> getModelAbsolutePaths() {

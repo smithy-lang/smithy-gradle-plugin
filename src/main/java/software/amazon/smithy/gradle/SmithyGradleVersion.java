@@ -12,7 +12,9 @@ import java.io.InputStream;
 import java.util.Properties;
 import org.gradle.api.GradleException;
 
-
+/**
+ * Represents a Smithy-Gradle-Plugin version.
+ */
 public final class SmithyGradleVersion {
     public static final String VERSION_OVERRIDE_VAR = "smithygradle.version.override";
     public static final String VERSION = resolveVersion();

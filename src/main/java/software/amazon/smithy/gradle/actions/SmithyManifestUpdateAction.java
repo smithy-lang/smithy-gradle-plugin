@@ -20,7 +20,7 @@ import org.gradle.util.GradleVersion;
 import software.amazon.smithy.gradle.SmithyGradleVersion;
 
 /**
- * Action used to update a JAR's manifest with Smithy-specific attributes.
+ * Action that updates a JAR's manifest with Smithy-specific attributes.
  *
  * <p>This action adds projection tags to JAR manifest via the {@code SmithyTags} property
  */

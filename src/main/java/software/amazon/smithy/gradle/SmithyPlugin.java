@@ -169,9 +169,10 @@ public final class SmithyPlugin implements Plugin<Project> {
     /**
      * Creates a 'smithyBuild' configuration for the given source set.
      *
-     * <p>This configuration is used to configure the model discovery classpath and users can
-     * configure dependencies on this configuration that they want included during the
-     * build step but not included as dependencies of their jars.
+     * <p>This configures the model discovery classpath. Users can set dependencies
+     * on this configuration that they want included during the build step, but not
+     * included as dependencies of their jars.
+     *
      */
     private Configuration createSmithyBuildConfiguration(Project project, SourceSet sourceSet) {
         String configName = SmithyUtils.getRelativeSourceSetName(sourceSet.getName(), BUILD_CONFIG_TYPE);

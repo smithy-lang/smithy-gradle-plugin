@@ -22,6 +22,7 @@ public final class CliDependencyResolver {
     private static final String CLI_CONFIGURATION_NAME = "smithyCli";
     private static final String RUNTIME_CLASSPATH_CONFIG = "runtimeClasspath";
     private static final String SMITHY_CLI_DEP_NAME = "smithy-cli";
+    private static final String CLI_DESCRIPTION = "Configuration for Smithy CLI and associated dependencies.";
 
     private CliDependencyResolver() {}
 
@@ -135,7 +136,9 @@ public final class CliDependencyResolver {
             return project.getConfigurations().getByName(CLI_CONFIGURATION_NAME);
         } else {
             return project.getConfigurations().create(CLI_CONFIGURATION_NAME)
-                    .extendsFrom(project.getConfigurations().getByName(RUNTIME_CLASSPATH_CONFIG));
+                    .extendsFrom(project.getConfigurations().getByName(RUNTIME_CLASSPATH_CONFIG))
+                    .setVisible(false)
+                    .setDescription(CLI_DESCRIPTION);
         }
     }
 

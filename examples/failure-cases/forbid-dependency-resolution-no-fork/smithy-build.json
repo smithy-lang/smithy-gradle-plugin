@@ -1,0 +1,11 @@
+{
+  "version": "1.0",
+  "maven": {
+    "dependencies": [
+      "software.amazon.smithy:smithy-aws-traits:[1.0,2.0)"
+    ]
+  },
+  "projections": {
+    "foo": {}
+  }
+}

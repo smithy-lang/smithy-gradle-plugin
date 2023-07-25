@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
-import org.gradle.api.Action;
 import org.gradle.api.GradleException;
 import org.gradle.api.Project;
 import org.gradle.api.file.ConfigurableFileCollection;
@@ -26,12 +25,12 @@ import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.SourceSet;
-import org.gradle.workers.ClassLoaderWorkerSpec;
 import org.gradle.workers.WorkAction;
 import org.gradle.workers.WorkParameters;
 import org.gradle.workers.WorkQueue;
 import org.gradle.workers.WorkerExecutor;
 import software.amazon.smithy.build.SmithyBuildException;
+import software.amazon.smithy.cli.EnvironmentVariable;
 import software.amazon.smithy.gradle.internal.CliDependencyResolver;
 import software.amazon.smithy.utils.SmithyInternalApi;
 import software.amazon.smithy.utils.StringUtils;
@@ -41,6 +40,7 @@ import software.amazon.smithy.utils.StringUtils;
  */
 public final class SmithyUtils {
     private static final String SMITHY_PROJECTIONS = "smithyprojections";
+    private static final String SMITHY_GRADLE_CLI_DEP_MODE = "forbid";
 
     private SmithyUtils() {}
 
@@ -135,11 +135,11 @@ public final class SmithyUtils {
             boolean fork
     ) {
         CliDependencyResolver.validateCliClasspath(cliClasspath);
-        Action<? super ClassLoaderWorkerSpec> config = spec -> spec.getClasspath().setFrom(cliClasspath);
-        WorkQueue queue = fork ? executor.processIsolation(config) : executor.classLoaderIsolation(config);
+        WorkQueue queue = getWorkQueue(executor, cliClasspath, fork);
 
         queue.submit(RunCli.class, params -> {
             params.getArguments().set(arguments);
+
 
             // The isolated classloader WorkQueue doesn't seem to be as isolated as we need
             // for running the Smithy CLI. Relying on it rather than creating a custom
@@ -149,6 +149,24 @@ public final class SmithyUtils {
         });
 
         queue.await();
+    }
+
+    private static WorkQueue getWorkQueue(WorkerExecutor executor, FileCollection cliClasspath, boolean fork) {
+        if (fork) {
+            return executor.processIsolation(spec -> {
+                spec.getClasspath().setFrom(cliClasspath);
+                // Explicitly forbid the use of maven dependency resolution using an environment variable
+                spec.getForkOptions().environment(
+                        EnvironmentVariable.SMITHY_DEPENDENCY_MODE.toString(), SMITHY_GRADLE_CLI_DEP_MODE
+                );
+            });
+        } else {
+            return executor.classLoaderIsolation(spec -> {
+                spec.getClasspath().setFrom(cliClasspath);
+                // Explicitly forbid the use of maven dependency resolution using a system property
+                System.setProperty(EnvironmentVariable.SMITHY_DEPENDENCY_MODE.toString(), SMITHY_GRADLE_CLI_DEP_MODE);
+            });
+        }
     }
 
     @SmithyInternalApi

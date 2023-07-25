@@ -1,4 +1,4 @@
-rootProject.name = "invalid-projection"
+rootProject.name = "forbid-dependency-resolution"
 
 pluginManagement {
     repositories {

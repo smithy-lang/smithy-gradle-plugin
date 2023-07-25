@@ -1,4 +1,4 @@
-// This example attempts to use an invalid projection. The build will fail.
+// This example writes Smithy build artifacts to a specified directory.
 
 plugins {
     `java-library`
@@ -11,10 +11,5 @@ repositories {
 }
 
 dependencies {
-    implementation("software.amazon.smithy:smithy-model:[1.0, 2.0[")
     implementation("software.amazon.smithy:smithy-aws-traits:[1.0, 2.0[")
-}
-
-smithy {
-    format.set(false)
 }

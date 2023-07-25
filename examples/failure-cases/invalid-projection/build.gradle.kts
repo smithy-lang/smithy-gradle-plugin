@@ -16,4 +16,5 @@ dependencies {
 
 smithy {
     sourceProjection.set("invalid")
+    format.set(false)
 }

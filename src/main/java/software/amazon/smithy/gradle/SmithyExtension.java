@@ -6,14 +6,24 @@
 package software.amazon.smithy.gradle;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Optional;
+import org.gradle.api.GradleException;
 import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Project;
 import org.gradle.api.file.FileCollection;
+import org.gradle.api.file.FileSystemLocation;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
+import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.SetProperty;
+import org.gradle.api.tasks.Internal;
 import software.amazon.smithy.gradle.internal.DefaultSmithySourceDirectorySet;
+import software.amazon.smithy.model.node.Node;
+import software.amazon.smithy.model.node.StringNode;
 import software.amazon.smithy.model.traits.DynamicTrait;
+import software.amazon.smithy.utils.IoUtils;
 
 /**
  * Gradle configuration settings for Smithy.
@@ -21,6 +31,7 @@ import software.amazon.smithy.model.traits.DynamicTrait;
 public abstract class SmithyExtension {
     private static final String SMITHY_BUILD_CONFIG_DEFAULT = "smithy-build.json";
     private static final String SMITHY_SOURCE_PROJECTION_DEFAULT = "source";
+    private static final String OUTPUT_DIRECTORY = "outputDirectory";
 
     private final NamedDomainObjectContainer<SmithySourceDirectorySet> sourceSets;
 
@@ -31,6 +42,7 @@ public abstract class SmithyExtension {
         getFork().convention(false);
         getFormat().convention(true);
         getAllowUnknownTraits().convention(false);
+        getOutputDirectory().convention(getDefaultOutputDirectory(project));
 
         ObjectFactory objectFactory = project.getObjects();
         this.sourceSets = objectFactory.domainObjectContainer(SmithySourceDirectorySet.class,
@@ -128,4 +140,36 @@ public abstract class SmithyExtension {
      * @return Returns the output directory.
      */
     public abstract Property<File> getOutputDirectory();
+
+    @Internal
+    private Provider<File> getDefaultOutputDirectory(final Project project) {
+        return getSmithyBuildConfigs()
+                .flatMap(FileCollection::getElements)
+                .map(fileSystemLocations -> fileSystemLocations.stream()
+                        .map(FileSystemLocation::getAsFile)
+                        .map(File::toPath)
+                        .map(SmithyExtension::parseOutputDirFromBuildConfig)
+                        .filter(Optional::isPresent)
+                        .map(Optional::get)
+                        .reduce((a, b) -> {
+                            throw new GradleException(
+                                    "Conflicting output directories defined in provided smithy build configs: "
+                                            + a + ", " + b);
+                        })
+                        .orElse(null)
+                ).map(project::file);
+    }
+
+    private static Optional<String> parseOutputDirFromBuildConfig(Path buildConfigPath) {
+        // The smithy-build.json file does not necessarily exist. If it does not exist
+        // do not try to read the config information
+        if (!Files.exists(buildConfigPath)) {
+            return Optional.empty();
+        }
+        return Node.parse(IoUtils.readUtf8File(buildConfigPath))
+                .expectObjectNode()
+                .getMember(OUTPUT_DIRECTORY)
+                .map(Node::expectStringNode)
+                .map(StringNode::getValue);
+    }
 }

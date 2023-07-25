@@ -17,4 +17,5 @@ dependencies {
 
 smithy {
     fork.set(true)
+    format.set(false)
 }

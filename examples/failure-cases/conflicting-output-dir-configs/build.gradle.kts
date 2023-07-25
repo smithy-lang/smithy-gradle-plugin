@@ -1,4 +1,4 @@
-// This example fails to build due to a syntax error.
+// This example attempts to use an invalid projection. The build will fail.
 
 plugins {
     `java-library`
@@ -12,8 +12,10 @@ repositories {
 
 dependencies {
     implementation("software.amazon.smithy:smithy-model:[1.0, 2.0[")
+    implementation("software.amazon.smithy:smithy-aws-traits:[1.0, 2.0[")
 }
 
 smithy {
+    smithyBuildConfigs.set(files("smithy-build.json", "smithy-build-conflicting.json"))
     format.set(false)
 }

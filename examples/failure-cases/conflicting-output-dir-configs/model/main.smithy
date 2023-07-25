@@ -1,8 +1,8 @@
 namespace smithy.example
 
-structure Baz {
+structure Foo {
     foo: String
 }
 
 @aws.auth#unsignedPayload
-operation Foo {}
+operation Bar {}

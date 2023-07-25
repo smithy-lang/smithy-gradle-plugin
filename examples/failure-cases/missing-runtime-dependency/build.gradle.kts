@@ -33,4 +33,5 @@ dependencies {
 
 smithy {
     sourceProjection.set("foo")
+    format.set(false)
 }

@@ -78,6 +78,7 @@ public final class SmithyPlugin implements Plugin<Project> {
             SmithySourceDirectorySet sds = registerSourceSets(sourceSet);
             createSmithyBuildConfiguration(project, sourceSet);
 
+            // Must execute after project has evaluated or else the format setting will not be resolved
             if (smithyExtension.getFormat().get() && cliVersionSupportsFormat(cliVersion)) {
                 addFormatTaskForSourceSet(sourceSet, sds);
             }
@@ -85,7 +86,7 @@ public final class SmithyPlugin implements Plugin<Project> {
             if (sourceSet.getName().equals(SourceSet.MAIN_SOURCE_SET_NAME)) {
                 TaskProvider<SmithyBuildTask> buildProvider = addBuildTaskForSourceSet(sourceSet, sds);
 
-                // Must execute after project has evaluated or else the enable settings will not be resolved
+                // Must execute after project has evaluated or else the java "enabled" setting will not be resolved
                 project.afterEvaluate(projectAfterEvaluation -> {
                     projectAfterEvaluation.getPluginManager().withPlugin("java", plugin -> {
                         addJavaTasksForSourceSet(sourceSet, buildProvider);
@@ -224,6 +225,7 @@ public final class SmithyPlugin implements Plugin<Project> {
         TaskProvider<SmithyFormatTask> smithyFormat = project.getTasks().register(taskName, SmithyFormatTask.class,
                 formatTask -> {
                     formatTask.getModels().set(sds.getSourceDirectories());
+                    formatTask.setEnabled(smithyExtension.getFormat().get());
                 });
 
         if (sourceSet.getName().equals(SourceSet.MAIN_SOURCE_SET_NAME)) {

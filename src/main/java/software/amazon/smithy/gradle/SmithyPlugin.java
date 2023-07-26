@@ -30,7 +30,6 @@ import software.amazon.smithy.gradle.tasks.SmithyValidateTask;
 import software.amazon.smithy.utils.ListUtils;
 
 
-
 /**
  * Applies the Smithy plugin to Gradle.
  */
@@ -205,7 +204,8 @@ public final class SmithyPlugin implements Plugin<Project> {
                         build.getSmithyBuildConfigs().set(smithyExtension.getSmithyBuildConfigs());
                         build.getSourceProjection().set(smithyExtension.getSourceProjection());
                         build.getProjectionSourceTags().set(smithyExtension.getProjectionSourceTags());
-                        build.getOutputDir().set(SmithyUtils.outputDirectory(project));
+                        build.getOutputDir().set(smithyExtension.getOutputDirectory());
+
                         // this allows the main smithy build task to show up when running `gradle tasks`
                         build.setGroup(LifecycleBasePlugin.BUILD_GROUP);
                     });

@@ -9,9 +9,13 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
+import java.util.Set;
+import javax.inject.Inject;
 import org.gradle.api.GradleException;
 import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Project;
+import org.gradle.api.file.Directory;
+import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.FileSystemLocation;
 import org.gradle.api.model.ObjectFactory;
@@ -25,6 +29,7 @@ import software.amazon.smithy.model.node.StringNode;
 import software.amazon.smithy.model.traits.DynamicTrait;
 import software.amazon.smithy.utils.IoUtils;
 
+
 /**
  * Gradle configuration settings for Smithy.
  */
@@ -35,7 +40,8 @@ public abstract class SmithyExtension {
 
     private final NamedDomainObjectContainer<SmithySourceDirectorySet> sourceSets;
 
-    public SmithyExtension(Project project) {
+    @Inject
+    public SmithyExtension(Project project, ObjectFactory objectFactory) {
         // set defaults
         getSmithyBuildConfigs().convention(project.files(SMITHY_BUILD_CONFIG_DEFAULT));
         getSourceProjection().convention(SMITHY_SOURCE_PROJECTION_DEFAULT);
@@ -44,7 +50,6 @@ public abstract class SmithyExtension {
         getAllowUnknownTraits().convention(false);
         getOutputDirectory().convention(getDefaultOutputDirectory(project));
 
-        ObjectFactory objectFactory = project.getObjects();
         this.sourceSets = objectFactory.domainObjectContainer(SmithySourceDirectorySet.class,
                 name -> objectFactory.newInstance(DefaultSmithySourceDirectorySet.class,
                         objectFactory.sourceDirectorySet(name, name + " Smithy sources"))
@@ -139,25 +144,31 @@ public abstract class SmithyExtension {
      *
      * @return Returns the output directory.
      */
-    public abstract Property<File> getOutputDirectory();
+    public abstract DirectoryProperty getOutputDirectory();
 
     @Internal
-    private Provider<File> getDefaultOutputDirectory(final Project project) {
+    private Provider<Directory> getDefaultOutputDirectory(final Project project) {
         return getSmithyBuildConfigs()
                 .flatMap(FileCollection::getElements)
-                .map(fileSystemLocations -> fileSystemLocations.stream()
-                        .map(FileSystemLocation::getAsFile)
-                        .map(File::toPath)
-                        .map(SmithyExtension::parseOutputDirFromBuildConfig)
-                        .filter(Optional::isPresent)
-                        .map(Optional::get)
-                        .reduce((a, b) -> {
-                            throw new GradleException(
-                                    "Conflicting output directories defined in provided smithy build configs: "
-                                            + a + ", " + b);
-                        })
-                        .orElse(null)
-                ).map(project::file);
+                .map(SmithyExtension::getOutputDirFromSmithyBuild)
+                .map(project::file)
+                .flatMap(file -> project.getLayout().getBuildDirectory().dir(file.getPath()))
+                .orElse(SmithyUtils.getProjectionOutputDirProperty(project));
+    }
+
+    private static String getOutputDirFromSmithyBuild(Set<FileSystemLocation> fileSystemLocations) {
+        return fileSystemLocations.stream()
+                .map(FileSystemLocation::getAsFile)
+                .map(File::toPath)
+                .map(SmithyExtension::parseOutputDirFromBuildConfig)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .reduce((a, b) -> {
+                    throw new GradleException(
+                            "Conflicting output directories defined in provided smithy build configs: "
+                                    + a + ", " + b);
+                })
+                .orElse(null);
     }
 
     private static Optional<String> parseOutputDirFromBuildConfig(Path buildConfigPath) {

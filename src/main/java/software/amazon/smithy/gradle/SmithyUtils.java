@@ -21,7 +21,6 @@ import org.gradle.api.Project;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.Directory;
 import org.gradle.api.file.FileCollection;
-import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.SourceSet;
@@ -102,22 +101,6 @@ public final class SmithyUtils {
         return project.getLayout()
             .getBuildDirectory()
             .dir(SMITHY_PROJECTIONS + File.separator + project.getName());
-    }
-
-    /**
-     * Returns the output directory for Smithy artifacts. The default location will be used unless overridden through
-     * the {@link SmithyExtension}.
-     *
-     * @param project The project to query.
-     * @return Returns the resolved directory.
-     */
-    public static Provider<Directory> outputDirectory(Project project) {
-        SmithyExtension extension = getSmithyExtension(project);
-        ProjectLayout layout = project.getLayout();
-
-        Provider<Directory> defaultLocation = getProjectionOutputDirProperty(project);
-        Provider<Directory> override = layout.dir(extension.getOutputDirectory());
-        return override.orElse(defaultLocation);
     }
 
     /**

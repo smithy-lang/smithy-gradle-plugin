@@ -14,20 +14,20 @@ import org.gradle.api.model.ObjectFactory;
  *
  * <p>A projection can contain multiple different sets of plugin artifacts.
  */
-public class ProjectionArtifactDirectoryContainer extends SmithyArtifactDirectoryContainer {
-    private final NamedDomainObjectContainer<SmithyArtifactDirectoryContainer> plugins;
+public class ProjectionArtifactDirectory extends SmithyArtifactDirectory {
+    private final NamedDomainObjectContainer<SmithyArtifactDirectory> plugins;
 
     @Inject
-    public ProjectionArtifactDirectoryContainer(String name, final ObjectFactory objectFactory) {
+    public ProjectionArtifactDirectory(String name, final ObjectFactory objectFactory) {
         super(name, objectFactory);
-        this.plugins = objectFactory.domainObjectContainer(SmithyArtifactDirectoryContainer.class,
-                pluginName -> objectFactory.newInstance(SmithyArtifactDirectoryContainer.class, pluginName));
+        this.plugins = objectFactory.domainObjectContainer(SmithyArtifactDirectory.class,
+                pluginName -> objectFactory.newInstance(SmithyArtifactDirectory.class, pluginName));
     }
 
     /**
      * Get named container with all the plugin artifacts within this projection.
      */
-    public NamedDomainObjectContainer<SmithyArtifactDirectoryContainer> getPlugins() {
+    public NamedDomainObjectContainer<SmithyArtifactDirectory> getPlugins() {
         return plugins;
     }
 }

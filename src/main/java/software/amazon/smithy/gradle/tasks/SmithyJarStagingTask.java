@@ -117,7 +117,7 @@ public abstract class SmithyJarStagingTask extends DefaultTask {
      */
     @OutputDirectory
     public Provider<File> getSmithyMetaInfDir() {
-        return  getSmithyStagingDir().map(File::getParentFile);
+        return getSmithyStagingDir().map(File::getParentFile);
     }
 
     @TaskAction

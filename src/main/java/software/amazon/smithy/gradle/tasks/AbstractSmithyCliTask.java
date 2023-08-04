@@ -32,7 +32,7 @@ abstract class AbstractSmithyCliTask extends BaseSmithyTask {
 
     /** Sets whether to fail a Smithy CLI task if an unknown trait is encountered.
      *
-     * <p> Defaults to {@code true}
+     * <p> Defaults to {@code false}
      *
      * @return flag indicating state of allowUnknownTraits setting
      */

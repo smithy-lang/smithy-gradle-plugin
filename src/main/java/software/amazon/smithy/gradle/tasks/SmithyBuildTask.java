@@ -80,7 +80,7 @@ public abstract class SmithyBuildTask extends AbstractSmithyCliTask {
     public abstract Property<FileCollection> getSmithyBuildConfigs();
 
 
-    /** Sets whether to fail a Smithy CLI task if an unknown trait is encountered.
+    /** Sets whether to fail a {@link SmithyBuildTask} if an unknown trait is encountered.
      *
      * <p> Defaults to {@code true}
      *

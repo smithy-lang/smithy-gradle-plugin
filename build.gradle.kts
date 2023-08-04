@@ -154,7 +154,7 @@ publishing {
         create<MavenPublication>("pluginMaven") {
             pom {
                 description.set(project.description)
-                url.set("https://github.com/awslabs/smithy-gradle-plugin")
+                url.set("https://github.com/smithy-lang/smithy-gradle-plugin")
                 licenses {
                     license {
                         name.set("Apache License 2.0")
@@ -172,7 +172,7 @@ publishing {
                     }
                 }
                 scm {
-                    url.set("https://github.com/awslabs/smithy-gradle-plugin.git")
+                    url.set("https://github.com/smithy-lang/smithy-gradle-plugin.git")
                 }
             }
         }
@@ -230,8 +230,8 @@ tasks.withType<SpotBugsTask>().configureEach {
  * ====================================================
  */
 gradlePlugin {
-    website.set("https://github.com/awslabs/smithy")
-    vcsUrl.set("https://github.com/awslabs/smithy")
+    website.set("https://github.com/smithy-lang/smithy")
+    vcsUrl.set("https://github.com/smithy-lang/smithy")
     plugins {
         create("software.amazon.smithy") {
             id = "software.amazon.smithy"

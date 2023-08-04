@@ -53,7 +53,7 @@ public class AddsTagsTest {
 
             assertThat(Arrays.asList(tagValues), containsInAnyOrder(
                     "software.amazon.smithy", "software.amazon.smithy:adds-tags",
-                    "software.amazon.smithy:adds-tags:9.9.9","Foo", "Baz"));
+                    "software.amazon.smithy:adds-tags:9.9.9", "Foo", "Baz"));
         });
     }
 }

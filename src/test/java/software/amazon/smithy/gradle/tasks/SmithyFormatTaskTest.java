@@ -7,6 +7,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 public class SmithyFormatTaskTest {
     private Project testProject;
@@ -26,7 +27,7 @@ public class SmithyFormatTaskTest {
                 SmithyFormatTask.class);
 
         assertEquals(formatTask.getShowStackTrace().get(), ShowStacktrace.INTERNAL_EXCEPTIONS);
-        assertEquals(formatTask.getFork().get(), false);
-        assertEquals(formatTask.getAllowUnknownTraits().get(), false);
+        assertFalse(formatTask.getFork().get());
+        assertFalse(formatTask.getAllowUnknownTraits().get());
     }
 }

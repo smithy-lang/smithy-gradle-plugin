@@ -4,6 +4,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.emptyIterable;
 import static org.hamcrest.Matchers.equalTo;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.gradle.api.Project;
 import org.gradle.testfixtures.ProjectBuilder;
@@ -26,9 +28,9 @@ public class SmithyExtensionTest {
 
         assertThat(extension.getProjectionSourceTags().get(), emptyIterable());
         assertThat(extension.getSmithyBuildConfigs().get(), contains(testProject.file("smithy-build.json")));
-        assertThat(extension.getFormat().get(), equalTo(true));
-        assertThat(extension.getFork().get(), equalTo(false));
-        assertThat(extension.getAllowUnknownTraits().get(), equalTo(false));
+        assertTrue(extension.getFormat().get());
+        assertFalse(extension.getFork().get());
+        assertFalse(extension.getAllowUnknownTraits().get());
 
         assertThat(extension.getSourceProjection().get(), equalTo("source"));
         extension.getSourceProjection().set("foo");

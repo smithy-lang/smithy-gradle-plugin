@@ -3,8 +3,8 @@ This is an example Gradle Smithy project. In addition to serving as documentatio
 this project is run as an integration test for the plugin.
 
 This project demonstrates the inclusion of additional source directories in the 
-`smithy` [sourceSet](https://docs.gradle.org/current/dsl/org.gradle.api.tasks.SourceSet.html). Smithy files 
-within the sourceSet will be used as model sources for the Smithy build task. 
+`smithy` [sourceSet](https://docs.gradle.org/current/dsl/org.gradle.api.tasks.SourceSet.html). 
+Smithy files within the sourceSet will be used as model sources for the Smithy build task. 
 
 ## Using the example as a starting point
 

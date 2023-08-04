@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import software.amazon.smithy.gradle.internal.CliDependencyResolver;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 public class SmithyBuildTaskTest {
     private Project testProject;
@@ -23,7 +24,7 @@ public class SmithyBuildTaskTest {
     public void validateDefaults() {
         SmithyBuildTask buildTask = testProject.getTasks().create("smithyUnitTestBuild", SmithyBuildTask.class);
 
-        assertEquals(buildTask.getFork().get(), false);
+        assertFalse(buildTask.getFork().get());
         assertEquals(buildTask.getShowStackTrace().get(), ShowStacktrace.INTERNAL_EXCEPTIONS);
         assertEquals(buildTask.getSourceProjection().get(), "source");
     }

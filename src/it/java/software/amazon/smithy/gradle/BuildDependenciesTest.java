@@ -15,8 +15,6 @@ import software.amazon.smithy.model.shapes.ShapeId;
 
 import java.io.File;
 
-
-
 public class BuildDependenciesTest {
     @Test
     public void buildsCorrectlyWithSmithyBuildDependencies() {

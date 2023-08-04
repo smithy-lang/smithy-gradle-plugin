@@ -77,7 +77,7 @@ public abstract class SmithyExtension {
     /**
      * Gets the projection name in use by the extension as the source (primary) projection.
      *
-     * @return Returns the projection name and defaults to "source".
+     * @return Returns the projection name. Defaults to "source".
      */
     public abstract Property<String> getSourceProjection();
 

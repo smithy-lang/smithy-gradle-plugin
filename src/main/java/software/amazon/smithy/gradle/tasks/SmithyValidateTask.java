@@ -23,7 +23,7 @@ import software.amazon.smithy.utils.ListUtils;
  * Validates the Smithy models.
  *
  * <p>The validation task will execute the Smithy CLI in a new process
- * to ensure that it uses an explicit classpath that ensures that the
+ * to ensure that it uses an explicit classpath. Doing so will ensure that the
  * generated JAR works correctly when used alongside its dependencies.
  *
  */

@@ -130,11 +130,13 @@ subprojects {
         maxParallelForks = Runtime.getRuntime().availableProcessors() / 2
     }
 
-    tasks["integTest"].dependsOn("publishToMavenLocal")
+    afterEvaluate {
+        tasks["integTest"].dependsOn("publishToMavenLocal")
 
-    // Always run javadoc and integration tests after build.
-    tasks["assemble"].dependsOn("javadoc")
-    tasks["build"].finalizedBy(tasks["integTest"])
+        // Always run javadoc and integration tests after build.
+        tasks["assemble"].dependsOn("javadoc")
+        tasks["build"].finalizedBy(tasks["integTest"])
+    }
 
     /*
      * Maven
@@ -232,26 +234,16 @@ subprojects {
      * ====================================================
      */
     // Include an Automatic-Module-Name in all JARs.
-    afterEvaluate {
-        val proj = this
-        gradlePlugin {
-            plugins {
-                create("software.amazon.smithy") {
-                    id = proj.extra["id"].toString()
-                    displayName = proj.extra["displayName"].toString()
-                    description = proj.description
-                    implementationClass = proj.extra["implementationClass"].toString()
-                }
-            }
-        }
-    }
-
     pluginBundle {
         website = "https://github.com/smithy-lang/smithy"
         vcsUrl = "https://github.com/smithy-lang/smithy"
         tags = listOf("smithy", "api", "building")
     }
 
+    /*
+     * Repositories
+     * ====================================================
+     */
     repositories {
         mavenLocal()
         mavenCentral()

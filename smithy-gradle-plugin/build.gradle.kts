@@ -4,8 +4,13 @@ description = "This project integrates Smithy with Gradle. This plugin can build
         "projects, and generate JARs that contain filtered *projections* of Smithy " +
         "models."
 
-ext {
-    set("id","software.amazon.smithy")
-    set("displayName", "Smithy Gradle Plugin")
-    set("implementationClass", "software.amazon.smithy.gradle.SmithyPlugin")
+gradlePlugin {
+    plugins {
+        create("software.amazon.smithy") {
+            id = "software.amazon.smithy"
+            displayName = "Smithy Gradle Plugin"
+            description = description
+            implementationClass = "software.amazon.smithy.gradle.SmithyPlugin"
+        }
+    }
 }

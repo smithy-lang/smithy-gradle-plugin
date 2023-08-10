@@ -93,7 +93,7 @@ public final class Utils {
     }
 
     public static Path getProjectDir(String name) {
-        return Paths.get(".").resolve("examples").resolve(name);
+        return Paths.get("..").resolve("examples").resolve(name);
     }
 
     public static void assertSmithyBuildRan(BuildResult result) {

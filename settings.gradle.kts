@@ -1,1 +1,3 @@
-rootProject.name = "smithy-gradle-plugin"
+rootProject.name = "smithy-gradle"
+
+include("smithy-gradle-plugin")

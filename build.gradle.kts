@@ -17,18 +17,8 @@ import com.github.spotbugs.snom.Effort
 import com.github.spotbugs.snom.SpotBugsTask
 import com.adarshr.gradle.testlogger.TestLoggerExtension
 
-group = "software.amazon.smithy"
-// Load the version from VERSION File.
-version = project.file("VERSION").readText().replace(System.lineSeparator(), "")
-description = "This project integrates Smithy with Gradle. This plugin can build artifacts " +
-        "from Smithy models, generate JARs that contain Smithy models found in Java " +
-        "projects, and generate JARs that contain filtered *projections* of Smithy " +
-        "models."
-
-println("Smithy version: '${version}'")
-
 plugins {
-    `java-gradle-plugin`
+    `java-library`
     `maven-publish`
     checkstyle
     jacoco
@@ -37,201 +27,228 @@ plugins {
     id("com.adarshr.test-logger") version "3.2.0"
 }
 
-dependencies {
-    implementation("software.amazon.smithy:smithy-model:[1.0, 2.0[")
-    implementation("software.amazon.smithy:smithy-build:[1.0, 2.0[")
-    implementation("software.amazon.smithy:smithy-cli:[1.0, 2.0[")
+// The root project doesn't produce a JAR.
+tasks["jar"].enabled = false
 
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.4.0")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.4.0")
-    testImplementation("org.junit.jupiter:junit-jupiter-params:5.4.0")
-    testImplementation("org.hamcrest:hamcrest:2.1")
+val pluginVersion = project.file("VERSION").readText().replace(System.lineSeparator(), "")
+allprojects {
+    group = "software.amazon.smithy"
+    version = pluginVersion
 }
+println("Smithy Gradle version: '${pluginVersion}'")
 
-/*
-* Java
-* ====================================================
-*/
 
-java {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
-}
+subprojects {
+    val subproject = this
 
-// Use Junit5's test runner.
-tasks.withType<Test> {
-    useJUnitPlatform()
-}
+    apply(plugin = "java-gradle-plugin")
+    apply(plugin = "com.gradle.plugin-publish")
 
-configure<TestLoggerExtension> {
-    showExceptions = true
-    showStackTraces = true
-    showFullStackTraces = false
-    showCauses = true
-    showSummary = true
-    showPassed = true
-    showSkipped = true
-    showFailed = true
-    showOnlySlow = false
-    showStandardStreams = true
-    showPassedStandardStreams = false
-    showSkippedStandardStreams = false
-    showFailedStandardStreams = true
-    logLevel = LogLevel.LIFECYCLE
-}
+    /*
+    * Java
+    * ====================================================
+    */
 
-// Reusable license copySpec
-val licenseSpec = copySpec {
-    from("${project.rootDir}/LICENSE")
-    from("${project.rootDir}/NOTICE")
-}
-
-// Set up tasks that build source and javadoc jars.
-tasks.register<Jar>("sourcesJar") {
-    metaInf.with(licenseSpec)
-    from(sourceSets.main.get().allJava)
-    archiveClassifier.set("sources")
-}
-
-tasks.register<Jar>("javadocJar") {
-    metaInf.with(licenseSpec)
-    from(tasks.javadoc)
-    archiveClassifier.set("javadoc")
-}
-
-// Configure jars to include license related info
-tasks.jar {
-    metaInf.with(licenseSpec)
-    manifest {
-        attributes["Automatic-Module-Name"] = "software.amazon.smithy.gradle"
+    java {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
     }
-}
 
-sourceSets {
-    create("it") {
-        compileClasspath += sourceSets["main"].output + configurations["testRuntimeClasspath"]
-        runtimeClasspath += output + compileClasspath + sourceSets["test"].runtimeClasspath
+    // Use Junit5's test runner.
+    tasks.withType<Test> {
+        useJUnitPlatform()
     }
-}
 
-tasks.register<Test>("integTest") {
-    useJUnitPlatform()
-    testClassesDirs = sourceSets["it"].output.classesDirs
-    classpath = sourceSets["it"].runtimeClasspath
-    maxParallelForks = Runtime.getRuntime().availableProcessors() / 2
-}
+    apply(plugin = "com.adarshr.test-logger")
 
-tasks["integTest"].dependsOn("publishToMavenLocal")
+    configure<TestLoggerExtension> {
+        showExceptions = true
+        showStackTraces = true
+        showFullStackTraces = false
+        showCauses = true
+        showSummary = true
+        showPassed = true
+        showSkipped = true
+        showFailed = true
+        showOnlySlow = false
+        showStandardStreams = true
+        showPassedStandardStreams = false
+        showSkippedStandardStreams = false
+        showFailedStandardStreams = true
+        logLevel = LogLevel.LIFECYCLE
+    }
 
-// Always run javadoc and integration tests after build.
-tasks["assemble"].dependsOn("javadoc")
-tasks["build"].finalizedBy(tasks["integTest"])
+    // Reusable license copySpec
+    val licenseSpec = copySpec {
+        from("${project.rootDir}/LICENSE")
+        from("${project.rootDir}/NOTICE")
+    }
 
-/*
- * Maven
- * ====================================================
- *
- * Publish to Maven central.
- */
+    dependencies {
+        implementation("software.amazon.smithy:smithy-model:[1.0, 2.0[")
+        implementation("software.amazon.smithy:smithy-build:[1.0, 2.0[")
+        implementation("software.amazon.smithy:smithy-cli:[1.0, 2.0[")
 
-repositories {
-    mavenLocal()
-    mavenCentral()
-}
+        testImplementation("org.junit.jupiter:junit-jupiter-api:5.4.0")
+        testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.4.0")
+        testImplementation("org.junit.jupiter:junit-jupiter-params:5.4.0")
+        testImplementation("org.hamcrest:hamcrest:2.1")
+    }
 
-publishing {
-    publications {
-        create<MavenPublication>("pluginMaven") {
-            pom {
-                description.set(project.description)
-                url.set("https://github.com/awslabs/smithy-gradle-plugin")
-                licenses {
-                    license {
-                        name.set("Apache License 2.0")
-                        url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
-                        distribution.set("repo")
+    // Set up tasks that build source and javadoc jars.
+    tasks.register<Jar>("sourcesJar") {
+        metaInf.with(licenseSpec)
+        from(sourceSets.main.get().allJava)
+        archiveClassifier.set("sources")
+    }
+
+    tasks.register<Jar>("javadocJar") {
+        metaInf.with(licenseSpec)
+        from(tasks.javadoc)
+        archiveClassifier.set("javadoc")
+    }
+
+    // Configure jars to include license related info
+    tasks.jar {
+        metaInf.with(licenseSpec)
+        manifest {
+            attributes["Automatic-Module-Name"] = "software.amazon.smithy.gradle"
+        }
+    }
+
+    sourceSets {
+        create("it") {
+            compileClasspath += sourceSets["main"].output + configurations["testRuntimeClasspath"]
+            runtimeClasspath += output + compileClasspath + sourceSets["test"].runtimeClasspath
+        }
+    }
+
+    tasks.register<Test>("integTest") {
+        useJUnitPlatform()
+        testClassesDirs = sourceSets["it"].output.classesDirs
+        classpath = sourceSets["it"].runtimeClasspath
+        maxParallelForks = Runtime.getRuntime().availableProcessors() / 2
+    }
+
+    afterEvaluate {
+        tasks["integTest"].dependsOn("publishToMavenLocal")
+
+        // Always run javadoc and integration tests after build.
+        tasks["assemble"].dependsOn("javadoc")
+        tasks["build"].finalizedBy(tasks["integTest"])
+    }
+
+    /*
+     * Maven
+     * ====================================================
+     *
+     * Publish to Maven central.
+     */
+    apply(plugin = "maven-publish")
+
+    publishing {
+        publications {
+            create<MavenPublication>("pluginMaven") {
+                pom {
+                    description.set(subproject.description)
+                    url.set("https://github.com/awslabs/smithy-gradle-plugin")
+                    licenses {
+                        license {
+                            name.set("Apache License 2.0")
+                            url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+                            distribution.set("repo")
+                        }
                     }
-                }
-                developers {
-                    developer {
-                        id.set("smithy")
-                        name.set("Smithy")
-                        organization.set("Amazon Web Services")
-                        organizationUrl.set("https://aws.amazon.com")
-                        roles.add("developer")
+                    developers {
+                        developer {
+                            id.set("smithy")
+                            name.set("Smithy")
+                            organization.set("Amazon Web Services")
+                            organizationUrl.set("https://aws.amazon.com")
+                            roles.add("developer")
+                        }
                     }
-                }
-                scm {
-                    url.set("https://github.com/awslabs/smithy-gradle-plugin.git")
+                    scm {
+                        url.set("https://github.com/awslabs/smithy-gradle-plugin.git")
+                    }
                 }
             }
         }
-    }
-}
 
-/*
- * CheckStyle
- * ====================================================
- *
- * Apply CheckStyle to source files but not tests.
- */
-
-tasks["checkstyleTest"].enabled = false
-tasks["checkstyleIt"].enabled = false
-
-/*
- * Code coverage
- * ====================================================
- *
- * Create code coverage reports after running tests.
- */
-
-// Always run the jacoco test report after testing.
-tasks["test"].finalizedBy(tasks["jacocoTestReport"])
-
-// Configure jacoco to generate an HTML report.
-tasks.jacocoTestReport {
-    reports {
-        xml.isEnabled = false
-        csv.isEnabled = false
-        html.destination = file("$buildDir/reports/jacoco")
-    }
-}
-
-/*
- * Spotbugs
- * ====================================================
- *
- * Run spotbugs against source files and configure suppressions.
- */
-
-// We don't need to lint tests.
-tasks["spotbugsTest"].enabled = false
-tasks["spotbugsIt"].enabled = false
-
-// Configure the bug filter for spotbugs.
-tasks.withType<SpotBugsTask>().configureEach {
-    effort.set(Effort.MAX)
-    excludeFilter.set(project.file("config/spotbugs/filter.xml"))
-}
-
-/*
- * Gradle plugins
- * ====================================================
- */
-gradlePlugin {
-    plugins {
-        create("software.amazon.smithy") {
-            id = "software.amazon.smithy"
-            displayName = "Smithy Gradle Plugin"
-            description = project.description
-            implementationClass = "software.amazon.smithy.gradle.SmithyPlugin"
+        repositories {
+            mavenLocal()
+            mavenCentral()
         }
     }
+
+    /*
+     * CheckStyle
+     * ====================================================
+     *
+     * Apply CheckStyle to source files but not tests.
+     */
+    apply(plugin = "checkstyle")
+
+    tasks["checkstyleTest"].enabled = false
+    tasks["checkstyleIt"].enabled = false
+
+    /*
+     * Code coverage
+     * ====================================================
+     *
+     * Create code coverage reports after running tests.
+     */
+    apply(plugin = "jacoco")
+
+    // Always run the jacoco test report after testing.
+    tasks["test"].finalizedBy(tasks["jacocoTestReport"])
+
+    // Configure jacoco to generate an HTML report.
+    tasks.jacocoTestReport {
+        reports {
+            xml.required.set(false)
+            csv.required.set(false)
+            html.outputLocation.set(file("$buildDir/reports/jacoco"))
+        }
+    }
+
+    /*
+     * Spotbugs
+     * ====================================================
+     *
+     * Run spotbugs against source files and configure suppressions.
+     */
+    apply(plugin = "com.github.spotbugs")
+    // We don't need to lint tests.
+    tasks["spotbugsTest"].enabled = false
+    tasks["spotbugsIt"].enabled = false
+
+    // Configure the bug filter for spotbugs.
+    tasks.withType<SpotBugsTask>().configureEach {
+        effort.set(Effort.MAX)
+        excludeFilter.set(project.file("${project.rootDir}/config/spotbugs/filter.xml"))
+    }
+
+    /*
+     * Gradle plugins
+     * ====================================================
+     */
+    // Include an Automatic-Module-Name in all JARs.
+    pluginBundle {
+        website = "https://github.com/smithy-lang/smithy"
+        vcsUrl = "https://github.com/smithy-lang/smithy"
+        tags = listOf("smithy", "api", "building")
+    }
+
+    /*
+     * Repositories
+     * ====================================================
+     */
+    repositories {
+        mavenLocal()
+        mavenCentral()
+    }
 }
 
-pluginBundle {
-    website = "https://github.com/awslabs/smithy"
-    vcsUrl = "https://github.com/awslabs/smithy"
-    tags = listOf("smithy", "api", "building")
-}
+
+

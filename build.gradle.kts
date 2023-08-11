@@ -230,17 +230,6 @@ subprojects {
     }
 
     /*
-     * Gradle plugins
-     * ====================================================
-     */
-    // Include an Automatic-Module-Name in all JARs.
-    pluginBundle {
-        website = "https://github.com/smithy-lang/smithy"
-        vcsUrl = "https://github.com/smithy-lang/smithy"
-        tags = listOf("smithy", "api", "building")
-    }
-
-    /*
      * Repositories
      * ====================================================
      */

@@ -15,6 +15,11 @@
 
 package software.amazon.smithy.gradle;
 
+import org.gradle.testkit.runner.BuildResult;
+import org.gradle.testkit.runner.BuildTask;
+import org.gradle.testkit.runner.TaskOutcome;
+import org.junit.jupiter.api.Assertions;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -27,15 +32,10 @@ import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Locale;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.gradle.testkit.runner.BuildResult;
-import org.gradle.testkit.runner.BuildTask;
-import org.gradle.testkit.runner.TaskOutcome;
-import org.junit.jupiter.api.Assertions;
 
 public final class Utils {
     private Utils() {}
@@ -98,6 +98,11 @@ public final class Utils {
 
     public static void assertSmithyBuildRan(BuildResult result) {
         Assertions.assertTrue(result.task(":smithyBuildJar").getOutcome() == TaskOutcome.SUCCESS);
+    }
+
+    public static void assertSmithyBuildTaskRan(BuildResult result) {
+        Assertions.assertTrue(result.task(":smithyBuild").getOutcome() == TaskOutcome.SUCCESS);
+
     }
 
     public static void assertSmithyBuildDidNotRun(BuildResult result) {

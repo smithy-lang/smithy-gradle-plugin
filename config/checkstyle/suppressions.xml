@@ -19,4 +19,5 @@
         "https://checkstyle.org/dtds/suppressions_1_2.dtd">
 <suppressions>
     <suppress checks="EqualsHashCode" files="shapes/*"/>
+    <suppress checks="InterfaceIsType" files="SmithySourceDirectorySet.java" />
 </suppressions>

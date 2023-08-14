@@ -35,7 +35,7 @@ abstract class BaseSmithyTask extends DefaultTask {
         getFork().convention(false);
         getShowStackTrace().convention(ShowStacktrace.INTERNAL_EXCEPTIONS);
         getResolvedCliClasspath().convention(getProject().getConfigurations().getByName("smithyCli"));
-        getDiscoveryClasspath().convention(getProject().getConfigurations().getByName("smithyBuildDep"));
+        getDiscoveryClasspath().convention(getProject().getConfigurations().getByName("smithyBuild"));
         startParameter = getProject().getGradle().getStartParameter();
     }
 

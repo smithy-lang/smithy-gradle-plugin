@@ -16,7 +16,7 @@ public class SmithyFormatTaskTest {
     public void init() {
         testProject = ProjectBuilder.builder().build();
         testProject.getConfigurations().create("smithyCli");
-        testProject.getConfigurations().create("smithyBuildDep");
+        testProject.getConfigurations().create("smithyBuild");
     }
 
     @Test

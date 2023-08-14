@@ -40,7 +40,7 @@ import software.amazon.smithy.utils.StringUtils;
  */
 public final class SmithyUtils {
     public static final String SMITHY_CLI_CONFIGURATION_NAME = "smithyCli";
-    private static final String SMITHY_BUILD_CONFIGURATION_NAME = "smithyBuildDep";
+    private static final String SMITHY_BUILD_CONFIGURATION_NAME = "smithyBuild";
     private static final String SMITHY_PROJECTIONS = "smithyprojections";
     private static final String SMITHY_GRADLE_CLI_DEP_MODE = "forbid";
 

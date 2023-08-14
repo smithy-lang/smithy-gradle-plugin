@@ -105,14 +105,13 @@ public final class SmithyBasePlugin implements Plugin<Project> {
      * @param configurations configuration container
      */
     private void createConfigurations(SourceSet sourceSet, ConfigurationContainer configurations) {
-        String implementationConfigurationName = sourceSet.getImplementationConfigurationName();
         String runtimeClasspathConfigurationName = sourceSet.getRuntimeClasspathConfigurationName();
         String sourceSetName = sourceSet.toString();
 
         // Set up Smithy-specific configurations
         Configuration smithyCliConfiguration = configurations.maybeCreate(
                 SmithyUtils.getSmithyCliConfigurationName(sourceSet));
-        smithyCliConfiguration.extendsFrom(configurations.getByName(implementationConfigurationName));
+        smithyCliConfiguration.extendsFrom(configurations.getByName(runtimeClasspathConfigurationName));
         smithyCliConfiguration.setVisible(false);
         smithyCliConfiguration.setDescription("Configuration for Smithy CLI and associated dependencies for the "
                 + sourceSetName + " sourceSet.");

@@ -22,8 +22,6 @@ public class IncludesInSourceSetTest {
                     "build/smithyprojections/includes-in-sourceset/source/sources/included.smithy",
                     "build/smithyprojections/includes-in-sourceset/source/sources/main.smithy",
                     "build/smithyprojections/includes-in-sourceset/source/sources/manifest");
-
-            Utils.assertArtifactsNotCreated(buildDir, "build/libs/includes-in-sourceset.jar");
         });
     }
 }

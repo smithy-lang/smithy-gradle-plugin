@@ -1,4 +1,5 @@
 plugins {
+    id("java-library")
     id("smithy-base").version("0.7.0")
 }
 

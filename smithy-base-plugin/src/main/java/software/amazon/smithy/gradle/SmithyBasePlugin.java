@@ -12,12 +12,7 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
-import org.gradle.api.internal.artifacts.configurations.ConfigurationRoles;
-import org.gradle.api.internal.artifacts.configurations.RoleBasedConfigurationContainerInternal;
-import org.gradle.api.plugins.BasePlugin;
-import org.gradle.api.plugins.JvmEcosystemPlugin;
-import org.gradle.api.plugins.ReportingBasePlugin;
-import org.gradle.api.plugins.jvm.internal.JvmPluginServices;
+import org.gradle.api.plugins.JavaBasePlugin;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.SourceSetContainer;
 import org.gradle.api.tasks.TaskProvider;
@@ -33,17 +28,13 @@ import software.amazon.smithy.gradle.tasks.SmithyFormatTask;
 public final class SmithyBasePlugin implements Plugin<Project> {
     public static final String SMITHY_BUILD_TASK_NAME = "smithyBuild";
 
-    // The plugin uses gradle API features from 8.2.0
     private static final GradleVersion MINIMUM_GRADLE_VERSION = GradleVersion.version("8.2.0");
     private static final GradleVersion MIN_SMITHY_FORMAT_VERSION = GradleVersion.version("1.33.0");
 
-
-    JvmPluginServices jvmPluginServices;
     Project project;
 
     @Inject
-    public SmithyBasePlugin(Project project, JvmPluginServices jvmPluginServices) {
-        this.jvmPluginServices = jvmPluginServices;
+    public SmithyBasePlugin(Project project) {
         this.project = project;
     }
 
@@ -51,23 +42,13 @@ public final class SmithyBasePlugin implements Plugin<Project> {
     public void apply(@Nonnull Project project) {
         validateGradleVersion();
 
-        project.getPlugins().apply(BasePlugin.class);
-        // Adds base SourceSetContainer
-        project.getPlugins().apply(JvmEcosystemPlugin.class);
-        // Allows Smithy Diff to add reports
-        project.getPlugins().apply(ReportingBasePlugin.class);
+        // Creates required configurations and base source set container
+        project.getPlugins().apply(JavaBasePlugin.class);
 
         // Add smithy source set extension
-        maybeCreateDefaultSourceSets(project);
         SmithyBaseExtension smithyExtension = project.getExtensions().create("smithy", SmithyBaseExtension.class);
 
         configureSourceSetDefaults(project, smithyExtension);
-    }
-
-    private static void maybeCreateDefaultSourceSets(Project project) {
-        SourceSetContainer container = project.getExtensions().getByType(SourceSetContainer.class);
-        container.maybeCreate(SourceSet.MAIN_SOURCE_SET_NAME);
-        container.maybeCreate(SourceSet.TEST_SOURCE_SET_NAME);
     }
 
     private static void validateGradleVersion() {
@@ -80,9 +61,8 @@ public final class SmithyBasePlugin implements Plugin<Project> {
     }
 
     private void configureSourceSetDefaults(Project project, SmithyBaseExtension extension) {
-        project.getExtensions().getByType(SourceSetContainer.class).forEach(sourceSet -> {
-            ConfigurationContainer configurations = project.getConfigurations();
-            createConfigurations(sourceSet, (RoleBasedConfigurationContainerInternal) configurations);
+        project.getExtensions().getByType(SourceSetContainer.class).all(sourceSet -> {
+            createConfigurations(sourceSet, project.getConfigurations());
             SmithySourceDirectorySet sds = registerSourceSets(sourceSet, extension);
 
             String cliVersion = CliDependencyResolver.resolve(project, sourceSet);
@@ -90,8 +70,10 @@ public final class SmithyBasePlugin implements Plugin<Project> {
                 addFormatTaskForSourceSet(sourceSet, sds, extension);
             }
 
+            TaskProvider<SmithyBuildTask> buildTaskTaskProvider = addBuildTaskForSourceSet(sourceSet, sds, extension);
+            // Ensure smithy-build is executed as part of building the "main" feature
             if (SourceSet.isMain(sourceSet)) {
-                addBuildTaskForSourceSet(sourceSet, sds, extension);
+                project.getTasks().getByName("build").dependsOn(buildTaskTaskProvider);
             }
         });
     }
@@ -122,36 +104,15 @@ public final class SmithyBasePlugin implements Plugin<Project> {
      * @param sourceSet source set to add configurations to
      * @param configurations configuration container
      */
-    private void createConfigurations(SourceSet sourceSet, RoleBasedConfigurationContainerInternal configurations) {
+    private void createConfigurations(SourceSet sourceSet, ConfigurationContainer configurations) {
         String implementationConfigurationName = sourceSet.getImplementationConfigurationName();
-        String runtimeOnlyConfigurationName = sourceSet.getRuntimeOnlyConfigurationName();
         String runtimeClasspathConfigurationName = sourceSet.getRuntimeClasspathConfigurationName();
         String sourceSetName = sourceSet.toString();
-
-        Configuration implementationConfiguration =
-                configurations.maybeCreateWithRole(implementationConfigurationName, ConfigurationRoles.BUCKET, false,
-                        false);
-        implementationConfiguration.setVisible(false);
-        implementationConfiguration.setDescription("Implementation only dependencies for " + sourceSetName + ".");
-
-        Configuration runtimeOnlyConfiguration = configurations.maybeCreateWithRole(runtimeOnlyConfigurationName,
-                ConfigurationRoles.BUCKET, false, false);
-        runtimeOnlyConfiguration.setVisible(false);
-        runtimeOnlyConfiguration.setDescription("Runtime only dependencies for " + sourceSetName + ".");
-
-        Configuration runtimeClasspathConfiguration = configurations.maybeCreateWithRole(
-                runtimeClasspathConfigurationName, ConfigurationRoles.RESOLVABLE, false, false);
-        runtimeClasspathConfiguration.setVisible(false);
-        runtimeClasspathConfiguration.setDescription("Runtime classpath of " + sourceSetName + ".");
-        runtimeClasspathConfiguration.extendsFrom(runtimeOnlyConfiguration, implementationConfiguration);
-        jvmPluginServices.configureAsRuntimeClasspath(runtimeClasspathConfiguration);
-
-        sourceSet.setRuntimeClasspath(sourceSet.getOutput().plus(runtimeClasspathConfiguration));
 
         // Set up Smithy-specific configurations
         Configuration smithyCliConfiguration = configurations.maybeCreate(
                 SmithyUtils.getSmithyCliConfigurationName(sourceSet));
-        smithyCliConfiguration.extendsFrom(runtimeClasspathConfiguration);
+        smithyCliConfiguration.extendsFrom(configurations.getByName(implementationConfigurationName));
         smithyCliConfiguration.setVisible(false);
         smithyCliConfiguration.setDescription("Configuration for Smithy CLI and associated dependencies for the "
                 + sourceSetName + " sourceSet.");
@@ -160,7 +121,7 @@ public final class SmithyBasePlugin implements Plugin<Project> {
                 SmithyUtils.getSmithyBuildConfigurationName(sourceSet));
         smithyBuildConfig.setVisible(false);
         smithyBuildConfig.setTransitive(true);
-        smithyBuildConfig.extendsFrom(runtimeClasspathConfiguration);
+        smithyBuildConfig.extendsFrom(configurations.getByName(runtimeClasspathConfigurationName));
         smithyBuildConfig.setDescription("Build-time smithy dependencies for " + sourceSetName + ".");
     }
 
@@ -201,9 +162,9 @@ public final class SmithyBasePlugin implements Plugin<Project> {
         }
     }
 
-    private void addBuildTaskForSourceSet(SourceSet sourceSet,
-                                          SmithySourceDirectorySet sds,
-                                          SmithyBaseExtension extension
+    private TaskProvider<SmithyBuildTask> addBuildTaskForSourceSet(SourceSet sourceSet,
+                                                                   SmithySourceDirectorySet sds,
+                                                                   SmithyBaseExtension extension
     ) {
         String taskName = SmithyUtils.getRelativeSourceSetName(sourceSet, SMITHY_BUILD_TASK_NAME);
         TaskProvider<SmithyBuildTask> buildTaskTaskProvider = project.getTasks()
@@ -223,8 +184,6 @@ public final class SmithyBasePlugin implements Plugin<Project> {
                             build.setGroup(LifecycleBasePlugin.BUILD_GROUP);
                         });
 
-        if (SourceSet.isMain(sourceSet)) {
-            project.getTasks().getByName("build").dependsOn(buildTaskTaskProvider);
-        }
+        return buildTaskTaskProvider;
     }
 }

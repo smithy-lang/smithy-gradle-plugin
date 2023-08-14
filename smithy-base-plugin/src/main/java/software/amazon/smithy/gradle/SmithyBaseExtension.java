@@ -150,6 +150,19 @@ public abstract class SmithyBaseExtension {
      */
     public abstract DirectoryProperty getOutputDirectory();
 
+    /**
+     * Convenience method to get the directory containing plugin artifacts.
+     *
+     * @param projection projection name
+     * @param plugin name of plugin to get artifact directory for
+     *
+     * @return path to plugin artifact directory
+     */
+    public Provider<Path> getPluginProjectionPath(String projection, String plugin) {
+        return getOutputDirectory().getAsFile()
+                .map(file -> SmithyUtils.getProjectionPluginPath(file, projection, plugin));
+    }
+
     @Internal
     private Provider<Directory> getDefaultOutputDirectory(final Project project) {
         return getSmithyBuildConfigs()

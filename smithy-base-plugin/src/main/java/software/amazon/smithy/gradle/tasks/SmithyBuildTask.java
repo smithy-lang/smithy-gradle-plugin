@@ -6,16 +6,10 @@
 package software.amazon.smithy.gradle.tasks;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import javax.inject.Inject;
-import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.model.ObjectFactory;
@@ -28,7 +22,6 @@ import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.TaskAction;
 import software.amazon.smithy.cli.BuildParameterBuilder;
 import software.amazon.smithy.gradle.SmithyUtils;
-import software.amazon.smithy.gradle.internal.ProjectionArtifactDirectory;
 
 /**
  * Executes the Smithy CLI {@code build} command.
@@ -38,20 +31,12 @@ import software.amazon.smithy.gradle.internal.ProjectionArtifactDirectory;
  *
  */
 public abstract class SmithyBuildTask extends AbstractSmithyCliTask {
-    private final NamedDomainObjectContainer<ProjectionArtifactDirectory> projections;
-
     @Inject
     public SmithyBuildTask(ObjectFactory objectFactory) {
         super(objectFactory);
 
         getSourceProjection().convention("source");
         getOutputDir().convention(SmithyUtils.getProjectionOutputDirProperty(getProject()));
-
-        this.projections = objectFactory.domainObjectContainer(
-                ProjectionArtifactDirectory.class,
-                name -> objectFactory.newInstance(
-                        ProjectionArtifactDirectory.class, name, objectFactory)
-        );
     }
 
 
@@ -117,46 +102,6 @@ public abstract class SmithyBuildTask extends AbstractSmithyCliTask {
                 .collect(Collectors.toList());
     }
 
-
-    /**
-     * Collection of Projection artifact directories.
-     *
-     * <p>Note: this will only contain values when the smithyBuild task is enabled
-     *
-     * @return container containing named {@code }. Projection names will be the
-     * same as specified in the smithy-build configs used for a smithy-build task.
-     *
-     */
-    @Internal
-    public NamedDomainObjectContainer<ProjectionArtifactDirectory> getProjections() {
-        return this.projections;
-    }
-
-    /**
-     * Convenience method to get the directory containing projection artifacts.
-     *
-     * @param projectionName name of projection to get directory for
-     *
-     * @return directory containing projection artifacts
-     */
-    public DirectoryProperty getProjectionDirectory(String projectionName) {
-        return this.projections.getByName(projectionName).getDirectory();
-    }
-
-    /**
-     * Convenience method to get the directory containing plugin artifacts.
-     *
-     * @param projectionName projection to search for plugin artifacts
-     * @param pluginName name of plugin to get directory for
-     *
-     * @return directory containing plugin artifacts
-     */
-    public DirectoryProperty getPluginDirectory(String projectionName, String pluginName) {
-        return this.projections.getByName(projectionName)
-                .getPlugins().getByName(pluginName).getDirectory();
-    }
-
-
     @TaskAction
     public void execute() {
         writeHeading("Running smithy build");
@@ -191,37 +136,5 @@ public abstract class SmithyBuildTask extends AbstractSmithyCliTask {
                 getCliExecutionClasspath().get(),
                 getFork().get()
         );
-
-        addOutputsToArtifactContainer();
-    }
-
-    private void addOutputsToArtifactContainer() {
-        Path output = getOutputDir().getAsFile().get().toPath();
-        for (Path projectionDirPath : getDirectories(output)) {
-            // Add all projection artifacts to the object container.
-            projections.register(getRelativeName(output, projectionDirPath), projection -> {
-                projection.getDirectory().set(projectionDirPath.toFile());
-
-                // Add all plugins in the projection to the projection container
-                for (Path pluginDirPath : getDirectories(projectionDirPath)) {
-                    projection.getPlugins().register(getRelativeName(projectionDirPath, pluginDirPath),
-                            pluginContainer -> pluginContainer.getDirectory().set(pluginDirPath.toFile()));
-                }
-            });
-        }
-    }
-
-    private static List<Path> getDirectories(Path path) {
-        List<Path> result;
-        try (Stream<Path> paths = Files.list(path)) {
-            result = paths.filter(Files::isDirectory).collect(Collectors.toList());
-        } catch (IOException exc) {
-            throw new UncheckedIOException(exc);
-        }
-        return result;
-    }
-
-    private static String getRelativeName(Path root, Path nested) {
-        return root.relativize(nested).toString();
     }
 }

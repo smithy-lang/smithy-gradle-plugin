@@ -33,7 +33,7 @@ import software.amazon.smithy.utils.IoUtils;
 /**
  * Gradle configuration settings for Smithy base plugin.
  */
-public abstract class SmithyBaseExtension {
+public abstract class SmithyExtension {
     private static final String SMITHY_BUILD_CONFIG_DEFAULT = "smithy-build.json";
     private static final String SMITHY_SOURCE_PROJECTION_DEFAULT = "source";
     private static final String OUTPUT_DIRECTORY = "outputDirectory";
@@ -41,7 +41,7 @@ public abstract class SmithyBaseExtension {
     private final NamedDomainObjectContainer<SmithySourceDirectorySet> sourceSets;
 
     @Inject
-    public SmithyBaseExtension(Project project, ObjectFactory objectFactory) {
+    public SmithyExtension(Project project, ObjectFactory objectFactory) {
         this.sourceSets = objectFactory.domainObjectContainer(SmithySourceDirectorySet.class,
                 name -> objectFactory.newInstance(DefaultSmithySourceDirectorySet.class,
                         objectFactory.sourceDirectorySet(name, name + " Smithy sources"))
@@ -60,9 +60,9 @@ public abstract class SmithyBaseExtension {
     }
 
     /**
-     * Collection of {@link org.gradle.api.file.SourceDirectorySet} associated with the {@link SmithyBaseExtension}.
+     * Collection of {@link org.gradle.api.file.SourceDirectorySet} associated with the {@link SmithyExtension}.
      *
-     * @return container containing {@code SourceDirectorySet}s associated with {@link SmithyBaseExtension}.
+     * @return container containing {@code SourceDirectorySet}s associated with {@link SmithyExtension}.
      */
     public NamedDomainObjectContainer<SmithySourceDirectorySet> getSourceSets() {
         return this.sourceSets;
@@ -167,7 +167,7 @@ public abstract class SmithyBaseExtension {
     private Provider<Directory> getDefaultOutputDirectory(final Project project) {
         return getSmithyBuildConfigs()
                 .flatMap(FileCollection::getElements)
-                .map(SmithyBaseExtension::getOutputDirFromSmithyBuild)
+                .map(SmithyExtension::getOutputDirFromSmithyBuild)
                 .map(project::file)
                 .flatMap(file -> project.getLayout().getBuildDirectory().dir(file.getPath()))
                 .orElse(SmithyUtils.getProjectionOutputDirProperty(project));
@@ -177,7 +177,7 @@ public abstract class SmithyBaseExtension {
         return fileSystemLocations.stream()
                 .map(FileSystemLocation::getAsFile)
                 .map(File::toPath)
-                .map(SmithyBaseExtension::parseOutputDirFromBuildConfig)
+                .map(SmithyExtension::parseOutputDirFromBuildConfig)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .reduce((a, b) -> {

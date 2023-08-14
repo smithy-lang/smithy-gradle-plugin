@@ -46,7 +46,7 @@ public final class SmithyBasePlugin implements Plugin<Project> {
         project.getPlugins().apply(JavaBasePlugin.class);
 
         // Add smithy source set extension
-        SmithyBaseExtension smithyExtension = project.getExtensions().create("smithy", SmithyBaseExtension.class);
+        SmithyExtension smithyExtension = project.getExtensions().create("smithy", SmithyExtension.class);
 
         configureSourceSetDefaults(project, smithyExtension);
     }
@@ -60,7 +60,7 @@ public final class SmithyBasePlugin implements Plugin<Project> {
         }
     }
 
-    private void configureSourceSetDefaults(Project project, SmithyBaseExtension extension) {
+    private void configureSourceSetDefaults(Project project, SmithyExtension extension) {
         project.getExtensions().getByType(SourceSetContainer.class).all(sourceSet -> {
             createConfigurations(sourceSet, project.getConfigurations());
             SmithySourceDirectorySet sds = registerSourceSets(sourceSet, extension);
@@ -134,7 +134,7 @@ public final class SmithyBasePlugin implements Plugin<Project> {
      *
      * @param sourceSet root sourceSet to add extensions to
      */
-    private static SmithySourceDirectorySet registerSourceSets(SourceSet sourceSet, SmithyBaseExtension extension) {
+    private static SmithySourceDirectorySet registerSourceSets(SourceSet sourceSet, SmithyExtension extension) {
         // Add the smithy source set as an extension
         SmithySourceDirectorySet sds = extension.getSourceSets().create(sourceSet.getName());
         sourceSet.getExtensions().add(SmithySourceDirectorySet.NAME, sds);
@@ -146,7 +146,7 @@ public final class SmithyBasePlugin implements Plugin<Project> {
     }
 
     private void addFormatTaskForSourceSet(SourceSet sourceSet, SmithySourceDirectorySet sds,
-                                           SmithyBaseExtension extension
+                                           SmithyExtension extension
     ) {
         // Set up format task and Register all smithy sourceSets as formatting targets
         String taskName = SmithyUtils.getRelativeSourceSetName(sourceSet, "smithyFormat");
@@ -163,7 +163,7 @@ public final class SmithyBasePlugin implements Plugin<Project> {
 
     private TaskProvider<SmithyBuildTask> addBuildTaskForSourceSet(SourceSet sourceSet,
                                                                    SmithySourceDirectorySet sds,
-                                                                   SmithyBaseExtension extension
+                                                                   SmithyExtension extension
     ) {
         String taskName = SmithyUtils.getRelativeSourceSetName(sourceSet, SMITHY_BUILD_TASK_NAME);
         TaskProvider<SmithyBuildTask> buildTaskTaskProvider = project.getTasks()

@@ -13,7 +13,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class SmithyBaseExtensionTest {
+public class SmithyExtensionTest {
     private Project testProject;
 
     @BeforeEach
@@ -25,7 +25,7 @@ public class SmithyBaseExtensionTest {
     @Test
     public void validateDefaults() {
 
-        SmithyBaseExtension extension = testProject.getExtensions().create("smithyTest", SmithyBaseExtension.class);
+        SmithyExtension extension = testProject.getExtensions().create("smithyTest", SmithyExtension.class);
 
         assertThat(extension.getProjectionSourceTags().get(), emptyIterable());
         assertThat(extension.getSmithyBuildConfigs().get(), contains(testProject.file("smithy-build.json")));

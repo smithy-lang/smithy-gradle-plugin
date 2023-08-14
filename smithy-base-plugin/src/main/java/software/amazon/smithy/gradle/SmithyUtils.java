@@ -52,8 +52,8 @@ public final class SmithyUtils {
      * @param project Project to query.
      * @return Returns the extension.
      */
-    public static SmithyBaseExtension getSmithyExtension(Project project) {
-        return project.getExtensions().getByType(SmithyBaseExtension.class);
+    public static SmithyExtension getSmithyExtension(Project project) {
+        return project.getExtensions().getByType(SmithyExtension.class);
     }
 
     /**

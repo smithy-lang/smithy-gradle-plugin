@@ -188,6 +188,15 @@ subprojects {
         }
 
         /*
+         * Common plugin settings
+         * ====================================================
+         */
+        gradlePlugin {
+            website.set("https://github.com/smithy-lang/smithy")
+            vcsUrl.set("https://github.com/smithy-lang/smithy")
+        }
+
+        /*
          * CheckStyle
          * ====================================================
          *

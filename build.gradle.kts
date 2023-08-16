@@ -192,8 +192,8 @@ subprojects {
          * ====================================================
          */
         gradlePlugin {
-            website.set("https://github.com/smithy-lang/smithy")
-            vcsUrl.set("https://github.com/smithy-lang/smithy")
+            website.set("https://smithy.io")
+            vcsUrl.set("https://github.com/smithy-lang/smithy-gradle-plugin")
         }
 
         /*

@@ -15,7 +15,7 @@ dependencies {
     implementation("software.amazon.smithy:smithy-aws-traits:[1.0, 2.0[")
 }
 
-configure<software.amazon.smithy.gradle.SmithyExtension> {
+smithy {
     // Uncomment this to use a custom projection when building the JAR.
     // projection = "foo"
 }

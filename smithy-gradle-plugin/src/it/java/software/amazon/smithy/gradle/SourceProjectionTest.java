@@ -26,7 +26,7 @@ public class SourceProjectionTest {
             BuildResult result = GradleRunner.create()
                     .forwardOutput()
                     .withProjectDir(buildDir)
-                    .withArguments("clean", "build", "--stacktrace", "--debug")
+                    .withArguments("clean", "build", "--stacktrace")
                     .build();
 
             Utils.assertSmithyBuildRan(result);

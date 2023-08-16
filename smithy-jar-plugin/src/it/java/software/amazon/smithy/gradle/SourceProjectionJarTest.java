@@ -11,7 +11,7 @@ public class SourceProjectionJarTest {
             BuildResult result = GradleRunner.create()
                     .forwardOutput()
                     .withProjectDir(buildDir)
-                    .withArguments("clean", "build", "--stacktrace", "--debug")
+                    .withArguments("clean", "build", "--stacktrace")
                     .build();
 
             Utils.assertSmithyBuildTaskRan(result);

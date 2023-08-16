@@ -7,6 +7,7 @@ plugins {
 buildscript {
     repositories {
         mavenLocal()
+        mavenCentral()
     }
     dependencies {
         classpath(files("jars/a/a.jar", "jars/b/b.jar", "jars/c/c.jar"))

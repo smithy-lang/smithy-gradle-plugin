@@ -10,6 +10,7 @@ plugins {
 buildscript {
     repositories {
         mavenLocal()
+        mavenCentral()
     }
     dependencies {
         // This dependency is required to build the model.

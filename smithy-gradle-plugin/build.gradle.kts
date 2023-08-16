@@ -5,8 +5,6 @@ description = "This project integrates Smithy with Gradle. This plugin can build
         "models."
 
 gradlePlugin {
-    website.set("https://github.com/smithy-lang/smithy")
-    vcsUrl.set("https://github.com/smithy-lang/smithy")
     plugins {
         create("software.amazon.smithy") {
             id = "software.amazon.smithy"

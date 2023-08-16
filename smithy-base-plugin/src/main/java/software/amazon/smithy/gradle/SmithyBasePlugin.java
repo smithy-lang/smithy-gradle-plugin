@@ -31,7 +31,7 @@ public final class SmithyBasePlugin implements Plugin<Project> {
     private static final GradleVersion MINIMUM_GRADLE_VERSION = GradleVersion.version("8.2.0");
     private static final GradleVersion MIN_SMITHY_FORMAT_VERSION = GradleVersion.version("1.33.0");
 
-    Project project;
+    private final Project project;
 
     @Inject
     public SmithyBasePlugin(Project project) {

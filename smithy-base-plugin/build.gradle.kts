@@ -6,8 +6,6 @@ description = "This plugin sets up the basic capabilities necessary for building
         "smithy models in the project."
 
 gradlePlugin {
-    website.set("https://github.com/smithy-lang/smithy")
-    vcsUrl.set("https://github.com/smithy-lang/smithy")
     plugins {
         create("smithy-base-plugin") {
             id = "smithy-base"

@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 public class IncludesInSourceSetTest {
     @Test
     public void testSourceProjection() {
-        Utils.withCopy("includes-in-sourceset", buildDir -> {
+        Utils.withCopy("base-plugin/includes-in-sourceset", buildDir -> {
             BuildResult result = GradleRunner.create()
                     .forwardOutput()
                     .withProjectDir(buildDir)

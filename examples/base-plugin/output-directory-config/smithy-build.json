@@ -1,0 +1,5 @@
+{
+  "version": "1.0",
+  "outputDirectory": "build/nested-output-directory",
+  "projections": {}
+}

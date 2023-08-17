@@ -17,6 +17,7 @@ public class SmithyBuildTaskTest {
         testProject = ProjectBuilder.builder().build();
         testProject.getConfigurations().create("smithyCli");
         testProject.getConfigurations().create("smithyBuild");
+        testProject.getConfigurations().create("runtimeClasspath");
     }
 
     @Test

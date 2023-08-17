@@ -18,6 +18,7 @@ public class SmithyValidateTaskTest {
         testProject = ProjectBuilder.builder().build();
         testProject.getConfigurations().create("smithyCli");
         testProject.getConfigurations().create("smithyBuild");
+        testProject.getConfigurations().create("runtimeClasspath");
     }
 
     @Test
@@ -28,6 +29,6 @@ public class SmithyValidateTaskTest {
         assertEquals(validateTask.getShowStackTrace().get(), ShowStacktrace.INTERNAL_EXCEPTIONS);
         assertFalse(validateTask.getFork().get());
         assertFalse(validateTask.getAllowUnknownTraits().get());
-        assertTrue(validateTask.getDisableModelDiscovery().get());
+        assertFalse(validateTask.getDisableModelDiscovery().get());
     }
 }

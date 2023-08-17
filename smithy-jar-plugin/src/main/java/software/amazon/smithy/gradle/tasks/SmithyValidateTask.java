@@ -34,7 +34,9 @@ public abstract class SmithyValidateTask extends AbstractSmithyCliTask {
     @Inject
     public SmithyValidateTask(ObjectFactory objectFactory) {
         super(objectFactory);
-        getDisableModelDiscovery().convention(true);
+        getAllowUnknownTraits().convention(false);
+        getDisableModelDiscovery().convention(false);
+        getResolvedCliClasspath().convention(getProject().getConfigurations().getByName("smithyCli"));
         setDescription(DESCRIPTION);
     }
 
@@ -88,7 +90,7 @@ public abstract class SmithyValidateTask extends AbstractSmithyCliTask {
     @Internal
     @Override
     Provider<FileCollection> getCliExecutionClasspath() {
-        return getResolvedCliClasspath().zip(getJarToValidate(), FileCollection::plus);
+        return getResolvedCliClasspath();
     }
 
     @TaskAction
@@ -97,7 +99,7 @@ public abstract class SmithyValidateTask extends AbstractSmithyCliTask {
 
         // Set models to an empty collection so source models are not included in validation path.
         executeCliProcess("validate", ListUtils.of(),
-                objectFactory.fileCollection(),
+                getJarToValidate().get(),
                 getModelDiscoveryClasspath().getOrNull(),
                 getDisableModelDiscovery().get()
         );

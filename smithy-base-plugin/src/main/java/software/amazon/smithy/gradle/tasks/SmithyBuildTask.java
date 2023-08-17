@@ -109,7 +109,7 @@ public abstract class SmithyBuildTask extends AbstractSmithyCliTask {
         BuildParameterBuilder builder = new BuildParameterBuilder();
 
         // Model discovery classpath
-        builder.libClasspath(getDiscoveryClasspath().get().getAsPath());
+        builder.libClasspath(getRuntimeClasspath().get().getAsPath());
         builder.buildClasspath(getCliExecutionClasspath().get().getAsPath());
         builder.projectionSourceTags(getProjectionSourceTags().get());
         builder.allowUnknownTraits(getAllowUnknownTraits().get());

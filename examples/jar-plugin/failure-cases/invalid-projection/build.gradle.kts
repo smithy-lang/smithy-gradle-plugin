@@ -1,7 +1,8 @@
 // This example attempts to use an invalid projection. The build will fail.
 
 plugins {
-    id("software.amazon.smithy").version("0.7.0")
+    id("java-library")
+    id("smithy-jar").version("0.7.0")
 }
 
 repositories {
@@ -13,6 +14,7 @@ dependencies {
     implementation("software.amazon.smithy:smithy-model:[1.0, 2.0[")
 }
 
-configure<software.amazon.smithy.gradle.SmithyExtension> {
-    projection = "invalid"
+smithy {
+    sourceProjection.set("invalid")
+    format.set(false)
 }

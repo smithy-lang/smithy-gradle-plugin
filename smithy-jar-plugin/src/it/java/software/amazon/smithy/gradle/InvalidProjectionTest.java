@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 public class InvalidProjectionTest {
     @Test
     public void testProjection() {
-        Utils.withCopy("failure-cases/invalid-projection", buildDir -> {
+        Utils.withCopy("jar-plugin/failure-cases/invalid-projection", buildDir -> {
             BuildResult result = GradleRunner.create()
                     .forwardOutput()
                     .withProjectDir(buildDir)

@@ -35,7 +35,8 @@ abstract class BaseSmithyTask extends DefaultTask {
         getFork().convention(false);
         getShowStackTrace().convention(ShowStacktrace.INTERNAL_EXCEPTIONS);
         getResolvedCliClasspath().convention(getProject().getConfigurations().getByName("smithyCli"));
-        getDiscoveryClasspath().convention(getProject().getConfigurations().getByName("smithyBuild"));
+        getBuildClasspath().convention(getProject().getConfigurations().getByName("smithyBuild"));
+        getRuntimeClasspath().convention(getProject().getConfigurations().getByName("runtimeClasspath"));
         startParameter = getProject().getGradle().getStartParameter();
     }
 
@@ -48,12 +49,18 @@ abstract class BaseSmithyTask extends DefaultTask {
     public abstract Property<FileCollection> getResolvedCliClasspath();
 
     /**
-     * Classpath to use for model discovery.
+     * Classpath to use for build dependencies.
      */
     @Classpath
     @Optional
-    public abstract Property<FileCollection> getDiscoveryClasspath();
+    public abstract Property<FileCollection> getBuildClasspath();
 
+    /**
+     * Classpath for runtime dependencies.
+     */
+    @Classpath
+    @Optional
+    public abstract Property<FileCollection> getRuntimeClasspath();
 
     /** Read-only property that returns the classpath used to determine the
      * classpath used when executing the cli.
@@ -62,7 +69,7 @@ abstract class BaseSmithyTask extends DefaultTask {
      */
     @Internal
     Provider<FileCollection> getCliExecutionClasspath() {
-        return getResolvedCliClasspath().zip(getDiscoveryClasspath(), FileCollection::plus);
+        return getResolvedCliClasspath().zip(getBuildClasspath(), FileCollection::plus);
     }
 
     /**

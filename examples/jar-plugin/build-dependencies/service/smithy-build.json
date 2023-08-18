@@ -1,0 +1,17 @@
+{
+  "version": "1.0",
+  "projections": {
+    "external": {
+      "transforms": [
+        {
+          "name": "excludeShapesByTrait",
+          "args": {
+            "traits": [
+              "internal"
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

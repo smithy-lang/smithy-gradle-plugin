@@ -55,7 +55,6 @@ abstract class AbstractSmithyCliTask extends BaseSmithyTask {
                                  FileCollection modelDiscoveryClasspath,
                                  boolean disableModelDiscovery
     ) {
-
         List<String> args = new ArrayList<>();
         args.add(command);
 
@@ -78,8 +77,6 @@ abstract class AbstractSmithyCliTask extends BaseSmithyTask {
             }
         });
 
-        SmithyUtils.executeCli(getExecutor(), args,
-                getCliExecutionClasspath().get(),
-                getFork().get());
+        SmithyUtils.executeCli(getExecutor(), args, getCliExecutionClasspath().get(), getFork().get());
     }
 }

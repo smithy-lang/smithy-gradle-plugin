@@ -126,7 +126,6 @@ public final class SmithyUtils {
         queue.submit(RunCli.class, params -> {
             params.getArguments().set(arguments);
 
-
             // The isolated classloader WorkQueue doesn't seem to be as isolated as we need
             // for running the Smithy CLI. Relying on it rather than creating a custom
             // URLClassLoader causes the classpath to seem to inherit cached JARs from places

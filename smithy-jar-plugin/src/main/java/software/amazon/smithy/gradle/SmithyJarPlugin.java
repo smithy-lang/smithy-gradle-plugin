@@ -81,7 +81,7 @@ public class SmithyJarPlugin implements Plugin<Project> {
                 SmithyBuildTask buildTask = project.getTasks().withType(SmithyBuildTask.class)
                         .getByName(SmithyBasePlugin.SMITHY_BUILD_TASK_NAME);
                 // Must execute after project has evaluated or else the java "enabled" setting will not be resolved
-                addJavaTasksForSourceSet(sourceSet, buildTask);
+                project.afterEvaluate(p -> addJavaTasksForSourceSet(sourceSet, buildTask));
             }
         });
     }

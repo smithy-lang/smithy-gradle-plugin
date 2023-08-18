@@ -97,15 +97,14 @@ public final class SmithyBasePlugin implements Plugin<Project> {
 
 
     /**
-     * Set up implementation, runtimeOnly, and RuntimeClasspath configurations if they do not exist.
-     *
-     * <p>**Note**: this method follows the conventions set up by the JavaBasePlugin.
-     *
+     * Creates and configures smithy configurations if they do not already exist.
+     **
      * @param sourceSet source set to add configurations to
      * @param configurations configuration container
      */
     private void createConfigurations(SourceSet sourceSet, ConfigurationContainer configurations) {
         String runtimeClasspathConfigurationName = sourceSet.getRuntimeClasspathConfigurationName();
+        String compileOnlyConfigurationName = sourceSet.getCompileOnlyConfigurationName();
         String sourceSetName = sourceSet.toString();
 
         // Set up Smithy-specific configurations
@@ -120,7 +119,7 @@ public final class SmithyBasePlugin implements Plugin<Project> {
                 SmithyUtils.getSmithyBuildConfigurationName(sourceSet));
         smithyBuildConfig.setVisible(false);
         smithyBuildConfig.setTransitive(true);
-        smithyBuildConfig.extendsFrom(configurations.getByName(runtimeClasspathConfigurationName));
+        smithyBuildConfig.extendsFrom(configurations.getByName(compileOnlyConfigurationName));
         smithyBuildConfig.setDescription("Build-time smithy dependencies for " + sourceSetName + ".");
     }
 

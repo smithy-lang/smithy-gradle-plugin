@@ -1,4 +1,4 @@
-import software.amazon.smithy.gradle.tasks.SmithyBuild
+import software.amazon.smithy.gradle.tasks.SmithyBuildTask
 
 // This example builds Smithy models using a custom build task
 // and disables the default "smithyBuildJar" task. This allows
@@ -6,23 +6,21 @@ import software.amazon.smithy.gradle.tasks.SmithyBuild
 // and the classpath used when building.
 
 plugins {
-    id("software.amazon.smithy").version("0.7.0")
+    id("java-library")
+    id("smithy-base").version("0.7.0")
 }
+
+tasks["jar"].enabled = false
+tasks["smithyBuild"].enabled = false
+
+tasks.create<SmithyBuildTask>("doit") {
+    models.set(files("model/"))
+    smithyBuildConfigs.set(files("smithy-build.json"))
+}
+
+tasks["build"].finalizedBy(tasks["doit"])
 
 repositories {
     mavenLocal()
     mavenCentral()
 }
-
-dependencies {
-    implementation("software.amazon.smithy:smithy-model:[1.0, 2.0[")
-}
-
-tasks["jar"].enabled = false
-tasks["smithyBuildJar"].enabled = false
-
-tasks.create<SmithyBuild>("doit") {
-    addRuntimeClasspath = true
-}
-
-tasks["build"].finalizedBy(tasks["doit"])

@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 public class SyntaxErrorTest {
     @Test
     public void testFailsWithSyntaxError() {
-        Utils.withCopy("failure-cases/syntax-error", buildDir -> {
+        Utils.withCopy("base-plugin/failure-cases/syntax-error", buildDir -> {
             GradleRunner.create()
                     .forwardOutput()
                     .withProjectDir(buildDir)

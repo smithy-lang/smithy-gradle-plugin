@@ -96,17 +96,13 @@ public final class Utils {
         return Paths.get("..").resolve("examples").resolve(name);
     }
 
-    public static void assertSmithyBuildRan(BuildResult result) {
-        Assertions.assertTrue(result.task(":smithyBuildJar").getOutcome() == TaskOutcome.SUCCESS);
-    }
-
     public static void assertSmithyBuildTaskRan(BuildResult result) {
         Assertions.assertTrue(result.task(":smithyBuild").getOutcome() == TaskOutcome.SUCCESS);
 
     }
 
     public static void assertSmithyBuildDidNotRun(BuildResult result) {
-        BuildTask task = result.task(":smithyBuildJar");
+        BuildTask task = result.task(":smithyBuild");
         Assertions.assertTrue(task == null || task.getOutcome() == TaskOutcome.SKIPPED);
     }
 

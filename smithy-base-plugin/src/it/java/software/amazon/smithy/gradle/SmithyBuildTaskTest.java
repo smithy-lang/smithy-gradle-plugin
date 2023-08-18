@@ -17,20 +17,27 @@ package software.amazon.smithy.gradle;
 
 import org.gradle.testkit.runner.BuildResult;
 import org.gradle.testkit.runner.GradleRunner;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class MissingRuntimeDependencyTest {
+import java.io.File;
+
+public class SmithyBuildTaskTest {
     @Test
-    public void testProjection() {
-        Utils.withCopy("failure-cases/missing-runtime-dependency", buildDir -> {
+    public void testCustomBuild() {
+        Utils.withCopy("base-plugin/smithy-build-task", buildDir -> {
             BuildResult result = GradleRunner.create()
                     .forwardOutput()
                     .withProjectDir(buildDir)
-                    .withArguments("clean", "build", "--stacktrace")
-                    .buildAndFail();
+                    .withArguments("build", "--stacktrace")
+                    .build();
 
-            Assertions.assertTrue(result.getOutput().contains("Unable to resolve trait"));
+            Utils.assertSmithyBuildDidNotRun(result);
+            Utils.assertArtifactsCreated(
+                    buildDir,
+                    "build/smithyprojections/smithy-build-task/source/build-info/smithy-build-info.json",
+                    "build/smithyprojections/smithy-build-task/source/model/model.json",
+                    "build/smithyprojections/smithy-build-task/source/sources/main.smithy",
+                    "build/smithyprojections/smithy-build-task/source/sources/manifest");
         });
     }
 }

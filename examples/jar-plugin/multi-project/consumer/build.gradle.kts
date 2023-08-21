@@ -1,5 +1,5 @@
 plugins {
-    id("software.amazon.smithy").version("0.7.0")
+    id("smithy-jar").version("0.7.0")
 }
 
 dependencies {

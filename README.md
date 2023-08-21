@@ -1,7 +1,7 @@
 # Smithy Gradle Plugins
 [![Build Status](https://github.com/awslabs/smithy-gradle-plugin/workflows/ci/badge.svg)](https://github.com/awslabs/smithy-gradle-plugin/actions/workflows/ci.yml)
 
-This project provides plugins to integrate [Smithy](https://smithy.io/2.0/index.html) with [Gradle](https://gradle.org/). 
+This project provides plugins to integrate [Smithy](https://smithy.io/) with [Gradle](https://gradle.org/). 
 These plugins can build artifacts from Smithy models, generate JARs that contain Smithy models found in Java projects, 
 and generate JARs that contain filtered projections of Smithy models.
 
@@ -85,6 +85,7 @@ Smithy gradle plugins assumes Smithy model files (`*.smithy`) are organized in a
 The `smithy-base` plugin adds a new sources block named `smithy` to every sourceSet. By default, this source block will include 
 Smithy models in `model/`,`src/$sourceSetName/smithy` and`src/$sourceSetName/resources/META-INF/smithy`. New source directories can 
 be added to a `smithy` sources block as follows:
+
 ```kotlin
 // build.gradle.kts
 sourceSets {
@@ -144,6 +145,7 @@ empty build config is used to build the project.
 
 Alternatively, you can explicitly configure one or more `smithy-build` configs to use 
 for your project as follows:
+
 ```kotlin
 // build.gradle.kts
 smithy { 
@@ -168,6 +170,7 @@ smithy {
 By default, Smithy CLI commands are run in the same process as Gradle, but inside a thread with a custom class loader. 
 This should work in most cases, but there is an option to run inside a process if necessary. To run Smithy CLI commands
 in a process set the `fork` configuration option to `true`: 
+
 ```kotlin 
 // build.gradle.kts
 smithy {
@@ -181,6 +184,7 @@ By default, the `smithy format` CLI command is executed on all source directorie
 This opinionated formatter follows the best practices recommended by the Smithy team. 
 It is possible to disable the formatter by setting the `format` setting on the plugin 
 extension to `false`: 
+
 ```kotlin
 // build.gradle.kts 
 smithy {

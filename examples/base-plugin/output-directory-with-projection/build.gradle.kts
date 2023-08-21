@@ -1,5 +1,5 @@
 // This example writes Smithy build artifacts to a specified directory and
-// places a projected version of the model into the JAR.
+// generates a projected version of the model.
 
 plugins {
     id("java-library")

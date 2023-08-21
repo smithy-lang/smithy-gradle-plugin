@@ -6,7 +6,7 @@ this project is run as an integration test for the plugin.
 This example demonstrates how to write the built Smithy models to a custom output
 directory using the `outputDirectory` property of the `smithy-build` config
 
-**Note**: Setting the output directory via the Smithy gradle plugin extension will 
+**Note**: Setting the output directory via the `smithy` gradle plugin extension will 
 override any output Directory settings in provided smithy-build configs.
 
 ## Using the example as a starting point

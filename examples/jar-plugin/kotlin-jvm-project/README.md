@@ -5,4 +5,12 @@ this project is run as an integration test for the plugin.
 
 This project demonstrates using the Smithy Gradle Plugin with a Kotlin project. 
 The Jar created by the Kotlin JVM plugin will include the Smithy models built by the 
-Smithy plugin.
+`smithyBuild` task.
+
+## Using the example as a starting point
+
+Since this sample is run as an integration test, by default it is only configured
+to use a locally published version of the plugin. To use this as a starting point
+for your own project, uncomment the lines in `settings.gradle.kts` that configure
+Gradle to use public sources.
+

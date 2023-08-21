@@ -1,3 +1,6 @@
+// This example demonstrates the use of the smithy-jar gradle plugin
+// with a project that has multiple subprojects that depend on each other.
+
 plugins {
     `java-library`
 }

@@ -4,7 +4,7 @@ This is an example Gradle Smithy project. In addition to serving as documentatio
 this project is run as an integration test for the plugin.
 
 This project demonstrates the use of the `smithy-jar` gradle plugin for packaging
-smithy trait definitions in a jar alongside the java definitions of those same custom
+Smithy trait definitions in a JAR alongside the Java definitions of those same custom
 traits.
 
 ## Using the example as a starting point

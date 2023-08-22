@@ -31,7 +31,7 @@ import software.amazon.smithy.utils.IoUtils;
 
 
 /**
- * Gradle configuration settings for Smithy base plugin.
+ * Gradle configuration settings for Smithy plugins.
  */
 public abstract class SmithyExtension {
     private static final String SMITHY_BUILD_CONFIG_DEFAULT = "smithy-build.json";
@@ -78,7 +78,7 @@ public abstract class SmithyExtension {
     public abstract Property<Boolean> getFormat();
 
     /**
-     * Gets a custom collection of smithy-build.json files to use when
+     * Gets a collection of smithy-build.json files to use when
      * building the model.
      *
      * @return Returns the collection of build configurations.
@@ -163,6 +163,16 @@ public abstract class SmithyExtension {
                 .map(file -> SmithyUtils.getProjectionPluginPath(file, projection, plugin));
     }
 
+    /**
+     * Gets the default directory to write smithy outputs to.
+     *
+     * <p>If an output directory is defined in the smithy-build.json then that is
+     * used. Otherwise, a smithyprojections output directory under the default gradle
+     * build directory is used.
+     *
+     * @param project gradle project
+     * @return provider that returns the default output directory
+     */
     @Internal
     private Provider<Directory> getDefaultOutputDirectory(final Project project) {
         return getSmithyBuildConfigs()

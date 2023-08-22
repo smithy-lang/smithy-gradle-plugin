@@ -22,7 +22,9 @@ import software.amazon.smithy.gradle.SmithyGradleVersion;
 /**
  * Action that updates a JAR's manifest with Smithy-specific attributes.
  *
- * <p>This action adds projection tags to JAR manifest via the {@code SmithyTags} property
+ * <p>This action adds projection tags to JAR manifest via the {@code SmithyTags} property.
+ * A number of headers are also included in the manifest to add basic build info such as
+ * JDK version used for the build and the build timestamp.
  */
 public final class SmithyManifestUpdateAction implements Action<Task> {
     private static final String BUILD_TIMESTAMP_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";

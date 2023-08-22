@@ -1,5 +1,5 @@
 // This example writes Smithy build artifacts to a specified directory. The
-// directory is specified in the smithy-build config file rather than in the
+// directory is specified in the smithy-build.json file rather than in the
 // gradle build files.
 
 plugins {

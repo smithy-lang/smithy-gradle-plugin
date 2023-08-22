@@ -1,4 +1,4 @@
-// This project adds smithy models to a jar created by a kotlin project
+// This project adds smithy models to a JAR created by a Kotlin project
 
 plugins {
     kotlin("jvm") version "1.9.0"

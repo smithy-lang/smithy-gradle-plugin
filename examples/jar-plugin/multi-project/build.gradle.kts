@@ -1,4 +1,4 @@
-// This example demonstrates the use of the smithy-jar gradle plugin
+// This example demonstrates the use of the smithy-jar Gradle plugin
 // with a project that has multiple subprojects that depend on each other.
 
 plugins {

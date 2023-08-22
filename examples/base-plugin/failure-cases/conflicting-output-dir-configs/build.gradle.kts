@@ -1,4 +1,4 @@
-// This example attempts to set multiple the output directory multiple times
+// This example attempts to set the output directory multiple times
 // in different smithy-build.json files. The build will fail.
 
 plugins {

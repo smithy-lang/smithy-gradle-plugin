@@ -1,5 +1,5 @@
-// This example demonstrates building a jar using the `smithy-jar` plugin and the
-// java-library jar task as well as a second jar using manually defined tasks
+// This example demonstrates building a JAR using the `smithy-jar` plugin and the
+// java-library "jar" task as well as a second JAR using manually defined tasks
 
 import software.amazon.smithy.gradle.actions.SmithyManifestUpdateAction
 import software.amazon.smithy.gradle.tasks.SmithyBuildTask

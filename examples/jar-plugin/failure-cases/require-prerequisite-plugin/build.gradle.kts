@@ -2,7 +2,7 @@
 // prerequisite plugin. The build will fail.
 
 plugins {
-    id("smithy-jar").version("0.7.0")
+    id("smithy-jar").version("0.8.0")
 }
 
 repositories {

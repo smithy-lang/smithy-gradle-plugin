@@ -7,7 +7,7 @@ import software.amazon.smithy.gradle.tasks.SmithyBuildTask
 
 plugins {
     id("java-library")
-    id("smithy-base").version("0.7.0")
+    id("smithy-base").version("0.8.0")
 }
 
 tasks["jar"].enabled = false

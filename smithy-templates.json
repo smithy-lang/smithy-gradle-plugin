@@ -1,0 +1,125 @@
+{
+  "name": "smithy-gradle-plugin",
+  "templates": {
+    "includes-in-sourceset": {
+      "documentation": "Add additional files to the main smithy source set.",
+      "path": "examples/base-plugin/includes-in-sourceset",
+      "include": [
+        "gradle/",
+        "gradlew",
+        "gradlew.bat",
+        ".gitignore"
+      ]
+    },
+    "output-directory": {
+      "documentation": "Write Smithy build artifacts to a specified directory.",
+      "path": "examples/base-plugin/output-directory",
+      "include": [
+        "gradle/",
+        "gradlew",
+        "gradlew.bat",
+        ".gitignore"
+      ]
+    },
+    "output-directory-with-config": {
+      "documentation": "Write Smithy build artifacts to a specified directory based on smithy-build settings.",
+      "path": "examples/base-plugin/output-directory-config",
+      "include": [
+        "gradle/",
+        "gradlew",
+        "gradlew.bat",
+        ".gitignore"
+      ]
+    },
+    "output-directory-with-projection": {
+      "documentation": "Write Smithy build artifacts to a specified directory and generate a projected version of the model.",
+      "path": "examples/base-plugin/output-directory-with-projection",
+      "include": [
+        "gradle/",
+        "gradlew",
+        "gradlew.bat",
+        ".gitignore"
+      ]
+    },
+    "smithy-build-task": {
+      "documentation": "Build Smithy models using a custom build task.",
+      "path": "examples/base-plugin/smithy-build-task",
+      "include": [
+        "gradle/",
+        "gradlew",
+        "gradlew.bat",
+        ".gitignore"
+      ]
+    },
+    "add-tags": {
+      "documentation": "Add a Smithy tag to the built JAR.",
+      "path": "examples/jar-plugin/adds-tags",
+      "include": [
+        "gradle/",
+        "gradlew",
+        "gradlew.bat",
+        ".gitignore"
+      ]
+    },
+    "build-dependencies": {
+      "documentation": "",
+      "path": "examples/jar-plugin/build-dependencies",
+      "include": [
+        "gradle/",
+        "gradlew",
+        "gradlew.bat",
+        ".gitignore"
+      ]
+    },
+    "custom-trait": {
+      "documentation": "Add Smithy files defining a to a JAR alongside the Java definition of that trait.",
+      "path": "examples/jar-plugin/custom-trait",
+      "include": [
+        "gradle/",
+        "gradlew",
+        "gradlew.bat",
+        ".gitignore"
+      ]
+    },
+    "kotlin-jvm-project": {
+      "documentation": "Add Smithy models to a jar created by a kotlin project.",
+      "path": "examples/jar-plugin/kotlin-jvm-project",
+      "include": [
+        "gradle/",
+        "gradlew",
+        "gradlew.bat",
+        ".gitignore"
+      ]
+    },
+    "multiple-jars": {
+      "documentation": "Build a Smithy JAR using both the java-library plugin and manually defined tasks.",
+      "path": "examples/jar-plugin/multiple-jars",
+      "include": [
+        "gradle/",
+        "gradlew",
+        "gradlew.bat",
+        ".gitignore"
+      ]
+    },
+    "projection": {
+      "documentation": "Place a projected version of the model into the JAR.",
+      "path": "examples/jar-plugin/projection",
+      "include": [
+        "gradle/",
+        "gradlew",
+        "gradlew.bat",
+        ".gitignore"
+      ]
+    },
+    "source-projection": {
+      "documentation": "Build a Smithy model and place it in a JAR.",
+      "path": "examples/jar-plugin/source-projection",
+      "include": [
+        "gradle/",
+        "gradlew",
+        "gradlew.bat",
+        ".gitignore"
+      ]
+    }
+  }
+}

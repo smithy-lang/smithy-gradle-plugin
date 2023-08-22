@@ -4,7 +4,7 @@ import software.amazon.smithy.gradle.tasks.SmithyJarStagingTask
 
 plugins {
     `java-library`
-    id("smithy-jar").version("0.7.0")
+    id("smithy-jar").version("0.8.0")
 }
 
 val buildTask: SmithyBuildTask = tasks.getByName<SmithyBuildTask>("smithyBuild")

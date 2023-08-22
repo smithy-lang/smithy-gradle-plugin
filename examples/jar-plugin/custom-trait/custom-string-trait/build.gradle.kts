@@ -1,7 +1,7 @@
 // This package defines a custom trait for use in other models
 plugins {
     id("java-library")
-    id("smithy-jar").version("0.7.0")
+    id("smithy-jar").version("0.8.0")
 }
 
 repositories {

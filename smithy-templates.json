@@ -1,7 +1,7 @@
 {
   "name": "smithy-gradle-plugin",
   "templates": {
-    "include-in-sourceset": {
+    "includes-in-sourceset": {
       "documentation": "Add additional files to the main smithy source set.",
       "path": "examples/base-plugin/includes-in-sourceset",
       "include": [

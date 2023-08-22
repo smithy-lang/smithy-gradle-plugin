@@ -1,5 +1,25 @@
 # Smithy Gradle Plugin Changelog
 
+## 0.8.0 (2023-08-22)
+
+### Features
+* Add `smithy-templates.json` to allow use of examples with the smithy init cli tool ([#96](https://github.com/smithy-lang/smithy-gradle-plugin/pull/96))
+* Add script to automatically update version numbers in examples and documentation ([#92](https://github.com/smithy-lang/smithy-gradle-plugin/pull/92))
+* Remove legacy plugin in favor of `smithy-base` and `smithy-jar` plugins ([#91](https://github.com/smithy-lang/smithy-gradle-plugin/pull/91))
+* Add integration tests for newly added `smithy-jar` and `smithy-base` plugins ([#89](https://github.com/smithy-lang/smithy-gradle-plugin/pull/89), [#90](https://github.com/smithy-lang/smithy-gradle-plugin/pull/90))
+* Add `smithy-jar` convention plugin to add Smithy files to existing `:jar` tasks ([#86](https://github.com/smithy-lang/smithy-gradle-plugin/pull/86))
+* Add `smithy-base` capability plugin ([#85](https://github.com/smithy-lang/smithy-gradle-plugin/pull/85))
+* Refactor repository to allow for multiple plugins ([#82](https://github.com/smithy-lang/smithy-gradle-plugin/pull/82), [#84](https://github.com/smithy-lang/smithy-gradle-plugin/pull/84))
+* Upgrade to Gradle to 8.2.0 ([#83](https://github.com/smithy-lang/smithy-gradle-plugin/pull/83))
+
+### Bug Fixes
+* Correct behavior of multi-project example and add missing integration test ([#93](https://github.com/smithy-lang/smithy-gradle-plugin/pull/93))
+
+### Documentation
+* Update repository README to reflect plugin refactor ([#97](https://github.com/smithy-lang/smithy-gradle-plugin/pull/97))
+* Update Javadocs ([#94](https://github.com/smithy-lang/smithy-gradle-plugin/pull/92))
+* Update example documentation ([#95](https://github.com/smithy-lang/smithy-gradle-plugin/pull/95))
+
 ## 0.7.0 (2023-04-13)
 
 ### Features

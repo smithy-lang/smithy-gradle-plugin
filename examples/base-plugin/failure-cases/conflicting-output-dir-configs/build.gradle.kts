@@ -1,4 +1,5 @@
-// This example attempts to use an invalid projection. The build will fail.
+// This example attempts to set the output directory multiple times
+// in different smithy-build.json files. The build will fail.
 
 plugins {
     `java-library`

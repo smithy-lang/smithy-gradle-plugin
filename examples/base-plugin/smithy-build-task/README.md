@@ -4,7 +4,7 @@ This is an example Gradle Smithy project. In addition to serving as documentatio
 this project is run as an integration test for the plugin.
 
 This example builds Smithy models using a custom build task and disables the default
-"smithyBuildJar" task. This allows for a more granular level of control in when the
+`smithyBuild` task. This allows for a more granular level of control of when the
 build runs, as well as the classpath used when building.
 
 ## Using the example as a starting point

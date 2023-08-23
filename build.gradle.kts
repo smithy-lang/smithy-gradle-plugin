@@ -157,7 +157,7 @@ subprojects {
                 create<MavenPublication>("pluginMaven") {
                     pom {
                         description.set(subproject.description)
-                        url.set("https://github.com/awslabs/smithy-gradle-plugin")
+                        url.set("https://github.com/smithy-lang/smithy-gradle-plugin")
                         licenses {
                             license {
                                 name.set("Apache License 2.0")
@@ -175,7 +175,7 @@ subprojects {
                             }
                         }
                         scm {
-                            url.set("https://github.com/awslabs/smithy-gradle-plugin.git")
+                            url.set("https://github.com/smithy-lang/smithy-gradle-plugin.git")
                         }
                     }
                 }

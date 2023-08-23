@@ -7,7 +7,7 @@ gradlePlugin {
         create("smithy-jar-plugin") {
             id = "software.amazon.smithy.gradle.smithy-jar"
             displayName = "Smithy Gradle Jar Packaging Plugin"
-            description = description
+            description = project.description
             implementationClass = "software.amazon.smithy.gradle.SmithyJarPlugin"
             tags.addAll("smithy", "api", "building")
         }

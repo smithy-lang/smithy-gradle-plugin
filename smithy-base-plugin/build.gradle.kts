@@ -8,7 +8,7 @@ description = "This plugin sets up the basic capabilities necessary for building
 gradlePlugin {
     plugins {
         create("smithy-base-plugin") {
-            id = "smithy-base"
+            id = "software.amazon.smithy.gradle.smithy-base"
             displayName = "Smithy Gradle Base Plugin"
             description = description
             implementationClass = "software.amazon.smithy.gradle.SmithyBasePlugin"

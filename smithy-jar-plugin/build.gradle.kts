@@ -5,7 +5,7 @@ description = ""
 gradlePlugin {
     plugins {
         create("smithy-jar-plugin") {
-            id = "smithy-jar"
+            id = "software.amazon.smithy.gradle.smithy-jar"
             displayName = "Smithy Gradle Jar Packaging Plugin"
             description = description
             implementationClass = "software.amazon.smithy.gradle.SmithyJarPlugin"

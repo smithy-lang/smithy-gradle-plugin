@@ -37,7 +37,8 @@ public class SmithyJarPlugin implements Plugin<Project> {
             "android",
             "android-library",
             "org.jetbrains.kotlin.jvm",
-            "org.jetbrains.kotlin.android"
+            "org.jetbrains.kotlin.android",
+            "scala"
     );
     private boolean wasApplied = false;
     private SmithyExtension extension;

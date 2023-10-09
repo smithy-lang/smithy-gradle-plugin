@@ -83,15 +83,6 @@ public class SmithyJarPlugin implements Plugin<Project> {
                         .getByName(SmithyBasePlugin.SMITHY_BUILD_TASK_NAME);
                 // Must execute after project has evaluated or else the java "enabled" setting will not be resolved
                 project.afterEvaluate(p -> addJavaTasksForSourceSet(sourceSet, buildTask));
-
-                // Ensure the smithy build task is executed before any Compile tasks so smithy-generated
-                // data can be picked up by annotation processors and compile tasks
-                for (String lang : SUPPORTED_LANGUAGES) {
-                    Task compileTask = project.getTasks().findByName(sourceSet.getCompileTaskName(lang));
-                    if (compileTask != null) {
-                        compileTask.dependsOn(buildTask);
-                    }
-                }
             }
         });
     }
@@ -121,10 +112,18 @@ public class SmithyJarPlugin implements Plugin<Project> {
         // resources that were found in each search location. This can cause conflicts
         // between the META-INF/smithy files and staging directory, so we need to
         // ignore duplicate conflicts.
-        ProcessResources task = project.getTasks().withType(ProcessResources.class).getByName("processResources");
-        task.setDuplicatesStrategy(DuplicatesStrategy.EXCLUDE);
-        task.dependsOn(jarStagingTaskProvider);
+        ProcessResources process = project.getTasks().withType(ProcessResources.class).getByName("processResources");
+        process.setDuplicatesStrategy(DuplicatesStrategy.EXCLUDE);
+        process.dependsOn(jarStagingTaskProvider);
 
+        // Ensure the smithy files generated for the Jar are available for any Compile tasks so smithy-generated
+        // data can be picked up by annotation processors and compile tasks
+        for (String lang : SUPPORTED_LANGUAGES) {
+            Task compileTask = project.getTasks().findByName(sourceSet.getCompileTaskName(lang));
+            if (compileTask != null) {
+                compileTask.dependsOn(process);
+            }
+        }
 
         // Update manifest with smithy build info and source tags
         jarTask.doFirst("updateJarManifest",

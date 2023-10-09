@@ -39,6 +39,7 @@ public class SmithyJarPlugin implements Plugin<Project> {
             "org.jetbrains.kotlin.jvm",
             "org.jetbrains.kotlin.android"
     );
+    private static final List<String> SUPPORTED_LANGUAGES = ListUtils.of("java", "kotlin");
     private boolean wasApplied = false;
     private SmithyExtension extension;
 
@@ -82,6 +83,15 @@ public class SmithyJarPlugin implements Plugin<Project> {
                         .getByName(SmithyBasePlugin.SMITHY_BUILD_TASK_NAME);
                 // Must execute after project has evaluated or else the java "enabled" setting will not be resolved
                 project.afterEvaluate(p -> addJavaTasksForSourceSet(sourceSet, buildTask));
+
+                // Ensure the smithy build task is executed before any Compile tasks so smithy-generated
+                // data can be picked up by annotation processors and compile tasks
+                for (String lang : SUPPORTED_LANGUAGES) {
+                    Task compileTask = project.getTasks().findByName(sourceSet.getCompileTaskName(lang));
+                    if (compileTask != null) {
+                        compileTask.dependsOn(buildTask);
+                    }
+                }
             }
         });
     }

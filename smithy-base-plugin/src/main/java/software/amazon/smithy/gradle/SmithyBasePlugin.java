@@ -64,16 +64,16 @@ public final class SmithyBasePlugin implements Plugin<Project> {
         project.getExtensions().getByType(SourceSetContainer.class).all(sourceSet -> {
             createConfigurations(sourceSet, project.getConfigurations());
             SmithySourceDirectorySet sds = registerSourceSets(sourceSet, extension);
-
-            String cliVersion = CliDependencyResolver.resolve(project, sourceSet);
-            if (extension.getFormat().get() && cliVersionSupportsFormat(cliVersion)) {
-                addFormatTaskForSourceSet(sourceSet, sds, extension);
-            }
-
             TaskProvider<SmithyBuildTask> buildTaskTaskProvider = addBuildTaskForSourceSet(sourceSet, sds, extension);
             // Ensure smithy-build is executed as part of building the "main" feature
             if (SourceSet.isMain(sourceSet)) {
                 project.getTasks().getByName("build").dependsOn(buildTaskTaskProvider);
+            }
+
+            // Add format task for source set if enabled and the CLI version supports it
+            String cliVersion = CliDependencyResolver.resolve(project, sourceSet);
+            if (extension.getFormat().get() && cliVersionSupportsFormat(cliVersion)) {
+                addFormatTaskForSourceSet(sourceSet, sds, extension);
             }
         });
     }
@@ -155,8 +155,9 @@ public final class SmithyBasePlugin implements Plugin<Project> {
                     formatTask.setEnabled(extension.getFormat().get());
                 });
 
+        // Smithy files should be formatted before they are built
         if (SourceSet.isMain(sourceSet)) {
-            project.getTasks().getByName("build").dependsOn(smithyFormat);
+            project.getTasks().getByName(SMITHY_BUILD_TASK_NAME).dependsOn(smithyFormat);
         }
     }
 

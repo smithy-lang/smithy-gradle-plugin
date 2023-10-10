@@ -91,6 +91,16 @@
         ".gitignore"
       ]
     },
+    "scala-project": {
+      "documentation": "Add Smithy models to a jar created by a Scala project.",
+      "path": "examples/jar-plugin/scala-project",
+      "include": [
+        "gradle/",
+        "gradlew",
+        "gradlew.bat",
+        ".gitignore"
+      ]
+    },
     "multiple-jars": {
       "documentation": "Build a Smithy JAR using both the java-library plugin and manually defined tasks.",
       "path": "examples/jar-plugin/multiple-jars",

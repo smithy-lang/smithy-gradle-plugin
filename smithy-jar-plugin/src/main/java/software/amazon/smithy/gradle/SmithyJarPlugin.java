@@ -39,7 +39,7 @@ public class SmithyJarPlugin implements Plugin<Project> {
             "org.jetbrains.kotlin.jvm",
             "org.jetbrains.kotlin.android"
     );
-    private static final List<String> SUPPORTED_LANGUAGES = ListUtils.of("java", "kotlin");
+    private static final List<String> SUPPORTED_LANGUAGES = ListUtils.of("java", "kotlin", "scala");
     private boolean wasApplied = false;
     private SmithyExtension extension;
 

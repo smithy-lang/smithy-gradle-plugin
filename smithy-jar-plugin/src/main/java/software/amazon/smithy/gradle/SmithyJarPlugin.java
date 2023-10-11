@@ -40,6 +40,7 @@ public class SmithyJarPlugin implements Plugin<Project> {
             "org.jetbrains.kotlin.android",
             "scala"
     );
+    private static final List<String> SUPPORTED_LANGUAGES = ListUtils.of("java", "kotlin", "scala");
     private boolean wasApplied = false;
     private SmithyExtension extension;
 
@@ -112,10 +113,18 @@ public class SmithyJarPlugin implements Plugin<Project> {
         // resources that were found in each search location. This can cause conflicts
         // between the META-INF/smithy files and staging directory, so we need to
         // ignore duplicate conflicts.
-        ProcessResources task = project.getTasks().withType(ProcessResources.class).getByName("processResources");
-        task.setDuplicatesStrategy(DuplicatesStrategy.EXCLUDE);
-        task.dependsOn(jarStagingTaskProvider);
+        ProcessResources process = project.getTasks().withType(ProcessResources.class).getByName("processResources");
+        process.setDuplicatesStrategy(DuplicatesStrategy.EXCLUDE);
+        process.dependsOn(jarStagingTaskProvider);
 
+        // Ensure the smithy files generated for the Jar are available for any Compile tasks so smithy-generated
+        // data can be picked up by annotation processors and compile tasks
+        for (String lang : SUPPORTED_LANGUAGES) {
+            Task compileTask = project.getTasks().findByName(sourceSet.getCompileTaskName(lang));
+            if (compileTask != null) {
+                compileTask.dependsOn(process);
+            }
+        }
 
         // Update manifest with smithy build info and source tags
         jarTask.doFirst("updateJarManifest",

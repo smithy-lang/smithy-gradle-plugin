@@ -45,7 +45,6 @@ public final class CliDependencyResolver {
      *
      * @param project Project to add dependencies to.
      *
-     * @return the version of the CLI in use
      */
     public static String resolve(Project project, SourceSet sourceSet) {
         Configuration cli = SmithyUtils.getCliConfiguration(project, sourceSet);
@@ -62,18 +61,15 @@ public final class CliDependencyResolver {
         // Force projects in the main smithy repo to use an explicit smithy cli dependency
         failIfRunningInMainSmithyRepo(project);
 
-        // If no explicit dependency was found, find the CLI version by scanning
-        // and set this as a dependency
-        String cliVersion = getCliVersion(project, cli);
+        // If no explicit dependency was found, find the CLI version by scanning and set this as a dependency
+        String cliVersion = getCliVersion(project, sourceSet);
         project.getDependencies().add(cli.getName(), String.format(DEPENDENCY_NOTATION, cliVersion));
 
         return cliVersion;
     }
 
-
-    private static String getCliVersion(Project project, Configuration cliConfiguration) {
-        String cliVersion = detectCliVersionInDependencies(cliConfiguration);
-
+    private static String getCliVersion(Project project, SourceSet sourceSet) {
+        String cliVersion = detectCliVersionInRuntimeDependencies(project, sourceSet);
         if (cliVersion != null) {
             project.getLogger().info("(detected Smithy CLI version {})", cliVersion);
         } else {
@@ -87,15 +83,17 @@ public final class CliDependencyResolver {
     /**
      * Check if there's a dependency on smithy-model somewhere, and assume that version.
      *
-     * @param configuration configuration to search for CLI version
-     * @return version of cli available in configuration
+     * @param project configuration to search for CLI version
+     * @param sourceSet SourceSet to get runtime configuration for
      *
+     * @return version of cli available in configuration
      */
-    public static String detectCliVersionInDependencies(Configuration configuration) {
-        return configuration.getAllDependencies().stream()
-                .filter(d -> isMatchingDependency(d, "smithy-model"))
-                .map(Dependency::getVersion)
-                .filter(Objects::nonNull)
+    public static String detectCliVersionInRuntimeDependencies(Project project, SourceSet sourceSet) {
+        Configuration runtimeClasspath = project.getConfigurations().getByName(
+                sourceSet.getRuntimeClasspathConfigurationName());
+        return runtimeClasspath.getResolvedConfiguration().getResolvedArtifacts().stream()
+                .filter(ra -> ra.getName().equals("smithy-model"))
+                .map(ra -> ra.getModuleVersion().getId().getVersion())
                 .findFirst()
                 .orElse(null);
     }

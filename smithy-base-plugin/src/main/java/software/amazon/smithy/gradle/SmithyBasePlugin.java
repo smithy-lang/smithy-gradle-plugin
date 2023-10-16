@@ -70,11 +70,15 @@ public final class SmithyBasePlugin implements Plugin<Project> {
                 project.getTasks().getByName("build").dependsOn(buildTaskTaskProvider);
             }
 
-            // Add format task for source set if enabled and the CLI version supports it
-            String cliVersion = CliDependencyResolver.resolve(project, sourceSet);
-            if (extension.getFormat().get() && cliVersionSupportsFormat(cliVersion)) {
-                addFormatTaskForSourceSet(sourceSet, sds, extension);
-            }
+            project.afterEvaluate(p -> {
+                // Resolve the Smithy CLI artifact to use
+                String cliVersion = CliDependencyResolver.resolve(project, sourceSet);
+
+                // Add format task for source set if enabled and the CLI version supports it
+                if (extension.getFormat().get() && cliVersionSupportsFormat(cliVersion, sourceSet)) {
+                    addFormatTaskForSourceSet(sourceSet, sds, extension);
+                }
+            });
         });
     }
 
@@ -82,10 +86,10 @@ public final class SmithyBasePlugin implements Plugin<Project> {
     /**
      * Smithy-format was added in version 1.33.0. It is not supported in earlier CLI versions.
      */
-    private boolean cliVersionSupportsFormat(String cliVersion) {
+    private boolean cliVersionSupportsFormat(String cliVersion, SourceSet sourceSet) {
         boolean supported = GradleVersion.version(cliVersion).compareTo(MIN_SMITHY_FORMAT_VERSION) >= 0;
 
-        if (!supported) {
+        if (!supported && SourceSet.isMain(sourceSet)) {
             project.getLogger().warn("Formatting task is not supported Smithy CLI version: "
                     + "(" + cliVersion + "). Skipping."
                     + "Minimum supported Smithy CLI version for formatting is "

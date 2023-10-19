@@ -1,5 +1,14 @@
 # Smithy Gradle Plugin Changelog
 
+## 0.9.0 (2023-10-20)
+
+### Features
+* Added Scala support for the `smithy-jar` plugin ([#104](https://github.com/smithy-lang/smithy-gradle-plugin/pull/104))
+* Updated task ordering to support use of annotation processors and execute format task before build task ([#103](https://github.com/smithy-lang/smithy-gradle-plugin/pull/103))
+
+### Bug Fixes
+* Corrected resolution of CLI dependency version from resolved runtime dependencies ([#105](https://github.com/smithy-lang/smithy-gradle-plugin/pull/105)) 
+
 ## 0.8.0 (2023-08-22)
 
 ### Features

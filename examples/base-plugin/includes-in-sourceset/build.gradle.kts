@@ -2,7 +2,7 @@
 
 plugins {
     id("java-library")
-    id("software.amazon.smithy.gradle.smithy-base").version("0.8.0")
+    id("software.amazon.smithy.gradle.smithy-base").version("0.9.0")
 }
 
 sourceSets {

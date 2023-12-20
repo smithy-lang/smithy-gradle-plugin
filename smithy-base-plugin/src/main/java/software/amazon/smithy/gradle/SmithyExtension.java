@@ -204,7 +204,7 @@ public abstract class SmithyExtension {
         if (!Files.exists(buildConfigPath)) {
             return Optional.empty();
         }
-        return Node.parse(IoUtils.readUtf8File(buildConfigPath))
+        return Node.parseJsonWithComments(IoUtils.readUtf8File(buildConfigPath))
                 .expectObjectNode()
                 .getMember(OUTPUT_DIRECTORY)
                 .map(Node::expectStringNode)

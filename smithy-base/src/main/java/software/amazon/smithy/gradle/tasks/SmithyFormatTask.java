@@ -41,7 +41,6 @@ public abstract class SmithyFormatTask extends AbstractSmithyCliTask {
                 executeCliProcess("format",
                         ListUtils.of(),
                         objectFactory.fileCollection().from(file),
-                        null,
                         true
                 );
             }

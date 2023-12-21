@@ -11,9 +11,10 @@ import java.util.Optional;
 import org.gradle.api.GradleException;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.file.FileCollection;
-import org.gradle.api.tasks.SourceSet;
+import org.gradle.api.plugins.JavaPlugin;
 import software.amazon.smithy.gradle.SmithyUtils;
 import software.amazon.smithy.utils.SmithyInternalApi;
 
@@ -48,12 +49,12 @@ public final class CliDependencyResolver {
      *
      * @return version of the cli that was resolved.
      */
-    public static String resolve(Project project, SourceSet sourceSet) {
-        Configuration cli = SmithyUtils.getCliConfiguration(project, sourceSet);
+    public static String resolve(Project project) {
+        Configuration cli = SmithyUtils.getCliConfiguration(project);
 
         // Prefer explicitly set dependency first.
         Optional<Dependency> explicitCliDepOptional = cli.getAllDependencies().stream()
-                .filter(d -> isMatchingDependency(d, SMITHY_CLI_DEP_NAME))
+                .filter(CliDependencyResolver::isMatchingDependency)
                 .findFirst();
         if (explicitCliDepOptional.isPresent()) {
             project.getLogger().info("(using explicitly configured Smithy CLI)");
@@ -64,14 +65,14 @@ public final class CliDependencyResolver {
         failIfRunningInMainSmithyRepo(project);
 
         // If no explicit dependency was found, find the CLI version by scanning and set this as a dependency
-        String cliVersion = getCliVersion(project, sourceSet);
+        String cliVersion = getCliVersion(project);
         project.getDependencies().add(cli.getName(), String.format(DEPENDENCY_NOTATION, cliVersion));
 
         return cliVersion;
     }
 
-    private static String getCliVersion(Project project, SourceSet sourceSet) {
-        String cliVersion = detectCliVersionInRuntimeDependencies(project, sourceSet);
+    private static String getCliVersion(Project project) {
+        String cliVersion = detectCliVersionInRuntimeDependencies(project.getConfigurations());
         if (cliVersion != null) {
             project.getLogger().info("(detected Smithy CLI version {})", cliVersion);
         } else {
@@ -85,14 +86,17 @@ public final class CliDependencyResolver {
     /**
      * Check if there's a dependency on smithy-model somewhere, and assume that version.
      *
-     * @param project configuration to search for CLI version
-     * @param sourceSet SourceSet to get runtime configuration for
+     * @param configurations Configuration contain to use to search for configurations
      *
      * @return version of cli available in configuration
      */
-    public static String detectCliVersionInRuntimeDependencies(Project project, SourceSet sourceSet) {
-        Configuration runtimeClasspath = project.getConfigurations().getByName(
-                sourceSet.getRuntimeClasspathConfigurationName());
+    public static String detectCliVersionInRuntimeDependencies(ConfigurationContainer configurations) {
+        // If the runtimeClasspath configuration does not exist we cannot scan runtime deps
+        if (configurations.findByName(JavaPlugin.RUNTIME_CLASSPATH_CONFIGURATION_NAME) == null) {
+            return null;
+        }
+        Configuration runtimeClasspath = configurations.getByName(
+                JavaPlugin.RUNTIME_CLASSPATH_CONFIGURATION_NAME);
         return runtimeClasspath.getResolvedConfiguration().getResolvedArtifacts().stream()
                 .filter(ra -> ra.getName().equals("smithy-model"))
                 .map(ra -> ra.getModuleVersion().getId().getVersion())
@@ -100,9 +104,9 @@ public final class CliDependencyResolver {
                 .orElse(null);
     }
 
-    private static boolean isMatchingDependency(Dependency dependency, String name) {
+    private static boolean isMatchingDependency(Dependency dependency) {
         return Objects.equals(dependency.getGroup(), "software.amazon.smithy")
-                && dependency.getName().equals(name);
+                && dependency.getName().equals(SMITHY_CLI_DEP_NAME);
     }
 
     private static String scanForSmithyCliVersion(Project project) {

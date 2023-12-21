@@ -40,7 +40,6 @@ public abstract class SmithyBuildTask extends AbstractSmithyCliTask {
         getOutputDir().convention(SmithyUtils.getProjectionOutputDirProperty(getProject()));
     }
 
-
     /**
      * Tags that are searched for in classpaths when determining which
      * models are projected into the created JAR.
@@ -112,7 +111,7 @@ public abstract class SmithyBuildTask extends AbstractSmithyCliTask {
         BuildParameterBuilder builder = new BuildParameterBuilder();
 
         // Model discovery classpath
-        builder.libClasspath(getRuntimeClasspath().get().getAsPath());
+        builder.libClasspath(getModelDiscoveryClasspath().get().getAsPath());
         builder.buildClasspath(getCliExecutionClasspath().get().getAsPath());
         builder.projectionSourceTags(getProjectionSourceTags().get());
         builder.allowUnknownTraits(getAllowUnknownTraits().get());

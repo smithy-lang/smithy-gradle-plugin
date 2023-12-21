@@ -47,16 +47,6 @@ public final class SmithyUtils {
     private SmithyUtils() {}
 
     /**
-     * Gets the {@code SmithyExtension} extension of a {@code Project}.
-     *
-     * @param project Project to query.
-     * @return Returns the extension.
-     */
-    public static SmithyExtension getSmithyExtension(Project project) {
-        return project.getExtensions().getByType(SmithyExtension.class);
-    }
-
-    /**
      * Gets the path to a projection plugins output.
      *
      * @param smithyOutputDirectory output directory to get plugin path from
@@ -236,10 +226,6 @@ public final class SmithyUtils {
         }
     }
 
-    static String getSmithyCliConfigurationName(SourceSet sourceSet) {
-        return getRelativeSourceSetName(sourceSet, SMITHY_CLI_CONFIGURATION_NAME);
-    }
-
     static String getSmithyBuildConfigurationName(SourceSet sourceSet) {
         return getRelativeSourceSetName(sourceSet, SMITHY_BUILD_CONFIGURATION_NAME);
 
@@ -249,8 +235,8 @@ public final class SmithyUtils {
         return SourceSet.isMain(sourceSet) ? name : sourceSet.getName() + StringUtils.capitalize(name);
     }
 
-    public static Configuration getCliConfiguration(Project project, SourceSet sourceSet) {
-        return project.getConfigurations().getByName(getSmithyCliConfigurationName(sourceSet));
+    public static Configuration getCliConfiguration(Project project) {
+        return project.getConfigurations().getByName(SMITHY_CLI_CONFIGURATION_NAME);
     }
 }
 

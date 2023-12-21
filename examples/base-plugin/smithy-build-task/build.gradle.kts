@@ -6,12 +6,8 @@ import software.amazon.smithy.gradle.tasks.SmithyBuildTask
 // and the classpath used when building.
 
 plugins {
-    id("java-library")
     id("software.amazon.smithy.gradle.smithy-base").version("0.9.0")
 }
-
-tasks["jar"].enabled = false
-tasks["smithyBuild"].enabled = false
 
 tasks.create<SmithyBuildTask>("doit") {
     models.set(files("model/"))

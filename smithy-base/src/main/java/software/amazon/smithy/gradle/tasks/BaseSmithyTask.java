@@ -23,7 +23,6 @@ import org.gradle.internal.logging.text.StyledTextOutputFactory;
 import org.gradle.work.DisableCachingByDefault;
 import org.gradle.workers.WorkerExecutor;
 
-
 /**
  * Base class for all Smithy tasks.
  */
@@ -35,19 +34,37 @@ abstract class BaseSmithyTask extends DefaultTask {
     BaseSmithyTask() {
         getFork().convention(false);
         getShowStackTrace().convention(ShowStacktrace.INTERNAL_EXCEPTIONS);
-        getResolvedCliClasspath().convention(getProject().getConfigurations().getByName("smithyCli"));
-        getBuildClasspath().convention(getProject().getConfigurations().getByName("smithyBuild"));
-        getRuntimeClasspath().convention(getProject().getConfigurations().getByName("runtimeClasspath"));
+
+        // By default, there are no build dependencies or models discovery
+        getBuildClasspath().set(getProject().files());
+        getModelDiscoveryClasspath().set(getProject().files());
+
+        // if the smithyCli configuration exists use it by default
+        if (getProject().getConfigurations().findByName("smithyCli") != null) {
+            getCliClasspath().convention(getProject().getConfigurations()
+                    .getByName("smithyCli"));
+        }
+
         startParameter = getProject().getGradle().getStartParameter();
     }
 
 
     /**
      * Base classpath used for executing the smithy cli.
+     *
+     * <p>Note: this classpath must contain the smithy-cli jar.
+     */
+    @Classpath
+    public abstract Property<FileCollection> getCliClasspath();
+
+    /**
+     * Classpath used for discovery of additional Smithy models during cli execution.
+     *
+     * <p>Defaults to an empty collection.
      */
     @Classpath
     @Optional
-    public abstract Property<FileCollection> getResolvedCliClasspath();
+    public abstract Property<FileCollection> getModelDiscoveryClasspath();
 
     /**
      * Classpath to use for build dependencies.
@@ -56,12 +73,6 @@ abstract class BaseSmithyTask extends DefaultTask {
     @Optional
     public abstract Property<FileCollection> getBuildClasspath();
 
-    /**
-     * Classpath for runtime dependencies.
-     */
-    @Classpath
-    @Optional
-    public abstract Property<FileCollection> getRuntimeClasspath();
 
     /**
      * Read-only property that returns the classpath used to determine the
@@ -71,7 +82,7 @@ abstract class BaseSmithyTask extends DefaultTask {
      */
     @Internal
     Provider<FileCollection> getCliExecutionClasspath() {
-        return getResolvedCliClasspath().zip(getBuildClasspath(), FileCollection::plus);
+        return getCliClasspath().zip(getBuildClasspath(), FileCollection::plus);
     }
 
     /**

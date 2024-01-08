@@ -35,7 +35,7 @@ abstract class BaseSmithyTask extends DefaultTask {
         getFork().convention(false);
         getShowStackTrace().convention(ShowStacktrace.INTERNAL_EXCEPTIONS);
 
-        // By default, there are no build dependencies or models discovery
+        // By default, the build classpath and model discovery classpaths are empty file collections.
         getBuildClasspath().set(getProject().files());
         getModelDiscoveryClasspath().set(getProject().files());
 

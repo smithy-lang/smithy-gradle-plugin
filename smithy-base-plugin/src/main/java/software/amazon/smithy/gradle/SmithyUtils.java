@@ -65,7 +65,7 @@ public final class SmithyUtils {
      * @return Returns the resolved path.
      */
     public static Path getProjectionPluginPath(File smithyOutputDirectory, String projection, String plugin) {
-        if (!smithyOutputDirectory.isDirectory()) {
+        if (smithyOutputDirectory.exists() && !smithyOutputDirectory.isDirectory()) {
             throw new RuntimeException("Expected directory for outputDir but found file");
         }
         return smithyOutputDirectory.toPath()

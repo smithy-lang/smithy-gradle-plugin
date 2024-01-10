@@ -1,5 +1,5 @@
 rootProject.name = "smithy-gradle"
 
-include("smithy-base-plugin")
-include("smithy-jar-plugin")
+include("smithy-base")
+include("smithy-jar")
 include("integ-test-utils")

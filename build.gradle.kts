@@ -16,6 +16,7 @@
 import com.github.spotbugs.snom.Effort
 import com.github.spotbugs.snom.SpotBugsTask
 import com.adarshr.gradle.testlogger.TestLoggerExtension
+import org.jreleaser.model.Active
 
 plugins {
     `java-library`
@@ -23,6 +24,7 @@ plugins {
     id("com.github.spotbugs") version "5.0.14"
     id("com.adarshr.test-logger") version "3.2.0"
     id("com.gradle.plugin-publish") version "1.2.1" apply false
+    id("org.jreleaser") version "1.9.0"
 }
 
 // The root project doesn't produce a JAR.
@@ -30,11 +32,14 @@ tasks["jar"].enabled = false
 
 val pluginVersion = project.file("VERSION").readText().replace(System.lineSeparator(), "")
 allprojects {
-    group = "software.amazon.smithy"
+    group = "software.amazon.smithy.gradle"
     version = pluginVersion
 }
 println("Smithy Gradle version: '${pluginVersion}'")
 
+// JReleaser publishes artifacts from a local staging repository, rather than maven local.
+// https://jreleaser.org/guide/latest/examples/maven/staging-artifacts.html#_gradle
+val stagingDirectory = "$buildDir/staging"
 
 subprojects {
     val subproject = this
@@ -103,27 +108,15 @@ subprojects {
     }
 
     if (subproject.name != "integ-test-utils") {
-        // Set up tasks that build source and javadoc jars.
-        tasks.register<Jar>("sourcesJar") {
+        // Configure all jars to include license info
+        tasks.withType<Jar>() {
             metaInf.with(licenseSpec)
-            from(sourceSets.main.get().allJava)
-            archiveClassifier.set("sources")
         }
 
-        tasks.register<Jar>("javadocJar") {
-            metaInf.with(licenseSpec)
-            from(tasks.javadoc)
-            archiveClassifier.set("javadoc")
-        }
-
-        // Configure jars to include license related info
-        tasks.jar {
-            metaInf.with(licenseSpec)
-            manifest {
-                attributes["Automatic-Module-Name"] = "software.amazon.smithy.gradle"
-            }
-        }
-
+        /*
+         * Configure integration tests
+         * ====================================================
+         */
         sourceSets {
             create("it") {
                 compileClasspath += sourceSets["main"].output + configurations["testRuntimeClasspath"]
@@ -147,48 +140,6 @@ subprojects {
         }
 
         /*
-         * Maven
-         * ====================================================
-         *
-         * Publish to Maven central.
-         */
-        apply(plugin = "maven-publish")
-        configure<PublishingExtension> {
-            publications {
-                create<MavenPublication>("pluginMaven") {
-                    pom {
-                        description.set(subproject.description)
-                        url.set("https://github.com/smithy-lang/smithy-gradle-plugin")
-                        licenses {
-                            license {
-                                name.set("Apache License 2.0")
-                                url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
-                                distribution.set("repo")
-                            }
-                        }
-                        developers {
-                            developer {
-                                id.set("smithy")
-                                name.set("Smithy")
-                                organization.set("Amazon Web Services")
-                                organizationUrl.set("https://aws.amazon.com")
-                                roles.add("developer")
-                            }
-                        }
-                        scm {
-                            url.set("https://github.com/smithy-lang/smithy-gradle-plugin.git")
-                        }
-                    }
-                }
-            }
-
-            repositories {
-                mavenLocal()
-                mavenCentral()
-            }
-        }
-
-        /*
          * Common plugin settings
          * ====================================================
          */
@@ -196,6 +147,21 @@ subprojects {
         configure<GradlePluginDevelopmentExtension> {
             website.set("https://smithy.io")
             vcsUrl.set("https://github.com/smithy-lang/smithy-gradle-plugin")
+        }
+
+        /*
+         * Staging repository
+         * ====================================================
+         *
+         * Configure publication to staging repo for jreleaser
+         */
+        configure<PublishingExtension> {
+            repositories {
+                maven {
+                    name = "stagingRepository"
+                    url = uri(stagingDirectory)
+                }
+            }
         }
 
         /*
@@ -255,4 +221,50 @@ subprojects {
 }
 
 
+/*
+ * Jreleaser (https://jreleaser.org) config.
+ */
+jreleaser {
+    dryrun = false
 
+    // Used for creating a tagged release, uploading files and generating changelog.
+    // In the future we can set this up to push release tags to GitHub, but for now it's
+    // set up to do nothing.
+    // https://jreleaser.org/guide/latest/reference/release/index.html
+    release {
+        generic {
+            enabled = true
+            skipRelease = true
+        }
+    }
+
+    // Used to announce a release to configured announcers.
+    // https://jreleaser.org/guide/latest/reference/announce/index.html
+    announce {
+        active = Active.NEVER
+    }
+
+    // Signing configuration.
+    // https://jreleaser.org/guide/latest/reference/signing.html
+    signing {
+        active = Active.ALWAYS
+        armored = true
+    }
+
+    // Configuration for deploying to Maven Central.
+    // https://jreleaser.org/guide/latest/examples/maven/maven-central.html#_gradle
+    deploy {
+        maven {
+            nexus2 {
+                create("maven-central") {
+                    active.set(Active.ALWAYS)
+                    url.set("https://s01.oss.sonatype.org/service/local")
+                    snapshotUrl.set("https://s01.oss.sonatype.org/content/repositories/snapshots/")
+                    closeRepository.set(false)
+                    releaseRepository.set(false)
+                    stagingRepositories.add(stagingDirectory)
+                }
+            }
+        }
+    }
+}

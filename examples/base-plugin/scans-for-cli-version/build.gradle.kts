@@ -2,7 +2,6 @@
 // found by scanning buildScript dependencies.
 
 plugins {
-    id("java-library")
     id("software.amazon.smithy.gradle.smithy-base").version("0.9.0")
 }
 

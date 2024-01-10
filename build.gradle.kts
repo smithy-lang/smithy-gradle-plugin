@@ -19,12 +19,10 @@ import com.adarshr.gradle.testlogger.TestLoggerExtension
 
 plugins {
     `java-library`
-    `maven-publish`
-    checkstyle
     jacoco
     id("com.github.spotbugs") version "5.0.14"
-    id("com.gradle.plugin-publish") version "1.2.0"
     id("com.adarshr.test-logger") version "3.2.0"
+    id("com.gradle.plugin-publish") version "1.2.1" apply false
 }
 
 // The root project doesn't produce a JAR.
@@ -69,7 +67,6 @@ subprojects {
     }
 
     apply(plugin = "com.adarshr.test-logger")
-
     configure<TestLoggerExtension> {
         showExceptions = true
         showStackTraces = true
@@ -87,12 +84,6 @@ subprojects {
         logLevel = LogLevel.LIFECYCLE
     }
 
-    // Reusable license copySpec
-    val licenseSpec = copySpec {
-        from("${project.rootDir}/LICENSE")
-        from("${project.rootDir}/NOTICE")
-    }
-
     dependencies {
         implementation("software.amazon.smithy:smithy-model:[1.0, 2.0[")
         implementation("software.amazon.smithy:smithy-build:[1.0, 2.0[")
@@ -103,6 +94,12 @@ subprojects {
         testImplementation("org.junit.jupiter:junit-jupiter-params:5.4.0")
         testImplementation("org.hamcrest:hamcrest:2.1")
         testImplementation(project(":integ-test-utils"))
+    }
+
+    // Reusable license copySpec
+    val licenseSpec = copySpec {
+        from("${project.rootDir}/LICENSE")
+        from("${project.rootDir}/NOTICE")
     }
 
     if (subproject.name != "integ-test-utils") {
@@ -156,8 +153,7 @@ subprojects {
          * Publish to Maven central.
          */
         apply(plugin = "maven-publish")
-
-        publishing {
+        configure<PublishingExtension> {
             publications {
                 create<MavenPublication>("pluginMaven") {
                     pom {
@@ -196,7 +192,8 @@ subprojects {
          * Common plugin settings
          * ====================================================
          */
-        gradlePlugin {
+        apply(plugin = "com.gradle.plugin-publish")
+        configure<GradlePluginDevelopmentExtension> {
             website.set("https://smithy.io")
             vcsUrl.set("https://github.com/smithy-lang/smithy-gradle-plugin")
         }
@@ -208,7 +205,6 @@ subprojects {
          * Apply CheckStyle to source files but not tests.
          */
         apply(plugin = "checkstyle")
-
         tasks["checkstyleTest"].enabled = false
         tasks["checkstyleIt"].enabled = false
 
@@ -219,10 +215,8 @@ subprojects {
          * Create code coverage reports after running tests.
          */
         apply(plugin = "jacoco")
-
         // Always run the jacoco test report after testing.
         tasks["test"].finalizedBy(tasks["jacocoTestReport"])
-
         // Configure jacoco to generate an HTML report.
         tasks.jacocoTestReport {
             reports {

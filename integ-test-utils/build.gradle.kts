@@ -1,5 +1,9 @@
 description = "Integration test utilities used across multiple plugins."
 
+plugins {
+    id("smithy-gradle-plugin.java-conventions")
+}
+
 dependencies {
     implementation(gradleTestKit())
     implementation("org.junit.jupiter:junit-jupiter-api:5.4.0")

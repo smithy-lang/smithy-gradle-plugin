@@ -15,11 +15,6 @@
 
 package software.amazon.smithy.gradle;
 
-import org.gradle.testkit.runner.BuildResult;
-import org.gradle.testkit.runner.BuildTask;
-import org.gradle.testkit.runner.TaskOutcome;
-import org.junit.jupiter.api.Assertions;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -36,6 +31,10 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.gradle.testkit.runner.BuildResult;
+import org.gradle.testkit.runner.BuildTask;
+import org.gradle.testkit.runner.TaskOutcome;
+import org.junit.jupiter.api.Assertions;
 
 public final class Utils {
     private Utils() {}

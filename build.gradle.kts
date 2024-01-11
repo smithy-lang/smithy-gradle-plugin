@@ -268,3 +268,8 @@ jreleaser {
         }
     }
 }
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}

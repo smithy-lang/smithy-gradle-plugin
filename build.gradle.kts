@@ -257,9 +257,9 @@ jreleaser {
         maven {
             nexus2 {
                 create("maven-central") {
-                    active.set(Active.ALWAYS)
-                    url.set("https://s01.oss.sonatype.org/service/local")
-                    snapshotUrl.set("https://s01.oss.sonatype.org/content/repositories/snapshots/")
+                    active = Active.ALWAYS
+                    url = "https://aws.oss.sonatype.org/service/local"
+                    snapshotUrl = "https://aws.oss.sonatype.org/content/repositories/snapshots"
                     closeRepository.set(false)
                     releaseRepository.set(false)
                     stagingRepositories.add(stagingDirectory)

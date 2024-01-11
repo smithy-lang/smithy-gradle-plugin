@@ -63,6 +63,11 @@ subprojects {
         useJUnitPlatform()
     }
 
+    // Suppress warnings in javadocs
+    tasks.withType<Javadoc> {
+        (options as StandardJavadocDocletOptions).addStringOption("Xdoclint:-html", "-quiet")
+    }
+
     apply(plugin = "com.adarshr.test-logger")
 
     configure<TestLoggerExtension> {

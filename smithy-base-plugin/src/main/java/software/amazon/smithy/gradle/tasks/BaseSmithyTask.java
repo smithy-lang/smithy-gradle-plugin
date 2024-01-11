@@ -29,7 +29,8 @@ import org.gradle.workers.WorkerExecutor;
  */
 @DisableCachingByDefault(because = "Abstract super-class, not to be instantiated directly")
 abstract class BaseSmithyTask extends DefaultTask {
-    protected final StartParameter startParameter;
+
+    private final StartParameter startParameter;
 
     BaseSmithyTask() {
         getFork().convention(false);
@@ -62,10 +63,11 @@ abstract class BaseSmithyTask extends DefaultTask {
     @Optional
     public abstract Property<FileCollection> getRuntimeClasspath();
 
-    /** Read-only property that returns the classpath used to determine the
+    /**
+     * Read-only property that returns the classpath used to determine the
      * classpath used when executing the cli.
      *
-     * @return classpath to use when executing cli command
+     * @return classpath to use when executing cli command.
      */
     @Internal
     Provider<FileCollection> getCliExecutionClasspath() {
@@ -96,7 +98,7 @@ abstract class BaseSmithyTask extends DefaultTask {
      *
      * <p> Defaults to {@code false}
      *
-     * @return flag indicating fork setting
+     * @return flag indicating fork setting.
      */
     @Input
     @Optional
@@ -107,7 +109,7 @@ abstract class BaseSmithyTask extends DefaultTask {
      *
      * <p> Defaults to {@code ShowStacktrace.INTERNAL_EXCEPTIONS}
      *
-     * @return stack trace setting
+     * @return stack trace setting.
      */
     @Input
     @Optional
@@ -120,6 +122,11 @@ abstract class BaseSmithyTask extends DefaultTask {
     }
 
 
+    /**
+     * Writes header-formatted text to the build output.
+     *
+     * @param text text to write as a header.
+     */
     protected void writeHeading(String text) {
         StyledTextOutput output = getServices().get(StyledTextOutputFactory.class)
                 .create("smithy")

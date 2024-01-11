@@ -1,14 +1,16 @@
 import org.apache.tools.ant.filters.ReplaceTokens
 
-description = "This plugin sets up the basic capabilities necessary for building Smithy models." +
-        "Applying this plugin will create the basic source sets and configurations needed for smithy" +
+
+
+description = "This plugin sets up the basic capabilities necessary for building Smithy models. " +
+        "Applying this plugin will create the basic source sets and configurations needed for Smithy " +
         "projects. It will also create a smithy build task that will build and validate all the " +
-        "smithy models in the project."
+        "Smithy models in the project."
 
 gradlePlugin {
     plugins {
         create("smithy-base-plugin") {
-            id = "software.amazon.smithy.gradle.smithy-base"
+            id = "${group}.smithy-base"
             displayName = "Smithy Gradle Base Plugin"
             description = project.description
             implementationClass = "software.amazon.smithy.gradle.SmithyBasePlugin"

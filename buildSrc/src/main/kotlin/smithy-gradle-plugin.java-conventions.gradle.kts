@@ -1,4 +1,3 @@
-import com.github.spotbugs.snom.Effort
 
 plugins {
     `java-library`

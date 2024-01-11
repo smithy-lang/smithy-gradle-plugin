@@ -26,6 +26,9 @@ import software.amazon.smithy.gradle.tasks.SmithyFormatTask;
  * A {@link org.gradle.api.Plugin} that builds and validates Smithy models.
  */
 public final class SmithyBasePlugin implements Plugin<Project> {
+    /**
+     * Default name to use for the build task created by this plugin.
+     */
     public static final String SMITHY_BUILD_TASK_NAME = "smithyBuild";
 
     private static final GradleVersion MINIMUM_GRADLE_VERSION = GradleVersion.version("8.2.0");

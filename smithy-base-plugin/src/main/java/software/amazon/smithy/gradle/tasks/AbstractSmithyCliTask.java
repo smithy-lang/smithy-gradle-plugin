@@ -22,6 +22,9 @@ import software.amazon.smithy.gradle.SmithyUtils;
 @DisableCachingByDefault(because = "Abstract super-class, not to be instantiated directly")
 abstract class AbstractSmithyCliTask extends BaseSmithyTask {
 
+    /**
+     * Object factory used to create new gradle domain objects such as {@code FileCollection}s.
+     */
     protected final ObjectFactory objectFactory;
 
     AbstractSmithyCliTask(ObjectFactory objectFactory) {

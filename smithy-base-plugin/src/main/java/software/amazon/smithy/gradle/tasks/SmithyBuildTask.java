@@ -66,11 +66,12 @@ public abstract class SmithyBuildTask extends AbstractSmithyCliTask {
     public abstract Property<FileCollection> getSmithyBuildConfigs();
 
 
-    /** Sets whether to fail a {@link SmithyBuildTask} if an unknown trait is encountered.
+    /**
+     * Sets whether to fail a {@link SmithyBuildTask} if an unknown trait is encountered.
      *
-     * <p> Defaults to {@code true}
+     * <p> Defaults to {@code true}.
      *
-     * @return flag indicating state of allowUnknownTraits setting
+     * @return flag indicating state of allowUnknownTraits setting.
      */
     @Input
     @Optional
@@ -92,7 +93,8 @@ public abstract class SmithyBuildTask extends AbstractSmithyCliTask {
     @Optional
     public abstract DirectoryProperty getOutputDir();
 
-    /** Read-only property.
+    /**
+     * Read-only property.
      *
      * @return list of absolute paths of model files.
      */

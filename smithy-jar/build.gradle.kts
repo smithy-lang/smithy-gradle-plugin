@@ -3,6 +3,10 @@ description = "Adds built Smithy files to an existing jar task such as that crea
         "and tags to the JAR's MANIFEST. The smithy-jar plugin applies the smithy-base " +
         "plugin when it is applied."
 
+plugins {
+    id("smithy-gradle-plugin.plugin-conventions")
+}
+
 gradlePlugin {
     plugins {
         create("smithy-jar-plugin") {

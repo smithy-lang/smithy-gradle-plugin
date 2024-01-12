@@ -45,7 +45,6 @@ public final class CliDependencyResolver {
      * detected is used for the CLI.
      *
      * @param project Project to add dependencies to.
-     * @param sourceSet sourceset to use to find configurations.
      *
      * @return version of the cli that was resolved.
      */

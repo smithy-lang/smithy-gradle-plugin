@@ -10,7 +10,6 @@ import org.gradle.api.file.FileCollection;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
-import org.gradle.api.tasks.Classpath;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.Internal;
@@ -36,7 +35,6 @@ public abstract class SmithyValidateTask extends AbstractSmithyCliTask {
         super(objectFactory);
         getAllowUnknownTraits().convention(false);
         getDisableModelDiscovery().convention(false);
-        getResolvedCliClasspath().convention(getProject().getConfigurations().getByName("smithyCli"));
         setDescription(DESCRIPTION);
     }
 
@@ -56,15 +54,6 @@ public abstract class SmithyValidateTask extends AbstractSmithyCliTask {
      */
     @InputFiles
     public abstract Property<FileCollection> getJarToValidate();
-
-    /**
-     * Classpath used for discovery of additional Smithy models during cli execution.
-     *
-     * <p>Defaults to an empty collection.
-     */
-    @Classpath
-    @Optional
-    public abstract Property<FileCollection> getModelDiscoveryClasspath();
 
     /**
      * Disable model discovery.
@@ -90,7 +79,7 @@ public abstract class SmithyValidateTask extends AbstractSmithyCliTask {
     @Internal
     @Override
     Provider<FileCollection> getCliExecutionClasspath() {
-        return getResolvedCliClasspath();
+        return getCliClasspath();
     }
 
     @TaskAction
@@ -100,7 +89,6 @@ public abstract class SmithyValidateTask extends AbstractSmithyCliTask {
         // Set models to an empty collection so source models are not included in validation path.
         executeCliProcess("validate", ListUtils.of(),
                 getJarToValidate().get(),
-                getModelDiscoveryClasspath().getOrNull(),
                 getDisableModelDiscovery().get()
         );
     }

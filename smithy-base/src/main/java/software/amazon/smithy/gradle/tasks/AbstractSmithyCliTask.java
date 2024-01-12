@@ -55,15 +55,14 @@ abstract class AbstractSmithyCliTask extends BaseSmithyTask {
     final void executeCliProcess(String command,
                                  List<String> additionalArgs,
                                  FileCollection sources,
-                                 FileCollection modelDiscoveryClasspath,
                                  boolean disableModelDiscovery
     ) {
         List<String> args = new ArrayList<>();
         args.add(command);
 
-        if (modelDiscoveryClasspath != null) {
+        if (!getModelDiscoveryClasspath().get().isEmpty()) {
             args.add("--discover-classpath");
-            args.add(modelDiscoveryClasspath.getAsPath());
+            args.add(getModelDiscoveryClasspath().get().getAsPath());
         } else if (!disableModelDiscovery) {
             args.add("--discover");
         }

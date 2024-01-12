@@ -30,7 +30,6 @@ public class SmithyBuildTaskTest {
                     .withProjectDir(buildDir)
                     .withArguments("build", "--stacktrace")
                     .build();
-
             Utils.assertSmithyBuildDidNotRun(result);
             Utils.assertArtifactsCreated(
                     buildDir,

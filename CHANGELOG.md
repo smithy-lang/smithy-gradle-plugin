@@ -1,5 +1,19 @@
 # Smithy Gradle Plugin Changelog
 
+## 0.10.0 (2024-01-12)
+
+### Features 
+* Decoupled creation of `smithyCli` configuration from sourceSets ([#112](https://github.com/smithy-lang/smithy-gradle-plugin/pull/112))
+* Refactored build scripts to use convention plugins for common configuration ([#117](https://github.com/smithy-lang/smithy-gradle-plugin/pull/117))
+* Added Jreleaser configuration ([#115](https://github.com/smithy-lang/smithy-gradle-plugin/pull/115))
+* Updated Javadocs and suppressed doclint warnings to reduce noise during builds ([#116](https://github.com/smithy-lang/smithy-gradle-plugin/pull/116))
+* Updated `getProjectionPluginPath` utility method to allow resolution of the path even if file does not yet exist ([#114](https://github.com/smithy-lang/smithy-gradle-plugin/pull/114))
+
+### Bug Fixes
+* Corrected error in build task parameter conventions ([#112](https://github.com/smithy-lang/smithy-gradle-plugin/pull/112))
+* Corrected `SmithyBuildTask` to use `InputFiles` for build config input to ensure correct behavior of incremental builds ([#111](https://github.com/smithy-lang/smithy-gradle-plugin/pull/111))
+* Updated `SmithyExtension` to use comment-safe parsing method when parsing build configs ([#110](https://github.com/smithy-lang/smithy-gradle-plugin/pull/110))
+
 ## 0.9.0 (2023-10-20)
 
 ### Features

@@ -7,6 +7,7 @@ plugins {
     jacoco
     id("com.adarshr.test-logger")
     id("com.github.spotbugs")
+    signing
 }
 
 /*
@@ -29,6 +30,52 @@ publishing {
         maven {
             name = "stagingRepository"
             url = uri("${rootProject.buildDir}/staging")
+        }
+    }
+    // Add license spec to all maven publications
+    publications.withType<MavenPublication>() {
+        project.afterEvaluate {
+            pom {
+                name.set(project.name)
+                description.set(project.description)
+                url.set("https://github.com/smithy-lang/smithy-gradle-plugin")
+                licenses {
+                    license {
+                        name.set("Apache License 2.0")
+                        url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+                        distribution.set("repo")
+                    }
+                }
+                developers {
+                    developer {
+                        id.set("smithy")
+                        name.set("Smithy")
+                        organization.set("Amazon Web Services")
+                        organizationUrl.set("https://aws.amazon.com")
+                        roles.add("developer")
+                    }
+                }
+                scm {
+                    url.set("https://github.com/smithy-lang/smithy-gradle-plugin.git")
+                }
+            }
+        }
+    }
+}
+
+signing {
+    setRequired {
+        // signing is required only if the artifacts are to be published to a maven repository
+        gradle.taskGraph.allTasks.any { it is PublishToMavenRepository }
+    }
+
+    // Don't sign the artifacts if we didn't get a key and password to use.
+    if (project.hasProperty("signingKey") && project.hasProperty("signingPassword")) {
+        signing {
+            useInMemoryPgpKeys(
+                project.properties["signingKey"].toString(),
+                project.properties["signingPassword"].toString())
+            sign(publishing.publications)
         }
     }
 }

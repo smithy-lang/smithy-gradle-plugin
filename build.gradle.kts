@@ -66,8 +66,8 @@ jreleaser {
                     active = Active.ALWAYS
                     url = "https://aws.oss.sonatype.org/service/local"
                     snapshotUrl = "https://aws.oss.sonatype.org/content/repositories/snapshots"
-                    closeRepository.set(false)
-                    releaseRepository.set(false)
+                    closeRepository.set(true)
+                    releaseRepository.set(true)
                     stagingRepositories.add("${rootProject.buildDir}/staging")
                 }
             }

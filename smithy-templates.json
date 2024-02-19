@@ -62,7 +62,7 @@
       ]
     },
     "build-dependencies": {
-      "documentation": "",
+      "documentation": "Add build-only dependencies.",
       "path": "examples/jar-plugin/build-dependencies",
       "include": [
         "gradle/",
@@ -72,7 +72,7 @@
       ]
     },
     "custom-trait": {
-      "documentation": "Add Smithy files defining a to a JAR alongside the Java definition of that trait.",
+      "documentation": "Add Smithy files for a trait alongside the Java definition of that trait.",
       "path": "examples/jar-plugin/custom-trait",
       "include": [
         "gradle/",
@@ -82,7 +82,7 @@
       ]
     },
     "kotlin-jvm-project": {
-      "documentation": "Add Smithy models to a jar created by a kotlin project.",
+      "documentation": "Add Smithy models to a JAR created by a Kotlin project.",
       "path": "examples/jar-plugin/kotlin-jvm-project",
       "include": [
         "gradle/",
@@ -92,7 +92,7 @@
       ]
     },
     "scala-project": {
-      "documentation": "Add Smithy models to a jar created by a Scala project.",
+      "documentation": "Add Smithy models to a JAR created by a Scala project.",
       "path": "examples/jar-plugin/scala-project",
       "include": [
         "gradle/",

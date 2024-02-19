@@ -15,3 +15,7 @@ repositories {
 dependencies {
     implementation(project(":custom-string-trait"))
 }
+
+smithy {
+    noBuildConfig.set(true)
+}

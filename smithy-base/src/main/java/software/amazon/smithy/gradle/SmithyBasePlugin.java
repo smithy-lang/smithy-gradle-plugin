@@ -195,6 +195,7 @@ public final class SmithyBasePlugin implements Plugin<Project> {
                             build.getSmithyBuildConfigs().set(extension.getSmithyBuildConfigs());
                             build.getSourceProjection().set(extension.getSourceProjection());
                             build.getProjectionSourceTags().set(extension.getProjectionSourceTags());
+                            build.getNoBuildConfig().set(extension.getNoBuildConfig());
                             build.getOutputDir().set(extension.getOutputDirectory());
 
                             // Add smithy configurations as classpaths for build task

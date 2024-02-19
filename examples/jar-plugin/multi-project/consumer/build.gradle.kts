@@ -6,3 +6,7 @@ dependencies {
     implementation(project(":producer1"))
     implementation(project(":producer2"))
 }
+
+smithy {
+    noBuildConfig.set(true)
+}

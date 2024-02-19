@@ -54,6 +54,7 @@ public abstract class SmithyExtension {
         getSourceProjection().convention(SMITHY_SOURCE_PROJECTION_DEFAULT);
         getFork().convention(false);
         getFormat().convention(true);
+        getNoBuildConfig().convention(false);
         getAllowUnknownTraits().convention(false);
         getOutputDirectory().convention(getDefaultOutputDirectory(project));
 
@@ -142,6 +143,17 @@ public abstract class SmithyExtension {
      * @return Returns true if the CLI should fork.
      */
     public abstract Property<Boolean> getFork();
+
+    /**
+     * Gets whether unknown traits in the model should be ignored.
+     *
+     * <p>By default, the build will fail if no config is provided.
+     * This can be set to true to allow the build task to execute
+     * with an empty config when no smithy-build config is provided.
+     *
+     * @return Returns true if no config should be provided.
+     */
+    public abstract Property<Boolean> getNoBuildConfig();
 
     /**
      * Gets the output directory for running Smithy build.

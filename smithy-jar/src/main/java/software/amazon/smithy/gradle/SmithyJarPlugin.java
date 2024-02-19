@@ -13,10 +13,12 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.file.DuplicatesStrategy;
+import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.plugins.AppliedPlugin;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.SourceSetContainer;
 import org.gradle.api.tasks.TaskProvider;
+import org.gradle.api.tasks.compile.AbstractCompile;
 import org.gradle.language.base.plugins.LifecycleBasePlugin;
 import org.gradle.language.jvm.tasks.ProcessResources;
 import software.amazon.smithy.gradle.actions.SmithyManifestUpdateAction;
@@ -105,8 +107,7 @@ public class SmithyJarPlugin implements Plugin<Project> {
         // Include Smithy models and the generated manifest in the JAR by adding them to the resources source set.
         File metaInf = jarStagingTaskProvider.get().getSmithyMetaInfDir().get();
         project.getLogger().debug("Registering Smithy resource artifacts with Java resources: {}", metaInf);
-        sourceSet.getResources().srcDir(metaInf);
-
+        SourceDirectorySet metaInfSrcDir = sourceSet.getResources().srcDir(metaInf);
 
         // This plugin supports loading Smithy models from various locations, including
         // META-INF/smithy. It also creates a staging directory for all the merged
@@ -117,12 +118,15 @@ public class SmithyJarPlugin implements Plugin<Project> {
         process.setDuplicatesStrategy(DuplicatesStrategy.EXCLUDE);
         process.dependsOn(jarStagingTaskProvider);
 
-        // Ensure the smithy files generated for the Jar are available for any Compile tasks so smithy-generated
+        // Ensure the smithy files generated for the JAR are available for any Compile tasks so smithy-generated
         // data can be picked up by annotation processors and compile tasks
         for (String lang : SUPPORTED_LANGUAGES) {
-            Task compileTask = project.getTasks().findByName(sourceSet.getCompileTaskName(lang));
+            AbstractCompile compileTask = project.getTasks().withType(AbstractCompile.class)
+                    .findByName(sourceSet.getCompileTaskName(lang));
             if (compileTask != null) {
+                // Ensures staging occurs before compilation so smithy files are available
                 compileTask.dependsOn(process);
+                compileTask.setClasspath(compileTask.getClasspath().plus(metaInfSrcDir.getSourceDirectories()));
             }
         }
 

@@ -16,7 +16,7 @@ public class ForbidImplicitNoBuildConfigTest {
                     .buildAndFail();
 
             Assertions.assertTrue(result.getOutput()
-                    .contains("No smithy-build configs found. If this was intentional, set the `noBuildConfigs` flag to `true`."));
+                    .contains("No smithy-build configs found. If this was intentional, set the `smithyBuildConfigs` property to an empty list."));
             Utils.assertArtifactsNotCreated(buildDir,
                     "build/smithyprojections/forbid-implicit-no-build-config/source/build-info/smithy-build-info.json");
         });

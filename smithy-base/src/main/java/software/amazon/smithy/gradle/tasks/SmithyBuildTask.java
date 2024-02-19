@@ -39,7 +39,6 @@ public abstract class SmithyBuildTask extends AbstractSmithyCliTask {
         super(objectFactory);
 
         getSourceProjection().convention("source");
-        getNoBuildConfig().convention(false);
         getOutputDir().convention(SmithyUtils.getProjectionOutputDirProperty(getProject()));
     }
 
@@ -67,17 +66,6 @@ public abstract class SmithyBuildTask extends AbstractSmithyCliTask {
      */
     @InputFiles
     public abstract Property<FileCollection> getSmithyBuildConfigs();
-
-    /**
-     * Sets whether to allow the build to continue if no build config is set.
-     *
-     * <p> Defaults to false.
-     *
-     * @return flag indicating if build should continue if no build configs are found.
-     */
-    @Input
-    @Optional
-    public abstract Property<Boolean> getNoBuildConfig();
 
     /**
      * Sets whether to fail a {@link SmithyBuildTask} if an unknown trait is encountered.
@@ -124,14 +112,20 @@ public abstract class SmithyBuildTask extends AbstractSmithyCliTask {
      * @return Returns true if at least one of the specified build configs exists.
      */
     @Internal
-    Provider<Boolean> getSmithyBuildConfigsExist() {
-        return getSmithyBuildConfigs().map(files -> !files.filter(File::exists).isEmpty());
+    Provider<Boolean> getSmithyBuildConfigsMissing() {
+        return getSmithyBuildConfigs().map(
+                files -> !files.isEmpty() && files.filter(File::exists).isEmpty()
+        );
     }
 
     @TaskAction
     public void execute() {
         writeHeading("Running smithy build");
-        validateBuildConfigs();
+
+        if (getSmithyBuildConfigsMissing().get()) {
+            throw new GradleException("No smithy-build configs found. "
+                    + "If this was intentional, set the `smithyBuildConfigs` property to an empty list.");
+        }
 
         BuildParameterBuilder builder = new BuildParameterBuilder();
 
@@ -163,14 +157,5 @@ public abstract class SmithyBuildTask extends AbstractSmithyCliTask {
                 getCliExecutionClasspath().get(),
                 getFork().get()
         );
-    }
-
-    private void validateBuildConfigs() {
-        // If none of the specified Smithy build configs exist and
-        // the `noBuildConfigs` flag is false then throw an error
-        if (!getSmithyBuildConfigsExist().get() && !getNoBuildConfig().get()) {
-            throw new GradleException("No smithy-build configs found. "
-                    + "If this was intentional, set the `noBuildConfigs` flag to `true`.");
-        }
     }
 }

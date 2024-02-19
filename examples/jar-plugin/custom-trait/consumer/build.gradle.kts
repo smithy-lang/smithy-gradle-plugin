@@ -17,5 +17,5 @@ dependencies {
 }
 
 smithy {
-    noBuildConfig.set(true)
+    smithyBuildConfigs.set(project.files())
 }

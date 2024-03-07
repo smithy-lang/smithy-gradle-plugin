@@ -56,6 +56,7 @@ public abstract class SmithyExtension {
         getFormat().convention(true);
         getAllowUnknownTraits().convention(false);
         getOutputDirectory().convention(getDefaultOutputDirectory(project));
+
     }
 
     /**

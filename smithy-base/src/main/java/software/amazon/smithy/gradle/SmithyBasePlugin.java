@@ -33,7 +33,6 @@ public final class SmithyBasePlugin implements Plugin<Project> {
     public static final String SMITHY_CLI_CONFIG = "smithyCli";
 
     private static final GradleVersion MINIMUM_GRADLE_VERSION = GradleVersion.version("8.2.0");
-    private static final GradleVersion MIN_SMITHY_FORMAT_VERSION = GradleVersion.version("1.33.0");
 
     private final Project project;
 
@@ -90,36 +89,18 @@ public final class SmithyBasePlugin implements Plugin<Project> {
         });
 
         project.afterEvaluate(p -> {
-            // Resolve the Smithy CLI artifact to use
-            String cliVersion = CliDependencyResolver.resolve(project);
+            // Resolve the Smithy CLI artifact
+            CliDependencyResolver.resolve(project);
 
-            project.getExtensions().getByType(SourceSetContainer.class).all(sourceSet -> {
-                // Add format task for source set if enabled and the CLI version supports it
-                if (extension.getFormat().get() && cliVersionSupportsFormat(cliVersion, sourceSet)) {
+            p.getExtensions().getByType(SourceSetContainer.class).all(sourceSet -> {
+                // Add format task for source set if enabled
+                if (extension.getFormat().get()) {
                     SmithySourceDirectorySet sds = sourceSet.getExtensions().getByType(SmithySourceDirectorySet.class);
                     addFormatTaskForSourceSet(sourceSet, sds, extension);
                 }
             });
         });
     }
-
-
-    /**
-     * Smithy-format was added in version 1.33.0. It is not supported in earlier CLI versions.
-     */
-    private boolean cliVersionSupportsFormat(String cliVersion, SourceSet sourceSet) {
-        boolean supported = GradleVersion.version(cliVersion).compareTo(MIN_SMITHY_FORMAT_VERSION) >= 0;
-
-        if (!supported && SourceSet.isMain(sourceSet)) {
-            project.getLogger().warn("Formatting task is not supported Smithy CLI version: "
-                    + "(" + cliVersion + "). Skipping."
-                    + "Minimum supported Smithy CLI version for formatting is "
-                    + MIN_SMITHY_FORMAT_VERSION);
-        }
-
-        return supported;
-    }
-
 
     /**
      * Creates and configures smithy-specific configurations if they do not already exist.

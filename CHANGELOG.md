@@ -1,5 +1,17 @@
 # Smithy Gradle Plugin Changelog
 
+## 0.10.1 (2024-03-12)
+
+### Features 
+* Updated JAR plugin to add Smithy resources to compile classpath. ([#124](https://github.com/smithy-lang/smithy-gradle-plugin/pull/124))
+
+### Bug Fixes
+* Removed version check for smithy format task. ([#125](https://github.com/smithy-lang/smithy-gradle-plugin/pull/125))
+
+### Documentation 
+* Updated description of Smithy init templates. ([#122](https://github.com/smithy-lang/smithy-gradle-plugin/pull/122))
+
+
 ## 0.10.0 (2024-01-12)
 
 ### Features 

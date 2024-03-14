@@ -46,9 +46,8 @@ public final class CliDependencyResolver {
      *
      * @param project Project to add dependencies to.
      *
-     * @return version of the cli that was resolved.
      */
-    public static String resolve(Project project) {
+    public static void resolve(Project project) {
         Configuration cli = SmithyUtils.getCliConfiguration(project);
 
         // Prefer explicitly set dependency first.
@@ -56,8 +55,9 @@ public final class CliDependencyResolver {
                 .filter(CliDependencyResolver::isMatchingDependency)
                 .findFirst();
         if (explicitCliDepOptional.isPresent()) {
-            project.getLogger().info("(using explicitly configured Smithy CLI)");
-            return explicitCliDepOptional.get().getVersion();
+            project.getLogger().info(String.format("(using explicitly configured Smithy CLI: %s)",
+                            explicitCliDepOptional.get().getVersion()));
+            return;
         }
 
         // Force projects in the main smithy repo to use an explicit smithy cli dependency
@@ -66,8 +66,6 @@ public final class CliDependencyResolver {
         // If no explicit dependency was found, find the CLI version by scanning and set this as a dependency
         String cliVersion = getCliVersion(project);
         project.getDependencies().add(cli.getName(), String.format(DEPENDENCY_NOTATION, cliVersion));
-
-        return cliVersion;
     }
 
     private static String getCliVersion(Project project) {

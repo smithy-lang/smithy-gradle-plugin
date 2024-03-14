@@ -1,10 +1,10 @@
-# Example Project - Build Script Dependency
+# Example Project - Explicit CLI Dependency
 
 This is an example Gradle Smithy project. In addition to serving as documentation,
 this project is run as an integration test for the plugin.
 
-This example demonstrates using the version of Smithy found in the build script
-dependencies to build the project.
+This example demonstrates setting a specific version of the smithy CLI
+to use when executing the CLI for other tasks.
 
 ## Using the example as a starting point
 

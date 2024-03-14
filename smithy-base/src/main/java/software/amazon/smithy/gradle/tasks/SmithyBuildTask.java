@@ -109,7 +109,8 @@ public abstract class SmithyBuildTask extends AbstractSmithyCliTask {
     /**
      * Read-only property.
      *
-     * @return Returns true if at least one of the specified build configs exists.
+     * @return Returns false if the Smithy build config property is set to an explicit empty list
+     *         or if least one of the specified build configs exists
      */
     @Internal
     Provider<Boolean> getSmithyBuildConfigsMissing() {

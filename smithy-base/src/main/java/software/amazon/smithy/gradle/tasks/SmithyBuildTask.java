@@ -10,10 +10,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
+import org.gradle.api.GradleException;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
+import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.SetProperty;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFiles;
@@ -23,6 +25,7 @@ import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.TaskAction;
 import software.amazon.smithy.cli.BuildParameterBuilder;
 import software.amazon.smithy.gradle.SmithyUtils;
+import software.amazon.smithy.model.validation.Severity;
 
 /**
  * Executes the Smithy CLI {@code build} command.
@@ -37,6 +40,7 @@ public abstract class SmithyBuildTask extends AbstractSmithyCliTask {
         super(objectFactory);
 
         getSourceProjection().convention("source");
+        getSeverity().convention(Severity.WARNING.toString());
         getOutputDir().convention(SmithyUtils.getProjectionOutputDirProperty(getProject()));
     }
 
@@ -57,13 +61,13 @@ public abstract class SmithyBuildTask extends AbstractSmithyCliTask {
     public abstract SetProperty<String> getProjectionSourceTags();
 
 
-    /** Smithy build configs to use for building models.
+    /**
+     * Smithy build configs to use for building models.
      *
      * @return list of smithy-build config json files
      */
     @InputFiles
     public abstract Property<FileCollection> getSmithyBuildConfigs();
-
 
     /**
      * Sets whether to fail a {@link SmithyBuildTask} if an unknown trait is encountered.
@@ -84,6 +88,16 @@ public abstract class SmithyBuildTask extends AbstractSmithyCliTask {
     @Optional
     public abstract Property<String> getSourceProjection();
 
+    /**
+     * Set the minimum reported validation severity.
+     *
+     * <p>This value should be one of: NOTE, WARNING [default setting], DANGER, ERROR.
+     *
+     * @return minimum validator severity
+     */
+    @Input
+    @Optional
+    public abstract Property<String> getSeverity();
 
     /**
      * Output directory for Smithy build artifacts.
@@ -104,9 +118,27 @@ public abstract class SmithyBuildTask extends AbstractSmithyCliTask {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Read-only property.
+     *
+     * @return Returns false if the Smithy build config property is set to an explicit empty list
+     *         or if least one of the specified build configs exists
+     */
+    @Internal
+    Provider<Boolean> getSmithyBuildConfigsMissing() {
+        return getSmithyBuildConfigs().map(
+                files -> !files.isEmpty() && files.filter(File::exists).isEmpty()
+        );
+    }
+
     @TaskAction
     public void execute() {
         writeHeading("Running smithy build");
+
+        if (getSmithyBuildConfigsMissing().get()) {
+            throw new GradleException("No smithy-build configs found. "
+                    + "If this was intentional, set the `smithyBuildConfigs` property to an empty list.");
+        }
 
         BuildParameterBuilder builder = new BuildParameterBuilder();
 
@@ -129,6 +161,11 @@ public abstract class SmithyBuildTask extends AbstractSmithyCliTask {
         // Add extra configuration options for build command
         List<String> extraArgs = new ArrayList<>();
         configureLoggingOptions(extraArgs);
+
+        // Add validator severity option if it exists
+        extraArgs.add("--severity");
+        extraArgs.add(getSeverity().get());
+
         builder.addExtraArgs(extraArgs.toArray(new String[0]));
 
         BuildParameterBuilder.Result result = builder.build();

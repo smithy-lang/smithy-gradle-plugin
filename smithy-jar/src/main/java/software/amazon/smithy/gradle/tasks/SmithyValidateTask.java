@@ -5,6 +5,8 @@
 
 package software.amazon.smithy.gradle.tasks;
 
+import java.util.ArrayList;
+import java.util.List;
 import javax.inject.Inject;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.model.ObjectFactory;
@@ -15,7 +17,7 @@ import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.TaskAction;
-import software.amazon.smithy.utils.ListUtils;
+import software.amazon.smithy.model.validation.Severity;
 
 
 /**
@@ -35,6 +37,7 @@ public abstract class SmithyValidateTask extends AbstractSmithyCliTask {
         super(objectFactory);
         getAllowUnknownTraits().convention(false);
         getDisableModelDiscovery().convention(false);
+        getSeverity().convention(Severity.ERROR.toString());
         setDescription(DESCRIPTION);
     }
 
@@ -68,6 +71,17 @@ public abstract class SmithyValidateTask extends AbstractSmithyCliTask {
     public abstract Property<Boolean> getDisableModelDiscovery();
 
     /**
+     * Set the minimum reported validation severity.
+     *
+     * <p>This value should be one of: NOTE, WARNING, DANGER, ERROR [default].
+     *
+     * @return minimum validator severity
+     */
+    @Input
+    @Optional
+    public abstract Property<String> getSeverity();
+
+    /**
      * Gets the classpath to use when executing the Smithy CLI.
      *
      * <p>The cli execution classpath for this task is different from other build
@@ -86,8 +100,13 @@ public abstract class SmithyValidateTask extends AbstractSmithyCliTask {
     public void execute() {
         writeHeading("Running smithy validate");
 
+        // Add validator severity settings
+        List<String> extraArgs = new ArrayList<>();
+        extraArgs.add("--severity");
+        extraArgs.add(getSeverity().get());
+
         // Set models to an empty collection so source models are not included in validation path.
-        executeCliProcess("validate", ListUtils.of(),
+        executeCliProcess("validate", extraArgs,
                 getJarToValidate().get(),
                 getDisableModelDiscovery().get()
         );

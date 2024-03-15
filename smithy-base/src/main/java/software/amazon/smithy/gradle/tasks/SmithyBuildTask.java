@@ -10,10 +10,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
+import org.gradle.api.GradleException;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
+import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.SetProperty;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFiles;
@@ -57,13 +59,13 @@ public abstract class SmithyBuildTask extends AbstractSmithyCliTask {
     public abstract SetProperty<String> getProjectionSourceTags();
 
 
-    /** Smithy build configs to use for building models.
+    /**
+     * Smithy build configs to use for building models.
      *
      * @return list of smithy-build config json files
      */
     @InputFiles
     public abstract Property<FileCollection> getSmithyBuildConfigs();
-
 
     /**
      * Sets whether to fail a {@link SmithyBuildTask} if an unknown trait is encountered.
@@ -104,9 +106,27 @@ public abstract class SmithyBuildTask extends AbstractSmithyCliTask {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Read-only property.
+     *
+     * @return Returns false if the Smithy build config property is set to an explicit empty list
+     *         or if least one of the specified build configs exists
+     */
+    @Internal
+    Provider<Boolean> getSmithyBuildConfigsMissing() {
+        return getSmithyBuildConfigs().map(
+                files -> !files.isEmpty() && files.filter(File::exists).isEmpty()
+        );
+    }
+
     @TaskAction
     public void execute() {
         writeHeading("Running smithy build");
+
+        if (getSmithyBuildConfigsMissing().get()) {
+            throw new GradleException("No smithy-build configs found. "
+                    + "If this was intentional, set the `smithyBuildConfigs` property to an empty list.");
+        }
 
         BuildParameterBuilder builder = new BuildParameterBuilder();
 

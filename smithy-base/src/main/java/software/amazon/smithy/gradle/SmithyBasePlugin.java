@@ -30,7 +30,6 @@ public final class SmithyBasePlugin implements Plugin<Project> {
      * Default name to use for the build task created by this plugin.
      */
     public static final String SMITHY_BUILD_TASK_NAME = "smithyBuild";
-    public static final String SMITHY_CLI_CONFIG = "smithyCli";
 
     private static final GradleVersion MINIMUM_GRADLE_VERSION = GradleVersion.version("8.2.0");
 
@@ -68,7 +67,7 @@ public final class SmithyBasePlugin implements Plugin<Project> {
         // Set up Smithy-specific configurations
         Configuration smithyCliConfiguration = project.getConfigurations()
                 .maybeCreate(SmithyUtils.SMITHY_CLI_CONFIGURATION_NAME);
-        smithyCliConfiguration.setVisible(false);
+        smithyCliConfiguration.setVisible(true);
         smithyCliConfiguration.setDescription("Configuration for Smithy CLI and associated dependencies.");
     }
 
@@ -90,7 +89,7 @@ public final class SmithyBasePlugin implements Plugin<Project> {
 
         project.afterEvaluate(p -> {
             // Resolve the Smithy CLI artifact
-            CliDependencyResolver.resolve(project);
+            CliDependencyResolver.resolve(p);
 
             p.getExtensions().getByType(SourceSetContainer.class).all(sourceSet -> {
                 // Add format task for source set if enabled
@@ -179,8 +178,10 @@ public final class SmithyBasePlugin implements Plugin<Project> {
                             build.getOutputDir().set(extension.getOutputDirectory());
 
                             // Add smithy configurations as classpaths for build task
-                            build.getCliClasspath().set(project.getConfigurations().getByName(SMITHY_CLI_CONFIG));
-                            build.getBuildClasspath().set(project.getConfigurations().getByName(buildConfigName));
+                            build.getCliClasspath().set(project.getConfigurations()
+                                    .getByName(SmithyUtils.SMITHY_CLI_CONFIGURATION_NAME));
+                            build.getBuildClasspath().set(project.getConfigurations()
+                                    .getByName(buildConfigName));
                             build.getModelDiscoveryClasspath().set(
                                     project.getConfigurations().getByName(runtimeConfigName));
 

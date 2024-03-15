@@ -22,6 +22,7 @@ import org.gradle.internal.logging.text.StyledTextOutput;
 import org.gradle.internal.logging.text.StyledTextOutputFactory;
 import org.gradle.work.DisableCachingByDefault;
 import org.gradle.workers.WorkerExecutor;
+import software.amazon.smithy.gradle.SmithyUtils;
 
 /**
  * Base class for all Smithy tasks.
@@ -40,9 +41,9 @@ abstract class BaseSmithyTask extends DefaultTask {
         getModelDiscoveryClasspath().set(getProject().files());
 
         // if the smithyCli configuration exists use it by default
-        if (getProject().getConfigurations().findByName("smithyCli") != null) {
+        if (getProject().getConfigurations().findByName(SmithyUtils.SMITHY_CLI_CONFIGURATION_NAME) != null) {
             getCliClasspath().convention(getProject().getConfigurations()
-                    .getByName("smithyCli"));
+                    .getByName(SmithyUtils.SMITHY_CLI_CONFIGURATION_NAME));
         }
 
         startParameter = getProject().getGradle().getStartParameter();

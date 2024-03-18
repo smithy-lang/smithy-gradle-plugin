@@ -25,6 +25,7 @@ import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.TaskAction;
 import software.amazon.smithy.cli.BuildParameterBuilder;
 import software.amazon.smithy.gradle.SmithyUtils;
+import software.amazon.smithy.model.validation.Severity;
 
 /**
  * Executes the Smithy CLI {@code build} command.
@@ -39,6 +40,7 @@ public abstract class SmithyBuildTask extends AbstractSmithyCliTask {
         super(objectFactory);
 
         getSourceProjection().convention("source");
+        getSeverity().convention(Severity.WARNING.toString());
         getOutputDir().convention(SmithyUtils.getProjectionOutputDirProperty(getProject()));
     }
 
@@ -149,6 +151,11 @@ public abstract class SmithyBuildTask extends AbstractSmithyCliTask {
         // Add extra configuration options for build command
         List<String> extraArgs = new ArrayList<>();
         configureLoggingOptions(extraArgs);
+
+        // Add validator severity option if it exists
+        extraArgs.add("--severity");
+        extraArgs.add(getSeverity().get());
+
         builder.addExtraArgs(extraArgs.toArray(new String[0]));
 
         BuildParameterBuilder.Result result = builder.build();

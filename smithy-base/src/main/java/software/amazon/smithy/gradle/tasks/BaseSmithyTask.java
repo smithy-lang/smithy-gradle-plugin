@@ -127,6 +127,16 @@ abstract class BaseSmithyTask extends DefaultTask {
     @Optional
     public abstract Property<ShowStacktrace> getShowStackTrace();
 
+    /**
+     * Set the minimum reported validation severity.
+     *
+     * <p>This value should be one of: NOTE, WARNING [default], DANGER, ERROR.
+     *
+     * @return minimum validator severity
+     */
+    @Input
+    @Optional
+    public abstract Property<String> getSeverity();
 
     @Internal
     WorkerExecutor getExecutor() {

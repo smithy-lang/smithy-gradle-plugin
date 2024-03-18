@@ -167,6 +167,7 @@ abstract class BaseSmithyTask extends DefaultTask {
             case QUIET:
                 args.add("--logging");
                 args.add(Level.OFF.toString());
+                args.add("--quiet");
                 break;
             case ERROR:
                 args.add("--logging");

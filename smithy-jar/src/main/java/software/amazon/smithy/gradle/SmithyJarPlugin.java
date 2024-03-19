@@ -140,8 +140,7 @@ public class SmithyJarPlugin implements Plugin<Project> {
 
                     // Only enable validation if the jar Task is also enabled
                     validateTask.setEnabled(jarTask.getEnabled());
-
-                    validateTask.getJarToValidate().set(jarTask.getOutputs().getFiles());
+                    validateTask.getSources().set(jarTask.getOutputs().getFiles());
                     validateTask.getAllowUnknownTraits().set(extension.getAllowUnknownTraits());
 
                     // Add to verification group, so this tasks shows up in the output of `gradle tasks`

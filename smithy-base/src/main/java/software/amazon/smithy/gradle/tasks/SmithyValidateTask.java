@@ -42,21 +42,14 @@ public abstract class SmithyValidateTask extends AbstractSmithyCliTask {
     }
 
     /**
-     * Jar file to use as a source for the Smithy CLI validate command.
+     * Files to use as a sources for the Smithy CLI {@code validate} command.
      *
-     * <p>This is a required input for the {@link SmithyValidateTask}. In general
-     * this should be the output of a {@link org.gradle.jvm.tasks.Jar task}. For example:
+     * <p>This is a required input of the SmithyValidate task.
      *
-     * <pre>
-     *     Task jarTask = project.getTasks()
-     *      .getByName(JavaPlugin.JAR_TASK_NAME);
-     *     ...
-     *     validateTask.getJarToValidate().set(
-     *      jarTask.getOutputs().getFiles());
-     * </pre>
+     * @return file collection to use as sources for the validate task.
      */
     @InputFiles
-    public abstract Property<FileCollection> getJarToValidate();
+    public abstract Property<FileCollection> getSources();
 
     /**
      * Disable model discovery.
@@ -107,7 +100,7 @@ public abstract class SmithyValidateTask extends AbstractSmithyCliTask {
 
         // Set models to an empty collection so source models are not included in validation path.
         executeCliProcess("validate", extraArgs,
-                getJarToValidate().get(),
+                getSources().get(),
                 getDisableModelDiscovery().get()
         );
     }

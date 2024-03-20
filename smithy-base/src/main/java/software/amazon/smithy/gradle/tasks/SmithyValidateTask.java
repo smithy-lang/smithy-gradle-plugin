@@ -8,6 +8,7 @@ package software.amazon.smithy.gradle.tasks;
 import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Inject;
+import org.gradle.StartParameter;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
@@ -29,12 +30,11 @@ import software.amazon.smithy.model.validation.Severity;
  *
  */
 public abstract class SmithyValidateTask extends AbstractSmithyCliTask {
-    private static final String DESCRIPTION = "Validates a jar containing smithy models.";
-
+    private static final String DESCRIPTION = "Validates smithy models.";
 
     @Inject
-    public SmithyValidateTask(ObjectFactory objectFactory) {
-        super(objectFactory);
+    public SmithyValidateTask(ObjectFactory objectFactory, StartParameter startParameter) {
+        super(objectFactory, startParameter);
         getAllowUnknownTraits().convention(false);
         getDisableModelDiscovery().convention(false);
         getSeverity().convention(Severity.ERROR.toString());

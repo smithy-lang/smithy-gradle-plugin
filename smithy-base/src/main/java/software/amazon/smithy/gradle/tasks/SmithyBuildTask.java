@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
+import org.gradle.StartParameter;
 import org.gradle.api.GradleException;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.FileCollection;
@@ -36,8 +37,8 @@ import software.amazon.smithy.model.validation.Severity;
  */
 public abstract class SmithyBuildTask extends AbstractSmithyCliTask {
     @Inject
-    public SmithyBuildTask(ObjectFactory objectFactory) {
-        super(objectFactory);
+    public SmithyBuildTask(ObjectFactory objectFactory, StartParameter startParameter) {
+        super(objectFactory, startParameter);
 
         getSourceProjection().convention("source");
         getSeverity().convention(Severity.WARNING.toString());
@@ -70,24 +71,11 @@ public abstract class SmithyBuildTask extends AbstractSmithyCliTask {
     public abstract Property<FileCollection> getSmithyBuildConfigs();
 
     /**
-     * Sets whether to fail a {@link SmithyBuildTask} if an unknown trait is encountered.
-     *
-     * <p> Defaults to {@code true}.
-     *
-     * @return flag indicating state of allowUnknownTraits setting.
-     */
-    @Input
-    @Optional
-    public abstract Property<Boolean> getAllowUnknownTraits();
-
-
-    /**
      * Projection to treat as the "source" or primary projection.
      */
     @Input
     @Optional
     public abstract Property<String> getSourceProjection();
-
 
     /**
      * Output directory for Smithy build artifacts.
@@ -95,6 +83,17 @@ public abstract class SmithyBuildTask extends AbstractSmithyCliTask {
     @OutputDirectory
     @Optional
     public abstract DirectoryProperty getOutputDir();
+
+    /**
+     * Set the minimum reported validation severity.
+     *
+     * <p>This value should be one of: NOTE, WARNING [default], DANGER, ERROR.
+     *
+     * @return minimum validator severity
+     */
+    @Input
+    @Optional
+    public abstract Property<String> getSeverity();
 
     /**
      * Read-only property.

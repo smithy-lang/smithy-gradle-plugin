@@ -21,15 +21,24 @@ import org.gradle.util.GradleVersion;
 import software.amazon.smithy.gradle.internal.CliDependencyResolver;
 import software.amazon.smithy.gradle.tasks.SmithyBuildTask;
 import software.amazon.smithy.gradle.tasks.SmithyFormatTask;
+import software.amazon.smithy.gradle.tasks.SmithySelectTask;
 
 /**
  * A {@link org.gradle.api.Plugin} that builds and validates Smithy models.
  */
 public final class SmithyBasePlugin implements Plugin<Project> {
     /**
-     * Default name to use for the build task created by this plugin.
+     * Default name to use for the {@link SmithyBuildTask} task created by this plugin.
      */
     public static final String SMITHY_BUILD_TASK_NAME = "smithyBuild";
+    /**
+     * Default name to use for the {@link SmithySelectTask} task created by this plugin.
+     */
+    public static final String SMITHY_SELECT_TASK_NAME = "select";
+    /**
+     * Default name to use for the {@link SmithyFormatTask}  task created by this plugin.
+     */
+    public static final String SMITHY_FORMAT_TASK_NAME = "smithyFormat";
 
     private static final GradleVersion MINIMUM_GRADLE_VERSION = GradleVersion.version("8.2.0");
 
@@ -75,6 +84,7 @@ public final class SmithyBasePlugin implements Plugin<Project> {
         project.getExtensions().getByType(SourceSetContainer.class).all(sourceSet -> {
             createConfigurations(sourceSet, project.getConfigurations());
             SmithySourceDirectorySet sds = registerSourceSets(sourceSet, extension);
+            addSelectTaskForSourceSet(sourceSet, sds, extension);
             TaskProvider<SmithyBuildTask> buildTaskTaskProvider = addBuildTaskForSourceSet(sourceSet, sds, extension);
             // Ensure smithy-build is executed as part of building the "main" feature
             if (SourceSet.isMain(sourceSet)) {
@@ -143,7 +153,7 @@ public final class SmithyBasePlugin implements Plugin<Project> {
                                            SmithyExtension extension
     ) {
         // Set up format task and Register all smithy sourceSets as formatting targets
-        String taskName = SmithyUtils.getRelativeSourceSetName(sourceSet, "smithyFormat");
+        String taskName = SmithyUtils.getRelativeSourceSetName(sourceSet, SMITHY_FORMAT_TASK_NAME);
         TaskProvider<SmithyFormatTask> smithyFormat = project.getTasks().register(taskName, SmithyFormatTask.class,
                 formatTask -> {
                     formatTask.getModels().set(sds.getSourceDirectories());
@@ -154,6 +164,18 @@ public final class SmithyBasePlugin implements Plugin<Project> {
         if (SourceSet.isMain(sourceSet)) {
             project.getTasks().getByName(SMITHY_BUILD_TASK_NAME).dependsOn(smithyFormat);
         }
+    }
+
+    private void addSelectTaskForSourceSet(SourceSet sourceSet, SmithySourceDirectorySet sds,
+                                           SmithyExtension extension
+    ) {
+        String taskName = SmithyUtils.getRelativeSourceSetName(sourceSet, SMITHY_SELECT_TASK_NAME);
+        project.getTasks().register(taskName, SmithySelectTask.class, selectTask -> {
+            selectTask.setDescription("Selects smithy models in " + sourceSet.getName() + " source set.");
+            selectTask.getAllowUnknownTraits().set(extension.getAllowUnknownTraits());
+            selectTask.getModels().set(sds.getSourceDirectories());
+            selectTask.getFork().set(extension.getFork());
+        });
     }
 
     private TaskProvider<SmithyBuildTask> addBuildTaskForSourceSet(SourceSet sourceSet,

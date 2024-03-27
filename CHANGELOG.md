@@ -1,5 +1,19 @@
 # Smithy Gradle Plugin Changelog
 
+## 1.0.0 (2024-03-26)
+
+### Features 
+* Added `SmithySelectTask` to enable use of `select` command within Gradle projects ([#135](https://github.com/smithy-lang/smithy-gradle-plugin/pull/135)) 
+* Merged the`SmithyBaseTask` with the `AbstractSmithyCliTask` to remove unecessary indirection ([#134](https://github.com/smithy-lang/smithy-gradle-plugin/pull/134))
+* Refactored the `SmithyValidateTask` task to be under the `smithy-base` plugin to enable the use of the validation task outside of `smithy-jar` task ([#133](https://github.com/smithy-lang/smithy-gradle-plugin/pull/133))
+* Added a severity option to the `validate` task to allow setting a minimum severity to print. ([#131](https://github.com/smithy-lang/smithy-gradle-plugin/pull/131))
+* Added an exception on implicit empty smithy-build config. ([#123](https://github.com/smithy-lang/smithy-gradle-plugin/pull/123), [#128](https://github.com/smithy-lang/smithy-gradle-plugin/pull/128))
+* Made the `smithyCli` configuration visible to enable pinning of the CLI version. ([#130](https://github.com/smithy-lang/smithy-gradle-plugin/pull/130))
+
+### Bug Fixes
+* Added a quiet flag to smithy CLI commands when gradle quiet flag is set to stop printing validation events when quieted. ([#132](https://github.com/smithy-lang/smithy-gradle-plugin/pull/132))
+
+
 ## 0.10.1 (2024-03-12)
 
 ### Features 

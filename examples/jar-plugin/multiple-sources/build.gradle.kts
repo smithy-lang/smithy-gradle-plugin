@@ -5,7 +5,7 @@
 
 plugins {
     id("java-library")
-    id("software.amazon.smithy.gradle.smithy-jar").version("0.10.1")
+    id("software.amazon.smithy.gradle.smithy-jar").version("1.0.0")
 }
 
 repositories {

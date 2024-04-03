@@ -194,7 +194,7 @@ smithy {
 
 ## Documentation
 
-See https://smithy.io/2.0/guides/building-models/gradle-plugin.html
+See https://smithy.io/2.0/guides/gradle-plugin/index.html
 
 
 ## License

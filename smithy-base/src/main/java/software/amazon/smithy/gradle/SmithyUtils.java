@@ -19,6 +19,7 @@ import java.util.function.Consumer;
 import org.gradle.api.GradleException;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.Directory;
 import org.gradle.api.file.FileCollection;
@@ -237,6 +238,18 @@ public final class SmithyUtils {
 
     public static Configuration getCliConfiguration(Project project) {
         return project.getConfigurations().getByName(SMITHY_CLI_CONFIGURATION_NAME);
+    }
+
+    /**
+     * Checks if a dependency matches an expected name.
+     *
+     * @param dependency Dependency to check
+     * @param name Name of expected dependency
+     * @return true if the dependency matches the expected name
+     */
+    public static boolean isMatchingDependency(Dependency dependency, String name) {
+        return Objects.equals(dependency.getGroup(), "software.amazon.smithy")
+                && dependency.getName().equals(name);
     }
 }
 

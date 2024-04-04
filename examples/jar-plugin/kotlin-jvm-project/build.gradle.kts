@@ -5,6 +5,11 @@ plugins {
     id("software.amazon.smithy.gradle.smithy-jar").version("1.0.0")
 }
 
+// Prevent compatibility issues if an unsupported JDK is configured as default
+kotlin {
+    jvmToolchain(17)
+}
+
 repositories {
     mavenLocal()
     mavenCentral()

@@ -6,7 +6,6 @@
 package software.amazon.smithy.gradle.internal;
 
 import java.io.File;
-import java.util.Objects;
 import java.util.Optional;
 import org.gradle.api.GradleException;
 import org.gradle.api.Project;
@@ -46,18 +45,19 @@ public final class CliDependencyResolver {
      *
      * @param project Project to add dependencies to.
      *
+     * @return Returns the resolved CLI version
      */
-    public static void resolve(Project project) {
+    public static String resolve(Project project) {
         Configuration cli = SmithyUtils.getCliConfiguration(project);
 
         // Prefer explicitly set dependency first.
         Optional<Dependency> explicitCliDepOptional = cli.getAllDependencies().stream()
-                .filter(CliDependencyResolver::isMatchingDependency)
+                .filter(d -> SmithyUtils.isMatchingDependency(d, SMITHY_CLI_DEP_NAME))
                 .findFirst();
         if (explicitCliDepOptional.isPresent()) {
             project.getLogger().info(String.format("(using explicitly configured Smithy CLI: %s)",
                             explicitCliDepOptional.get().getVersion()));
-            return;
+            return  explicitCliDepOptional.get().getVersion();
         }
 
         // Force projects in the main smithy repo to use an explicit smithy cli dependency
@@ -66,6 +66,8 @@ public final class CliDependencyResolver {
         // If no explicit dependency was found, find the CLI version by scanning and set this as a dependency
         String cliVersion = getCliVersion(project);
         project.getDependencies().add(cli.getName(), String.format(DEPENDENCY_NOTATION, cliVersion));
+
+        return cliVersion;
     }
 
     private static String getCliVersion(Project project) {
@@ -99,11 +101,6 @@ public final class CliDependencyResolver {
                 .map(ra -> ra.getModuleVersion().getId().getVersion())
                 .findFirst()
                 .orElse(null);
-    }
-
-    private static boolean isMatchingDependency(Dependency dependency) {
-        return Objects.equals(dependency.getGroup(), "software.amazon.smithy")
-                && dependency.getName().equals(SMITHY_CLI_DEP_NAME);
     }
 
     private static String scanForSmithyCliVersion(Project project) {

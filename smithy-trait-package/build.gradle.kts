@@ -1,4 +1,5 @@
-description = "Creates a ."
+description = "Configures a Java library package for Smithy traits, using " +
+        "Smithy's trait-codegen plugin to generate Java implementation of traits."
 
 plugins {
     id("smithy-gradle-plugin.plugin-conventions")

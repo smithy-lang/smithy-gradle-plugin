@@ -1,0 +1,11 @@
+{
+  "version": "1.0",
+  "sources": ["model"],
+  "plugins": {
+    "trait-codegen": {
+      "package": "io.smithy.gradle.examples.traits",
+      "namespace":  "io.smithy.gradle.example",
+      "header": ["Header line one", "Header line two"]
+    }
+  }
+}

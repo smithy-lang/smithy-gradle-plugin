@@ -7,11 +7,11 @@ plugins {
 
 gradlePlugin {
     plugins {
-        create("smithy-trait-package-plugin") {
-            id = "${group}.smithy-trait-package"
+        create("smithy-trait-module-plugin") {
+            id = "${group}.smithy-trait-module"
             displayName = "Smithy Gradle Trait Package plugin."
             description = project.description
-            implementationClass = "software.amazon.smithy.gradle.SmithyTraitPackagePlugin"
+            implementationClass = "software.amazon.smithy.gradle.SmithyTraitModulePlugin"
             tags.addAll("smithy", "api", "building")
         }
     }

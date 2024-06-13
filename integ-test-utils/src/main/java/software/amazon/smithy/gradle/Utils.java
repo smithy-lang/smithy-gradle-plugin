@@ -17,6 +17,7 @@ package software.amazon.smithy.gradle;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -35,6 +36,7 @@ import org.gradle.testkit.runner.BuildResult;
 import org.gradle.testkit.runner.BuildTask;
 import org.gradle.testkit.runner.TaskOutcome;
 import org.junit.jupiter.api.Assertions;
+import software.amazon.smithy.utils.IoUtils;
 
 public final class Utils {
     private Utils() {}
@@ -178,5 +180,15 @@ public final class Utils {
                 return FileVisitResult.CONTINUE;
             }
         });
+    }
+
+    public static String getJarEntryContents(File jarFile, String entryPath) {
+        try (JarFile jar = new JarFile(jarFile);
+             InputStream is = jar.getInputStream(jar.getJarEntry(entryPath))
+        ) {
+            return IoUtils.toUtf8String(is);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

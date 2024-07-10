@@ -9,12 +9,17 @@ plugins {
     id("software.amazon.smithy.gradle.smithy-base").version("1.0.0")
 }
 
-tasks.create<SmithyBuildTask>("doit") {
+val doIt = tasks.register<SmithyBuildTask>("doit") {
     models.set(files("model/"))
     smithyBuildConfigs.set(files("smithy-build.json"))
 }
 
-tasks["build"].finalizedBy(tasks["doit"])
+tasks["build"].finalizedBy(doIt)
+
+tasks.register<Sync>("copyOutput") {
+    into(layout.buildDirectory.dir("model"))
+    from(doIt.map { it.getPluginProjectionDirectory("source", "model") })
+}
 
 repositories {
     mavenLocal()

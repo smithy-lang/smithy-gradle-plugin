@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import org.gradle.StartParameter;
 import org.gradle.api.GradleException;
+import org.gradle.api.file.Directory;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.model.ObjectFactory;
@@ -165,4 +166,19 @@ public abstract class SmithyBuildTask extends AbstractSmithyCliTask {
                 getFork().get()
         );
     }
+
+    /**
+     * Convenience method to get the directory containing plugin artifacts.
+     *
+     * @param projection projection name
+     * @param plugin name of plugin to get artifact directory for
+     *
+     * @return provider for the plugin artifact directory
+     */
+    public Provider<Directory> getPluginProjectionDirectory(String projection, String plugin) {
+        return getProject().getLayout().dir(
+                getOutputDir().getAsFile()
+                        .map(file -> SmithyUtils.getProjectionPluginPath(file, projection, plugin).toFile()));
+    }
+
 }

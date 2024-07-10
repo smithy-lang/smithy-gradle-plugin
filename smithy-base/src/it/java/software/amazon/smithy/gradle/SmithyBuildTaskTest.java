@@ -39,4 +39,19 @@ public class SmithyBuildTaskTest {
                     "build/smithyprojections/smithy-build-task/source/sources/manifest");
         });
     }
+
+    @Test
+    public void pluginProjectionDirectoryExpressesTaskDependency() {
+        Utils.withCopy("base-plugin/smithy-build-task", buildDir -> {
+            BuildResult result = GradleRunner.create()
+                    .forwardOutput()
+                    .withProjectDir(buildDir)
+                    .withArguments("copyOutput", "--stacktrace")
+                    .build();
+            Utils.assertSmithyBuildDidNotRun(result);
+            Utils.assertArtifactsCreated(
+                    buildDir,
+                    "build/model/model.json");
+        });
+    }
 }

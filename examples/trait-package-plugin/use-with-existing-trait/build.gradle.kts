@@ -1,7 +1,7 @@
 description = "Use existing"
 
 plugins {
-    id("software.amazon.smithy.gradle.smithy-trait-module") version "1.0.0"
+    id("software.amazon.smithy.gradle.smithy-trait-package") version "1.0.0"
 }
 
 group = "software.amazon.smithy"

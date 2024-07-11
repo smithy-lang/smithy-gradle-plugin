@@ -26,7 +26,7 @@ import software.amazon.smithy.gradle.tasks.SmithyBuildTask;
 /**
  * A {@link org.gradle.api.Plugin} that adds sets up a package for a custom trait.
  */
-public class SmithyTraitModulePlugin implements Plugin<Project> {
+public class SmithyTraitPackagePlugin implements Plugin<Project> {
     private static final String SMITHY_TRAIT_CODEGEN_DEP_NAME = "smithy-trait-codegen";
     private static final String TRAIT_CODEGEN_PLUGIN_NAME = "trait-codegen";
     private static final String TRAIT_SPI_FILE_NAME = "software.amazon.smithy.model.traits.TraitService";
@@ -39,7 +39,7 @@ public class SmithyTraitModulePlugin implements Plugin<Project> {
     private final Project project;
 
     @Inject
-    public SmithyTraitModulePlugin(Project project) {
+    public SmithyTraitPackagePlugin(Project project) {
         this.project = project;
     }
 
@@ -89,19 +89,18 @@ public class SmithyTraitModulePlugin implements Plugin<Project> {
 
         // Prefer explicit dependency
         Optional<Dependency> explicitDepOptional = smithyBuild.getAllDependencies().stream()
-                .filter(d -> SmithyUtils.isMatchingDependency(d,
-                        SmithyTraitModulePlugin.SMITHY_TRAIT_CODEGEN_DEP_NAME))
+                .filter(d -> SmithyUtils.isMatchingDependency(d, SMITHY_TRAIT_CODEGEN_DEP_NAME))
                 .findFirst();
         if (explicitDepOptional.isPresent()) {
             project.getLogger().info(String.format("(using explicitly configured Dependency for %s: %s)",
-                    SmithyTraitModulePlugin.SMITHY_TRAIT_CODEGEN_DEP_NAME, explicitDepOptional.get().getVersion()));
+                    SMITHY_TRAIT_CODEGEN_DEP_NAME, explicitDepOptional.get().getVersion()));
             return;
         }
 
         // If trait codegen does not exist, add the dependency with the same version as the resolved CLI version
         String cliVersion = CliDependencyResolver.resolve(project);
         project.getDependencies().add(smithyBuild.getName(),
-                String.format(DEPENDENCY_NOTATION, SmithyTraitModulePlugin.SMITHY_TRAIT_CODEGEN_DEP_NAME, cliVersion));
+                String.format(DEPENDENCY_NOTATION, SMITHY_TRAIT_CODEGEN_DEP_NAME, cliVersion));
     }
 
     private TaskProvider<MergeSpiFilesTask> addMergeTask(SourceSet sourceSet, Path pluginPath, File existing) {

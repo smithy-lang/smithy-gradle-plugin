@@ -1,5 +1,11 @@
 # Smithy Gradle Plugin Changelog
 
+## 1.1.0 (2024-07-16)
+
+### Features 
+* Added a convenience method to `SmithyBuild` task to resolve plugin projection directories. ([#140](https://github.com/smithy-lang/smithy-gradle-plugin/pull/140))
+* Added a new gradle plugin `smithy-trait-package` to enable users to quickly create packages for custom Smithy traits.  ([#138](https://github.com/smithy-lang/smithy-gradle-plugin/pull/138), [#139](https://github.com/smithy-lang/smithy-gradle-plugin/pull/139), [#141](https://github.com/smithy-lang/smithy-gradle-plugin/pull/141))
+
 ## 1.0.0 (2024-03-26)
 
 ### Features 

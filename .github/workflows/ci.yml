@@ -43,4 +43,4 @@ jobs:
         run: |
           cd smithy-gradle-plugin
           ./gradlew clean publishToMavenLocal
-          ./gradlew build -Plog-tests
+          ./gradlew -g $PWD build -Plog-tests

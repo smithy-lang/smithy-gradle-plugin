@@ -50,7 +50,7 @@ This plugin can be applied to a project as follows:
 ```kotlin 
 // build.gradle.kts
 plugins {
-    id("software.amazon.smithy.gradle.smithy-base").version("1.0.0")
+    id("software.amazon.smithy.gradle.smithy-base").version("1.1.0")
 }
 ```
 However, no tasks will be created unless.
@@ -72,7 +72,7 @@ The `smithy-jar` plugin must be used with another plugin that creates a `jar` ta
 // build.gradle.kts
 plugins {
     id("java-library") // creates jar task
-    id("software.amazon.smithy.gradle.smithy-jar").version("1.0.0")
+    id("software.amazon.smithy.gradle.smithy-jar").version("1.1.0")
 }
 ```
 

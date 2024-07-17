@@ -42,4 +42,5 @@ jobs:
       - name: Clean and build smithy-gradle-plugin
         run: |
           cd smithy-gradle-plugin
-          ./gradlew clean build -Plog-tests
+          ./gradlew clean publishToMavenLocal
+          ./gradlew -g $PWD build -Plog-tests

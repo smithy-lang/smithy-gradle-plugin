@@ -100,7 +100,7 @@ plugins {
 }
 ```
 
-*Note*: To use the `trait-codegen` Smithy build plugin to generate java trait definitions with this gradle plugin,
+*Note*: To use the `trait-codegen` Smithy build plugin to generate Java trait definitions with this Gradle plugin,
 users must still apply the plugin in their `smithy-build.json`.
 
 *Note*: The `smithy-trait-package` plugin does not automatically apply any publishing plugins. If you wish to publish your

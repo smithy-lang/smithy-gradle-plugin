@@ -130,6 +130,26 @@
         "gradlew.bat",
         ".gitignore"
       ]
+    },
+    "simple-trait": {
+      "documentation": "Trait package for simple Smithy structure trait with multiple inputs.",
+      "path": "examples/trait-package-plugin/create-simple-trait",
+      "include": [
+        "gradle/",
+        "gradlew",
+        "gradlew.bat",
+        ".gitignore"
+      ]
+    },
+    "existing-trait": {
+      "documentation": "Use existing, hand-written Java trait definition alongside generated trait definitions.",
+      "path": "examples/trait-package-plugin/use-with-existing-trait",
+      "include": [
+        "gradle/",
+        "gradlew",
+        "gradlew.bat",
+        ".gitignore"
+      ]
     }
   }
 }

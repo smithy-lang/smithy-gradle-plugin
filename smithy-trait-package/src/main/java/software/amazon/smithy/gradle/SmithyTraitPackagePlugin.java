@@ -24,7 +24,7 @@ import software.amazon.smithy.gradle.tasks.MergeSpiFilesTask;
 import software.amazon.smithy.gradle.tasks.SmithyBuildTask;
 
 /**
- * A {@link org.gradle.api.Plugin} that adds sets up a package for a custom trait.
+ * A {@link org.gradle.api.Plugin} that sets up a package for a custom trait.
  */
 public class SmithyTraitPackagePlugin implements Plugin<Project> {
     private static final String SMITHY_TRAIT_CODEGEN_DEP_NAME = "smithy-trait-codegen";

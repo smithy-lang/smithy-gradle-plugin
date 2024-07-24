@@ -10,7 +10,8 @@ and generate JARs that contain filtered projections of Smithy models.
 - [`smithy-jar` plugin](#smithy-jar-plugin): Adds built Smithy files to an existing `jar` task such as that created by the Java or Kotlin plugins. 
   The `smithy-jar` plugin also adds build metadata and tags to the JAR's MANIFEST. The `smithy-jar` plugin applies the `smithy-base` plugin when it is applied.
 - [`smithy-trait-package`](#smithy-trait-package-plugin): Configures a Java project for a custom trait definition. This plugin can be used in conjunction 
-  with the [`trait-codegen`](https://github.com/smithy-lang/smithy/tree/main/smithy-trait-codegen) smithy build plugin to generate Java accessors from Smithy trait definitions. 
+  with the [`trait-codegen`](https://github.com/smithy-lang/smithy/tree/main/smithy-trait-codegen) smithy build plugin to generate Java representations 
+  of traits from Smithy IDL trait definitions. 
   The `smithy-trait-package` plugin applies both the `java-library` and `smithy-jar` plugins.
 
 ## Examples

@@ -1,4 +1,4 @@
-description = "Use existing"
+description = "Use existing, hand-written Java trait definition alongside generated trait definitions."
 
 plugins {
     id("software.amazon.smithy.gradle.smithy-trait-package").version("1.1.0")

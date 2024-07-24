@@ -9,6 +9,10 @@ and generate JARs that contain filtered projections of Smithy models.
   the base `smithyBuild` task for the project that builds the Smithy models in the project.
 - [`smithy-jar` plugin](#smithy-jar-plugin): Adds built Smithy files to an existing `jar` task such as that created by the Java or Kotlin plugins. 
   The `smithy-jar` plugin also adds build metadata and tags to the JAR's MANIFEST. The `smithy-jar` plugin applies the `smithy-base` plugin when it is applied.
+- [`smithy-trait-package`](#smithy-trait-package-plugin): Configures a Java project for a custom trait definition. This plugin can be used in conjunction 
+  with the [`trait-codegen`](https://github.com/smithy-lang/smithy/tree/main/smithy-trait-codegen) smithy build plugin to generate Java representations 
+  of traits from Smithy IDL trait definitions. 
+  The `smithy-trait-package` plugin applies both the `java-library` and `smithy-jar` plugins.
 
 ## Examples
 Standalone examples are available for each of the provided plugins and can be found in the [examples](./examples) 
@@ -78,6 +82,33 @@ plugins {
 
 See the [examples](./examples/jar-plugin) directory for examples of using this plugin.
 
+### Smithy Trait Package Plugin
+The `smithy-trait-package` plugin will configure a Java project for a custom Smithy trait. The `java-library` and `smithy-jar`
+plugins are automatically applied and any traits generated with the `trait-codegen` build plugin will be added to the 
+relevant sourceSets.
+
+This plugin should be used to: 
+- Create a package containing any combination of hand-written and code-generated custom trait definitions.
+- Create a trait package with [custom validators](https://smithy.io/2.0/guides/model-linters.html#writing-custom-validators).
+
+#### Usage
+The `smithy-trait-package` plugin can be applied on its own to easily configure a trait package. 
+
+```kotlin 
+// build.gradle.kts
+plugins {
+    id("software.amazon.smithy.gradle.smithy-trait-package").version("1.1.0")
+}
+```
+
+*Note*: To use the `trait-codegen` Smithy build plugin to generate Java trait definitions with this Gradle plugin,
+users must still apply the plugin in their `smithy-build.json`.
+
+*Note*: The `smithy-trait-package` plugin does not automatically apply any publishing plugins. If you wish to publish your
+trait to Maven or another package repository you will need to add and configure a publishing plugin. We recommend using
+the [jreleaser](https://jreleaser.org/) Gradle plugin to publish your package.
+
+See the [examples](./examples/trait-package-plugin) directory for examples of using this plugin.
 
 ## Configuration
 ### Customizing source directories  

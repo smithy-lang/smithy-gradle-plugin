@@ -82,7 +82,7 @@ plugins {
 See the [examples](./examples/jar-plugin) directory for examples of using this plugin.
 
 ### Smithy Trait Package Plugin
-The `smithy-trait-package` plugin will configure Java project for a custom Smithy trait. The `java-library` and `smithy-jar`
+The `smithy-trait-package` plugin will configure a Java project for a custom Smithy trait. The `java-library` and `smithy-jar`
 plugins are automatically applied and any traits generated with the `trait-codegen` build plugin will be added to the 
 relevant sourceSets.
 

@@ -35,6 +35,20 @@ to install it now.
 ## Guide
 A detailed guide can be found here: https://smithy.io/2.0/guides/building-models/gradle-plugin.html
 
+## Querying models in your project
+All the Smithy Gradle plugins above will add a `select` task to your Gradle project. This task will execute the 
+Smithy CLI `select` command, allowing you to queries a model using a [selector](https://smithy.io/2.0/spec/selectors.html#selectors).
+
+For example, to query all trait definitions in your project you could use the `select` task as follows:
+```console
+gradle select --selector '[trait|trait]'
+```
+
+or with the Gradle wrapper:
+```console
+./gradlew select --selector '[trait|trait]'
+```
+
 ## Plugins
 ### Smithy Base Plugin
 The `smithy-base` plugin is a capability plugin primarily intended to be applied by other Smithy gradle plugins such as 

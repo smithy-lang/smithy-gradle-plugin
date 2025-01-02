@@ -6,7 +6,7 @@
 * Updated minimum severity of validation events in `validate` task to `DANGER`. ([#148](https://github.com/smithy-lang/smithy-gradle-plugin/pull/148))
 
 ### Documentation 
-* Added documentation and examples for using the smithy-trait-package plugin. ([#146](https://github.com/smithy-lang/smithy-gradle-plugin/pull/146))
+* Added documentation and examples for using the `smithy-trait-package` plugin. ([#146](https://github.com/smithy-lang/smithy-gradle-plugin/pull/146))
 
 
 

@@ -1,5 +1,15 @@
 # Smithy Gradle Plugin Changelog
 
+## 1.2.0 (2025-01-02)
+
+### Features 
+* Updated minimum severity of validation events in `validate` task to `DANGER`. ([#148](https://github.com/smithy-lang/smithy-gradle-plugin/pull/148))
+
+### Documentation 
+* Added documentation and examples for using the smithy-trait-package plugin. ([#146](https://github.com/smithy-lang/smithy-gradle-plugin/pull/146))
+
+
+
 ## 1.1.0 (2024-07-16)
 
 ### Features 

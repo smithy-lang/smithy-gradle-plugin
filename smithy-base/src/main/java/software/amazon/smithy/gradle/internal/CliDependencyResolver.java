@@ -6,6 +6,8 @@
 package software.amazon.smithy.gradle.internal;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import org.gradle.api.GradleException;
 import org.gradle.api.Project;
@@ -25,6 +27,12 @@ import software.amazon.smithy.utils.SmithyInternalApi;
 public final class CliDependencyResolver {
     private static final String DEPENDENCY_NOTATION = "software.amazon.smithy:smithy-cli:%s";
     private static final String SMITHY_CLI_DEP_NAME = "smithy-cli";
+    private static final Map<String, String> SMITHY_CLI_PROJECT_CONFIGURATION = new HashMap<>();
+
+    static {
+        SMITHY_CLI_PROJECT_CONFIGURATION.put("path", ":smithy-cli");
+        SMITHY_CLI_PROJECT_CONFIGURATION.put("configuration", "shadow");
+    }
 
     private CliDependencyResolver() {}
 
@@ -60,8 +68,7 @@ public final class CliDependencyResolver {
             return  explicitCliDepOptional.get().getVersion();
         }
 
-        // Force projects in the main smithy repo to use an explicit smithy cli dependency
-        failIfRunningInMainSmithyRepo(project);
+        checkIfRunningInMainSmithyRepo(project);
 
         // If no explicit dependency was found, find the CLI version by scanning and set this as a dependency
         String cliVersion = getCliVersion(project);
@@ -124,16 +131,17 @@ public final class CliDependencyResolver {
                 + "explicit dependency on smithy-model.");
     }
 
-    // Subprojects in the main Smithy repo must define an explicit smithy-cli dependency.
-    // This is mainly because I couldn't figure out how to add a project dependency.
-    private static void failIfRunningInMainSmithyRepo(Project project) {
+    // Check if plugin is being run in the main smithy repo, and, if so, intrinsically depend on the CLI
+    private static void checkIfRunningInMainSmithyRepo(Project project) {
         if (project.getParent() != null) {
             Project parent = project.getParent();
             if (parent.getGroup().equals("software.amazon.smithy")) {
                 for (Project subproject : parent.getSubprojects()) {
                     if (subproject.getPath().equals(":smithy-cli")) {
-                        throw new GradleException("Detected that this is the main Smithy repo. "
-                                + "You need to add an explicit :project dependency on :smithy-cli");
+                        // Add a dependency on the smithy-cli, shadow configuration
+                        project.getDependencies().project(SMITHY_CLI_PROJECT_CONFIGURATION);
+                        project.getLogger().info("Detected that this is the main Smithy repo. "
+                                + "Adding dependency on (:smithy-cli - shadow)");
                     }
                 }
             }

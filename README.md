@@ -33,7 +33,7 @@ smithy init --list --url https://github.com/smithy-lang/smithy-gradle-plugin
 to install it now.
 
 ## Guide
-A detailed guide can be found here: https://smithy.io/2.0/guides/building-models/gradle-plugin.html
+A detailed guide can be found here: https://smithy.io/2.0/guides/gradle-plugin/
 
 ## Querying models in your project
 All the Smithy Gradle plugins above will add a `select` task to your Gradle project. This task will execute the 

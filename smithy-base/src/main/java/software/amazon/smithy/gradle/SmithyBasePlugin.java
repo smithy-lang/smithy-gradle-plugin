@@ -158,6 +158,7 @@ public final class SmithyBasePlugin implements Plugin<Project> {
                 formatTask -> {
                     formatTask.getModels().set(sds.getSourceDirectories());
                     formatTask.setEnabled(extension.getFormat().get());
+                    formatTask.getOutputs().upToDateWhen(s -> true);
                 });
 
         // Smithy files should be formatted before they are built

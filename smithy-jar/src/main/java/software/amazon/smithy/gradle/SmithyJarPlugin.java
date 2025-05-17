@@ -145,6 +145,7 @@ public class SmithyJarPlugin implements Plugin<Project> {
 
                     // Add to verification group, so this tasks shows up in the output of `gradle tasks`
                     validateTask.setGroup(LifecycleBasePlugin.VERIFICATION_GROUP);
+                    validateTask.getOutputs().upToDateWhen(s -> true);
                 });
         project.getTasks().getByName("test").dependsOn(validateTaskProvider);
     }

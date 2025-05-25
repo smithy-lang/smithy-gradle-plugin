@@ -39,6 +39,7 @@ public abstract class SmithyValidateTask extends AbstractSmithyCliTask {
         getDisableModelDiscovery().convention(false);
         getSeverity().convention(Severity.DANGER.toString());
         setDescription(DESCRIPTION);
+        getOutputs().upToDateWhen(t -> true);
     }
 
     /**

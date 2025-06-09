@@ -1,5 +1,14 @@
 # Smithy Gradle Plugin Changelog
 
+## 1.3.0 (2025-06-10)
+
+### Features
+* Updated validate and format tasks to be incremental, which greatly reduces subsequent build times. ([#155](https://github.com/smithy-lang/smithy-gradle-plugin/pull/155), [#156](https://github.com/smithy-lang/smithy-gradle-plugin/pull/156))
+
+### Fixes
+* Fixed internal dependency resolution behavior when plugin is used within [smithy-lang/smithy](https://github.
+  com/smithy-lang/smithy). [(#151)](https://github.com/smithy-lang/smithy-gradle-plugin/pull/151) 
+
 ## 1.2.0 (2025-01-02)
 
 ### Features 

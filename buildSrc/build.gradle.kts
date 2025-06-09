@@ -16,5 +16,5 @@ dependencies {
     implementation("com.adarshr:gradle-test-logger-plugin:4.0.0")
 
     // Plugin convention dependencies
-    implementation("com.gradle.publish:plugin-publish-plugin:1.2.1")
+    implementation("com.gradle.publish:plugin-publish-plugin:1.3.1")
 }

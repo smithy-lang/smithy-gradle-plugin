@@ -2,7 +2,7 @@
 
 plugins {
     kotlin("jvm") version "1.9.23"
-    id("software.amazon.smithy.gradle.smithy-jar").version("1.2.0")
+    id("software.amazon.smithy.gradle.smithy-jar").version("1.3.0")
 }
 
 repositories {

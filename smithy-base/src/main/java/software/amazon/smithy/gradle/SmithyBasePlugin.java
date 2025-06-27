@@ -171,11 +171,16 @@ public final class SmithyBasePlugin implements Plugin<Project> {
                                            SmithyExtension extension
     ) {
         String taskName = SmithyUtils.getRelativeSourceSetName(sourceSet, SMITHY_SELECT_TASK_NAME);
+        String runtimeConfigName = sourceSet.getRuntimeClasspathConfigurationName();
         project.getTasks().register(taskName, SmithySelectTask.class, selectTask -> {
             selectTask.setDescription("Selects smithy models in " + sourceSet.getName() + " source set.");
             selectTask.getAllowUnknownTraits().set(extension.getAllowUnknownTraits());
             selectTask.getModels().set(sds.getSourceDirectories());
             selectTask.getFork().set(extension.getFork());
+            selectTask.getCliClasspath().set(project.getConfigurations()
+                    .getByName(SmithyUtils.SMITHY_CLI_CONFIGURATION_NAME));
+            selectTask.getModelDiscoveryClasspath().set(project.getConfigurations()
+                    .getByName(runtimeConfigName));
         });
     }
 

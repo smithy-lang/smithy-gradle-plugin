@@ -60,4 +60,21 @@ public class SelectTaskTest {
             Assertions.assertTrue(result.getOutput().contains("\"smithy.api#documentation\": \"a string member\""));
         });
     }
+
+    @Test
+    public void selectUsesGradleClasspath() {
+        Utils.withCopy("base-plugin/output-directory", buildDir -> {
+            BuildResult result = GradleRunner.create()
+                    .forwardOutput()
+                    .withProjectDir(buildDir)
+                    .withArguments("select", "--selector", "operation[trait|aws.auth#unsignedPayload]")
+                    .build();
+
+            Utils.assertSmithyBuildDidNotRun(result);
+            Utils.assertArtifactsNotCreated(buildDir,
+                    "build/smithyprojections/output-directory/source/build-info/smithy-build-info.json");
+
+            Assertions.assertTrue(result.getOutput().contains("smithy.example#Foo"));
+        });
+    }
 }

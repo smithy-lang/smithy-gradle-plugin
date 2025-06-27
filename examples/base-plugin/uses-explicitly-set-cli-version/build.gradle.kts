@@ -7,7 +7,7 @@ plugins {
 }
 
 dependencies {
-    smithyCli("software.amazon.smithy:smithy-cli:1.45.0")
+    smithyCli("software.amazon.smithy:smithy-cli:1.60.2")
 }
 
 repositories {

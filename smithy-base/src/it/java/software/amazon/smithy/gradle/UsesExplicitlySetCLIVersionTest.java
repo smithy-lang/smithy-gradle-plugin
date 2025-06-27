@@ -17,7 +17,7 @@ public class UsesExplicitlySetCLIVersionTest {
 
             Utils.assertSmithyBuildTaskRan(result);
             Utils.assertValidationRan(result);
-            Assertions.assertTrue(result.getOutput().contains("(using explicitly configured Smithy CLI: 1.45.0)"));
+            Assertions.assertTrue(result.getOutput().contains("(using explicitly configured Smithy CLI: 1.60.2)"));
         });
     }
 }

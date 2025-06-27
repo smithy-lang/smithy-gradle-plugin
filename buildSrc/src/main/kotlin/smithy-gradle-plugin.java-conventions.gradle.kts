@@ -10,9 +10,9 @@ java {
 }
 
 dependencies {
-    implementation("software.amazon.smithy:smithy-model:[1.0, 2.0[")
-    implementation("software.amazon.smithy:smithy-build:[1.0, 2.0[")
-    implementation("software.amazon.smithy:smithy-cli:[1.0, 2.0[")
+    implementation("software.amazon.smithy:smithy-model:[1.60.2, 2.0[")
+    implementation("software.amazon.smithy:smithy-build:[1.60.2, 2.0[")
+    implementation("software.amazon.smithy:smithy-cli:[1.60.2, 2.0[")
 }
 
 //// ==== Licensing =====

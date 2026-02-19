@@ -164,7 +164,20 @@ public final class SmithyUtils {
                         smithyCliClass.getDeclaredMethod("run", List.class)
                                 .invoke(cli, getParameters().getArguments().get());
                     } catch (ReflectiveOperationException e) {
-                        throw new RuntimeException(e);
+                        // Unwrap to the root cause message. We intentionally do NOT reuse
+                        // unwrapException() here and do NOT attach the cause to GradleException:
+                        // smithy-model types (e.g. ModelSyntaxException, which references ShapeId)
+                        // are loaded only in the isolated URLClassLoader, so Gradle's daemon
+                        // serializer cannot see them. Attaching the cause chain would produce a
+                        // secondary NoClassDefFoundError that obscures the real error.
+                        Throwable cause = e;
+                        while (cause.getCause() != null) {
+                            cause = cause.getCause();
+                        }
+                        String message = cause.getMessage() != null
+                                ? cause.getMessage()
+                                : cause.getClass().getName();
+                        throw new GradleException(message);
                     }
                 });
             });

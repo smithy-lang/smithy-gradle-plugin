@@ -1,5 +1,14 @@
 # Smithy Gradle Plugin Changelog
 
+## 1.4.0 (2026-02-23)
+
+### Fixes
+* Fixed an issue that prevented failures with smithyFormat to be reported correctly. ([#161](https://github.com/smithy-lang/smithy-gradle-plugin/pull/161))
+* Fixed a test case that was incorrectly configured. ([#160](https://github.com/smithy-lang/smithy-gradle-plugin/pull/160))
+
+### Features
+* Updated the select command to set its classpath to allow model discovery in the dependency closure. ([#159](https://github.com/smithy-lang/smithy-gradle-plugin/pull/159))
+
 ## 1.3.0 (2025-06-10)
 
 ### Features

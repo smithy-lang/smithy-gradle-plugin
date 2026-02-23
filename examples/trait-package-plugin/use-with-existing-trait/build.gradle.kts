@@ -1,7 +1,7 @@
 description = "Use existing, hand-written Java trait definition alongside generated trait definitions."
 
 plugins {
-    id("software.amazon.smithy.gradle.smithy-trait-package").version("1.3.0")
+    id("software.amazon.smithy.gradle.smithy-trait-package").version("1.4.0")
 }
 
 group = "software.amazon.smithy"

@@ -6,7 +6,7 @@ import software.amazon.smithy.gradle.tasks.SmithyBuildTask
 // and the classpath used when building.
 
 plugins {
-    id("software.amazon.smithy.gradle.smithy-base").version("1.3.0")
+    id("software.amazon.smithy.gradle.smithy-base").version("1.4.0")
 }
 
 val doIt = tasks.register<SmithyBuildTask>("doit") {

@@ -66,6 +66,8 @@ jreleaser {
                     active = Active.ALWAYS
                     url = "https://central.sonatype.com/api/v1/publisher"
                     stagingRepositories.add("${rootProject.buildDir}/staging")
+                    maxRetries = 100
+                    retryDelay = 60
                 }
             }
         }

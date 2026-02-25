@@ -12,7 +12,7 @@ repositories {
 
 dependencies {
     // Java convention dependencies
-    implementation("com.github.spotbugs.snom:spotbugs-gradle-plugin:6.0.6")
+    implementation("com.github.spotbugs.snom:spotbugs-gradle-plugin:6.4.8")
     implementation("com.adarshr:gradle-test-logger-plugin:4.0.0")
 
     // Plugin convention dependencies

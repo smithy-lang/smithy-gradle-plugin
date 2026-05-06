@@ -21,6 +21,7 @@ import org.gradle.api.tasks.TaskProvider;
 import org.gradle.api.tasks.compile.AbstractCompile;
 import org.gradle.language.base.plugins.LifecycleBasePlugin;
 import org.gradle.language.jvm.tasks.ProcessResources;
+import org.gradle.plugins.ide.idea.IdeaPlugin;
 import software.amazon.smithy.gradle.actions.SmithyManifestUpdateAction;
 import software.amazon.smithy.gradle.tasks.SmithyBuildTask;
 import software.amazon.smithy.gradle.tasks.SmithyJarStagingTask;
@@ -55,6 +56,7 @@ public class SmithyJarPlugin implements Plugin<Project> {
 
     @Override
     public void apply(Project project) {
+        project.getPlugins().apply("idea");
         project.getPlugins().apply(SmithyBasePlugin.class);
 
         extension = project.getExtensions().getByType(SmithyExtension.class);
@@ -108,6 +110,21 @@ public class SmithyJarPlugin implements Plugin<Project> {
         File metaInf = jarStagingTaskProvider.get().getSmithyMetaInfDir().get();
         project.getLogger().debug("Registering Smithy resource artifacts with Java resources: {}", metaInf);
         SourceDirectorySet metaInfSrcDir = sourceSet.getResources().srcDir(metaInf);
+
+        IdeaPlugin ideaPlugin = project.getPlugins().getPlugin(IdeaPlugin.class);
+
+        // by adding the generated "staging" are to the resources source set
+        // it gets added as a "resources root" in IntelliJ
+        // and if you're using Smithy plugin https://github.com/smithy-lang/smithy-intellij-plugin
+        // it is using this folder to look up for smithy files (which are copies of the source files)
+        // because this folder contains the copy of source smithy files
+        // this causes issues where for instance when you navigate to a shape,
+        // IntelliJ will go to a "staging" folder over the source
+        // (even if it is located in the same file as you're currently in!)
+        // or worse, when you removed a shape/trait, but still see it as "available" in IDE
+        // but when you run (clean) build it fails
+        // so marking this folder as "excluded" just for IntelliJ solves these problems
+        ideaPlugin.getModel().getModule().getExcludeDirs().add(metaInf);
 
         // This plugin supports loading Smithy models from various locations, including
         // META-INF/smithy. It also creates a staging directory for all the merged

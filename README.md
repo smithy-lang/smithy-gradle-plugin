@@ -237,6 +237,27 @@ smithy {
 }
 ```
 
+### Check Formatting Without Modifying Files
+
+By default, the `smithyFormat` task reformats Smithy files in place. It is
+possible for a model author to skip formatting, either intentionally or
+unintentionally. To validate that models are formatted, the `--check` argument
+may be used when invoking the `smithyFormat` task in CI.
+
+```
+./gradlew smithyFormat --check
+```
+
+Check mode leaves the files untouched and fails if any of them are not already
+formatted, listing the files that would change.
+
+> [!WARNING]
+> Check mode is only intended to be invoked explicitly in CI. It should not be
+> enabled for standard builds. If it is enabled for standard builds, a minor
+> change in the formatter may break your build.
+
+Check mode requires Smithy CLI version 1.72.0 or later.
+
 ## Documentation
 
 See https://smithy.io/2.0/guides/gradle-plugin/index.html

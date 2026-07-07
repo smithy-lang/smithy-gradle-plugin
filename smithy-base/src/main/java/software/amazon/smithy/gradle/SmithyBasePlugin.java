@@ -17,6 +17,7 @@ import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.SourceSetContainer;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.language.base.plugins.LifecycleBasePlugin;
+import org.gradle.plugins.ide.idea.IdeaPlugin;
 import org.gradle.util.GradleVersion;
 import software.amazon.smithy.gradle.internal.CliDependencyResolver;
 import software.amazon.smithy.gradle.tasks.SmithyBuildTask;
@@ -60,6 +61,7 @@ public final class SmithyBasePlugin implements Plugin<Project> {
 
         // Creates required configurations and base source set container
         project.getPlugins().apply(JavaBasePlugin.class);
+        project.getPlugins().apply(IdeaPlugin.class);
 
         // Add smithy source set extension
         SmithyExtension smithyExtension = project.getExtensions().create("smithy", SmithyExtension.class);
@@ -106,10 +108,18 @@ public final class SmithyBasePlugin implements Plugin<Project> {
             // Resolve the Smithy CLI artifact
             CliDependencyResolver.resolve(p);
 
+            IdeaPlugin ideaPlugin = p.getPlugins().getPlugin(IdeaPlugin.class);
+
             p.getExtensions().getByType(SourceSetContainer.class).all(sourceSet -> {
+                SmithySourceDirectorySet sds = sourceSet.getExtensions().getByType(SmithySourceDirectorySet.class);
+
+                // Register Smithy source directories as IDEA source roots so that the
+                // smithy-intellij-plugin can discover and index models from their actual
+                // locations rather than relying on staging copies or missing them entirely.
+                ideaPlugin.getModel().getModule().getSourceDirs().addAll(sds.getSrcDirs());
+
                 // Add format task for source set if enabled
                 if (extension.getFormat().get()) {
-                    SmithySourceDirectorySet sds = sourceSet.getExtensions().getByType(SmithySourceDirectorySet.class);
                     addFormatTaskForSourceSet(sourceSet, sds, extension);
                 }
             });

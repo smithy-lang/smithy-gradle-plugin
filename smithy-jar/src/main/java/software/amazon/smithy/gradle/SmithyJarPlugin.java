@@ -56,7 +56,6 @@ public class SmithyJarPlugin implements Plugin<Project> {
 
     @Override
     public void apply(Project project) {
-        project.getPlugins().apply("idea");
         project.getPlugins().apply(SmithyBasePlugin.class);
 
         extension = project.getExtensions().getByType(SmithyExtension.class);

@@ -23,20 +23,20 @@ public class SmithyFormatTest {
     private static final String UNFORMATTED_MARKER = "structure    Foo";
 
     @Test
-    public void checkModeFailsWithoutModifyingFiles() {
+    public void checkTaskFailsWithoutModifyingFiles() {
         Utils.withCopy("base-plugin/format-check", buildDir -> {
             BuildResult result = GradleRunner.create()
                     .forwardOutput()
                     .withProjectDir(buildDir)
-                    .withArguments("smithyFormat", "--check", "--stacktrace")
+                    .withArguments("smithyFormatCheck", "--stacktrace")
                     .buildAndFail();
 
-            Assertions.assertEquals(TaskOutcome.FAILED, result.task(":smithyFormat").getOutcome());
+            Assertions.assertEquals(TaskOutcome.FAILED, result.task(":smithyFormatCheck").getOutcome());
 
             // The CLI reports which files would be reformatted.
             Assertions.assertTrue(
                     result.getOutput().contains("would be reformatted"),
-                    "Expected 'would be reformatted' in :smithyFormat output but got:\n" + result.getOutput());
+                    "Expected 'would be reformatted' in :smithyFormatCheck output but got:\n" + result.getOutput());
 
             // Check mode must not rewrite the source file.
             Assertions.assertTrue(
@@ -46,7 +46,7 @@ public class SmithyFormatTest {
     }
 
     @Test
-    public void defaultModeReformatsFiles() {
+    public void formatTaskReformatsFiles() {
         Utils.withCopy("base-plugin/format-check", buildDir -> {
             BuildResult result = GradleRunner.create()
                     .forwardOutput()

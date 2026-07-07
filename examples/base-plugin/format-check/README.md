@@ -3,14 +3,13 @@
 This is an example Gradle Smithy project. In addition to serving as
 documentation, this project is run as an integration test for the plugin.
 
-This example demonstrates the `smithyFormat` check mode. The model in `model/`
-is valid but intentionally left unformatted. Running
-`gradle smithyFormat --check` fails the build and lists the files that would
-be reformatted, without modifying them. Running `gradle smithyFormat` with no
-property reformats the model in place.
+This example demonstrates the `smithyFormatCheck` task. The model in `model/`
+is valid but intentionally left unformatted. Running `gradle smithyFormatCheck`
+fails the build and lists the files that would be reformatted, without
+modifying them. Running `gradle smithyFormat` reformats the model in place.
 
-Check mode requires Smithy CLI 1.72.0 or later, which is why this example pins
-that version.
+The `smithyFormatCheck` task requires Smithy CLI 1.72.0 or later, which is why
+this example pins that version.
 
 ## Using the example as a starting point
 

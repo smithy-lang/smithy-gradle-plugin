@@ -24,13 +24,12 @@ public class SmithyFormatTaskTest {
 
     @Test
     public void validateDefaults() {
-
-
         SmithyFormatTask formatTask = testProject.getTasks().create("smithyUnitTestFormat",
                 SmithyFormatTask.class);
 
         assertEquals(formatTask.getShowStackTrace().get(), ShowStacktrace.INTERNAL_EXCEPTIONS);
         assertFalse(formatTask.getFork().get());
         assertFalse(formatTask.getAllowUnknownTraits().get());
+        assertFalse(formatTask.getCheck());
     }
 }

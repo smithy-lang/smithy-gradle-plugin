@@ -20,6 +20,7 @@ import org.gradle.language.base.plugins.LifecycleBasePlugin;
 import org.gradle.util.GradleVersion;
 import software.amazon.smithy.gradle.internal.CliDependencyResolver;
 import software.amazon.smithy.gradle.tasks.SmithyBuildTask;
+import software.amazon.smithy.gradle.tasks.SmithyFormatCheckTask;
 import software.amazon.smithy.gradle.tasks.SmithyFormatTask;
 import software.amazon.smithy.gradle.tasks.SmithySelectTask;
 
@@ -39,6 +40,10 @@ public final class SmithyBasePlugin implements Plugin<Project> {
      * Default name to use for the {@link SmithyFormatTask}  task created by this plugin.
      */
     public static final String SMITHY_FORMAT_TASK_NAME = "smithyFormat";
+    /**
+     * Default name to use for the {@link SmithyFormatCheckTask} task created by this plugin.
+     */
+    public static final String SMITHY_FORMAT_CHECK_TASK_NAME = "smithyFormatCheck";
 
     private static final GradleVersion MINIMUM_GRADLE_VERSION = GradleVersion.version("8.2.0");
 
@@ -160,6 +165,14 @@ public final class SmithyBasePlugin implements Plugin<Project> {
                     formatTask.setEnabled(extension.getFormat().get());
                     formatTask.getOutputs().upToDateWhen(s -> true);
                 });
+
+        // Set up check task (same sources, but not wired into any lifecycle task)
+        String checkTaskName = SmithyUtils.getRelativeSourceSetName(sourceSet, SMITHY_FORMAT_CHECK_TASK_NAME);
+        project.getTasks().register(checkTaskName, SmithyFormatCheckTask.class, checkTask -> {
+            checkTask.getModels().set(sds.getSourceDirectories());
+            checkTask.setEnabled(extension.getFormat().get());
+            checkTask.getOutputs().upToDateWhen(s -> true);
+        });
 
         // Smithy files should be formatted before they are built
         if (SourceSet.isMain(sourceSet)) {

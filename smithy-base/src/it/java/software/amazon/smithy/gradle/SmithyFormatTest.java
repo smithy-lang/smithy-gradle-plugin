@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import org.gradle.testkit.runner.BuildResult;
-import org.gradle.testkit.runner.GradleRunner;
 import org.gradle.testkit.runner.TaskOutcome;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -25,7 +24,7 @@ public class SmithyFormatTest {
     @Test
     public void checkTaskFailsWithoutModifyingFiles() {
         Utils.withCopy("base-plugin/format-check", buildDir -> {
-            BuildResult result = GradleRunner.create()
+            BuildResult result = Utils.createGradleRunner()
                     .forwardOutput()
                     .withProjectDir(buildDir)
                     .withArguments("smithyFormatCheck", "--stacktrace")
@@ -48,7 +47,7 @@ public class SmithyFormatTest {
     @Test
     public void formatTaskReformatsFiles() {
         Utils.withCopy("base-plugin/format-check", buildDir -> {
-            BuildResult result = GradleRunner.create()
+            BuildResult result = Utils.createGradleRunner()
                     .forwardOutput()
                     .withProjectDir(buildDir)
                     .withArguments("smithyFormat", "--stacktrace")

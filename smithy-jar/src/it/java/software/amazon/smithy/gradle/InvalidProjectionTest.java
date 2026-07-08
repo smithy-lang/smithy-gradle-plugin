@@ -1,7 +1,6 @@
 package software.amazon.smithy.gradle;
 
 import org.gradle.testkit.runner.BuildResult;
-import org.gradle.testkit.runner.GradleRunner;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -9,7 +8,7 @@ public class InvalidProjectionTest {
     @Test
     public void testProjection() {
         Utils.withCopy("jar-plugin/failure-cases/invalid-projection", buildDir -> {
-            BuildResult result = GradleRunner.create()
+            BuildResult result = Utils.createGradleRunner()
                     .forwardOutput()
                     .withProjectDir(buildDir)
                     .withArguments("clean", "build", "--stacktrace")

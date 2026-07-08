@@ -1,7 +1,6 @@
 package software.amazon.smithy.gradle;
 
 import org.gradle.testkit.runner.BuildResult;
-import org.gradle.testkit.runner.GradleRunner;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import software.amazon.smithy.model.node.Node;
@@ -10,7 +9,7 @@ public class SelectTaskTest {
     @Test
     public void selectsString() {
         Utils.withCopy("base-plugin/uses-explicitly-set-cli-version", buildDir -> {
-            BuildResult result = GradleRunner.create()
+            BuildResult result = Utils.createGradleRunner()
                     .forwardOutput()
                     .withProjectDir(buildDir)
                     .withArguments("select", "--selector", "member")
@@ -28,7 +27,7 @@ public class SelectTaskTest {
     @Test
     public void selectsWithShowString() {
         Utils.withCopy("base-plugin/uses-explicitly-set-cli-version", buildDir -> {
-            BuildResult result = GradleRunner.create()
+            BuildResult result = Utils.createGradleRunner()
                     .forwardOutput()
                     .withProjectDir(buildDir)
                     .withArguments("select", "--selector", "member", "--show", "type,vars")
@@ -46,7 +45,7 @@ public class SelectTaskTest {
     @Test
     public void selectsWithShowTraitsString() {
         Utils.withCopy("base-plugin/uses-explicitly-set-cli-version", buildDir -> {
-            BuildResult result = GradleRunner.create()
+            BuildResult result = Utils.createGradleRunner()
                     .forwardOutput()
                     .withProjectDir(buildDir)
                     .withArguments("select", "--selector", "structure > member", "--show-traits", "documentation", "--stacktrace")
@@ -64,7 +63,7 @@ public class SelectTaskTest {
     @Test
     public void selectUsesGradleClasspath() {
         Utils.withCopy("base-plugin/output-directory", buildDir -> {
-            BuildResult result = GradleRunner.create()
+            BuildResult result = Utils.createGradleRunner()
                     .forwardOutput()
                     .withProjectDir(buildDir)
                     .withArguments("select", "--selector", "operation[trait|aws.auth#unsignedPayload]")

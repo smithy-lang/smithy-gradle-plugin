@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import org.gradle.testkit.runner.BuildResult;
-import org.gradle.testkit.runner.GradleRunner;
 import org.gradle.testkit.runner.TaskOutcome;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -14,7 +13,7 @@ public class RespectsManualTraitTest {
     @Test
     public void respectsExistingTraitAndMergesSpiFiles() {
         Utils.withCopy("trait-package-plugin/use-with-existing-trait", buildDir -> {
-            BuildResult result = GradleRunner.create()
+            BuildResult result = Utils.createGradleRunner()
                     .forwardOutput()
                     .withProjectDir(buildDir)
                     .withArguments("clean", "build", "--stacktrace")

@@ -34,12 +34,38 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.gradle.testkit.runner.BuildResult;
 import org.gradle.testkit.runner.BuildTask;
+import org.gradle.testkit.runner.GradleRunner;
 import org.gradle.testkit.runner.TaskOutcome;
 import org.junit.jupiter.api.Assertions;
 import software.amazon.smithy.utils.IoUtils;
 
 public final class Utils {
+    /**
+     * System property used to run the integ tests against a specific Gradle version.
+     *
+     * <p>When unset, the tests use the same Gradle version that runs the
+     * {@code integTest} task, i.e. the wrapper version. CI sets this to exercise
+     * consumers against our declared minimum and the current release while still
+     * building and publishing the plugin with the wrapper.
+     */
+    public static final String GRADLE_TEST_VERSION_PROPERTY = "gradleTestVersion";
+
     private Utils() {}
+
+    /**
+     * Creates a {@link GradleRunner} for exercising a consumer build, honoring the
+     * {@value #GRADLE_TEST_VERSION_PROPERTY} system property when it is set.
+     *
+     * @return a runner pinned to the requested Gradle version, or the default version when unset.
+     */
+    public static GradleRunner createGradleRunner() {
+        GradleRunner runner = GradleRunner.create();
+        String gradleTestVersion = System.getProperty(GRADLE_TEST_VERSION_PROPERTY);
+        if (gradleTestVersion != null && !gradleTestVersion.isEmpty()) {
+            runner.withGradleVersion(gradleTestVersion);
+        }
+        return runner;
+    }
 
     public static Path createTempDir(String name) {
         try {

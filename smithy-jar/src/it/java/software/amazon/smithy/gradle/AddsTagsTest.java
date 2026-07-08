@@ -1,7 +1,6 @@
 package software.amazon.smithy.gradle;
 
 import org.gradle.testkit.runner.BuildResult;
-import org.gradle.testkit.runner.GradleRunner;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -17,7 +16,7 @@ public class AddsTagsTest {
     @Test
     public void addsSmithyTagsToJars() {
         Utils.withCopy("jar-plugin/adds-tags", buildDir -> {
-            BuildResult result = GradleRunner.create()
+            BuildResult result = Utils.createGradleRunner()
                     .forwardOutput()
                     .withProjectDir(buildDir)
                     .withArguments("clean", "build", "--stacktrace")

@@ -1,7 +1,6 @@
 package software.amazon.smithy.gradle;
 
 import org.gradle.testkit.runner.BuildResult;
-import org.gradle.testkit.runner.GradleRunner;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import software.amazon.smithy.model.Model;
@@ -11,7 +10,7 @@ public class ProjectsWithTagsTest {
     @Test
     public void testProjectionWithSourceTags() {
         Utils.withCopy("jar-plugin/projects-with-tags", buildDir -> {
-            BuildResult result = GradleRunner.create()
+            BuildResult result = Utils.createGradleRunner()
                     .forwardOutput()
                     .withProjectDir(buildDir)
                     .withArguments("clean", "build", "--stacktrace")

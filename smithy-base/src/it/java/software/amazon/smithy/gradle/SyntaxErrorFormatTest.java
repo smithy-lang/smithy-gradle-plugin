@@ -6,7 +6,6 @@
 package software.amazon.smithy.gradle;
 
 import org.gradle.testkit.runner.BuildResult;
-import org.gradle.testkit.runner.GradleRunner;
 import org.gradle.testkit.runner.TaskOutcome;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -21,7 +20,7 @@ public class SyntaxErrorFormatTest {
     @Test
     public void formatTaskFailsWithReadableMessageOnSyntaxError() {
         Utils.withCopy("base-plugin/failure-cases/syntax-error-format", buildDir -> {
-            BuildResult result = GradleRunner.create()
+            BuildResult result = Utils.createGradleRunner()
                     .forwardOutput()
                     .withProjectDir(buildDir)
                     .withArguments("smithyFormat", "--stacktrace")

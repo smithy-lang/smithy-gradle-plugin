@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import org.gradle.testkit.runner.BuildResult;
-import org.gradle.testkit.runner.GradleRunner;
 import org.junit.jupiter.api.Test;
 
 public class CreatesCustomTraitTest {
@@ -12,7 +11,7 @@ public class CreatesCustomTraitTest {
     @Test
     public void createsTraitsAndAddsToJar() {
         Utils.withCopy("trait-package-plugin/create-simple-trait", buildDir -> {
-            BuildResult result = GradleRunner.create()
+            BuildResult result = Utils.createGradleRunner()
                     .forwardOutput()
                     .withProjectDir(buildDir)
                     .withArguments("clean", "build", "--stacktrace")

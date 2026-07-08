@@ -116,6 +116,14 @@ tasks.register<Test>("integTest") {
     testClassesDirs = sourceSets["it"].output.classesDirs
     classpath = sourceSets["it"].runtimeClasspath
     maxParallelForks = Runtime.getRuntime().availableProcessors() / 2
+
+    // Optionally run the integ tests against a specific Gradle version. When unset,
+    // they use the version running this task (the wrapper). CI sets this to exercise
+    // consumers against our declared minimum and the current release while still
+    // building with the wrapper.
+    providers.gradleProperty("gradleTestVersion").orNull?.let {
+        systemProperty("gradleTestVersion", it)
+    }
 }
 
 afterEvaluate {

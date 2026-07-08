@@ -1,14 +1,13 @@
 package software.amazon.smithy.gradle;
 
 import org.gradle.testkit.runner.BuildResult;
-import org.gradle.testkit.runner.GradleRunner;
 import org.junit.jupiter.api.Test;
 
 public class SourceProjectionTest {
     @Test
     public void testSourceProjection() {
         Utils.withCopy("jar-plugin/source-projection", buildDir -> {
-            BuildResult result = GradleRunner.create()
+            BuildResult result = Utils.createGradleRunner()
                     .forwardOutput()
                     .withProjectDir(buildDir)
                     .withArguments("clean", "build", "--stacktrace")
@@ -35,7 +34,7 @@ public class SourceProjectionTest {
     @Test
     public void testSourceProjectionWithConfigurationCaching() {
         Utils.withCopy("jar-plugin/source-projection", buildDir -> {
-            BuildResult result = GradleRunner.create()
+            BuildResult result = Utils.createGradleRunner()
                     .forwardOutput()
                     .withProjectDir(buildDir)
                     .withArguments("clean", "build", "--stacktrace", "--configuration-cache")

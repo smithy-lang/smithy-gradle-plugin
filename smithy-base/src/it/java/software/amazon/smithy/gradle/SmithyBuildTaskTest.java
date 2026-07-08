@@ -16,7 +16,6 @@
 package software.amazon.smithy.gradle;
 
 import org.gradle.testkit.runner.BuildResult;
-import org.gradle.testkit.runner.GradleRunner;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -25,7 +24,7 @@ public class SmithyBuildTaskTest {
     @Test
     public void testCustomBuild() {
         Utils.withCopy("base-plugin/smithy-build-task", buildDir -> {
-            BuildResult result = GradleRunner.create()
+            BuildResult result = Utils.createGradleRunner()
                     .forwardOutput()
                     .withProjectDir(buildDir)
                     .withArguments("build", "--stacktrace")
@@ -43,7 +42,7 @@ public class SmithyBuildTaskTest {
     @Test
     public void pluginProjectionDirectoryExpressesTaskDependency() {
         Utils.withCopy("base-plugin/smithy-build-task", buildDir -> {
-            BuildResult result = GradleRunner.create()
+            BuildResult result = Utils.createGradleRunner()
                     .forwardOutput()
                     .withProjectDir(buildDir)
                     .withArguments("copyOutput", "--stacktrace")

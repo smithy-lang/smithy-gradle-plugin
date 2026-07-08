@@ -7,40 +7,71 @@ on:
     branches: [main]
 
 jobs:
+  validate-wrapper:
+    name: "Validate Gradle Wrapper"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: gradle/actions/wrapper-validation@v6
+
   build:
     runs-on: ${{ matrix.os }}
-    name: Java ${{ matrix.java }} ${{ matrix.os }}
+    name: Java ${{ matrix.java }} Gradle ${{ matrix.gradle }} ${{ matrix.os }}
     strategy:
       matrix:
         java: [17]
         os: [ubuntu-latest, windows-latest]
+        gradle:
+          - '8.2'      # Our declared minimum version
+          - 'wrapper'  # The version in our gradle wrapper
+          - 'current'  # The current stable release
 
     steps:
       - name: Checkout smithy-gradle-plugin
-        uses: actions/checkout@v2
+        uses: actions/checkout@v7
         with:
           path: smithy-gradle-plugin
 
       # We checkout smithy main here since we will often require changes that
       # have not yet been released but have been merged.
       - name: Checkout smithy main branch
-        uses: actions/checkout@v2
+        uses: actions/checkout@v7
         with:
           repository: awslabs/smithy
           path: smithy
 
       - name: Set up JDK ${{ matrix.java }}
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@v5
         with:
           java-version: ${{ matrix.java }}
+          distribution: 'corretto'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v6
+        id: setup-gradle
+        with:
+          gradle-version: ${{ matrix.gradle }}
 
       - name: Publish smithy main to maven local
         run: |
           cd smithy
           ./gradlew clean publishToMavenLocal
 
-      - name: Clean and build smithy-gradle-plugin
+      # The unit tests don't need to be run under each gradle version as their
+      # behavior won't change. So here we run the full test suite when the
+      # wrapper version is being used. This also runs the integ tests since it's
+      # wired into build.
+      - name: Build and test
+        if: ${{ matrix.gradle == 'wrapper' }}
         run: |
           cd smithy-gradle-plugin
-          ./gradlew clean publishToMavenLocal
-          ./gradlew -g $PWD build -Plog-tests
+          ./gradlew clean build -Plog-tests
+
+      # When we're not running the wrapper version, we only need to run the
+      # integ tests. We can use the output of the setup-gradle action to
+      # get the realized version for aliases like 'current'.
+      - name: Run integ tests
+        if: ${{ matrix.gradle != 'wrapper' }}
+        run: |
+          cd smithy-gradle-plugin
+          ./gradlew clean integTest -PgradleTestVersion=${{ steps.setup-gradle.outputs.gradle-version }} -Plog-tests

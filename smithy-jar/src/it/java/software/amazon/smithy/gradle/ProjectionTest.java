@@ -1,7 +1,6 @@
 package software.amazon.smithy.gradle;
 
 import org.gradle.testkit.runner.BuildResult;
-import org.gradle.testkit.runner.GradleRunner;
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -12,7 +11,7 @@ public class ProjectionTest {
     @Test
     public void testProjection() {
         Utils.withCopy("jar-plugin/projection", buildDir -> {
-            BuildResult result = GradleRunner.create()
+            BuildResult result = Utils.createGradleRunner()
                     .forwardOutput()
                     .withProjectDir(buildDir)
                     .withArguments("clean", "build", "--stacktrace")
@@ -40,7 +39,7 @@ public class ProjectionTest {
     @Test
     public void usesWarningLoggingByDefault() {
         Utils.withCopy("jar-plugin/projection", buildDir -> {
-            BuildResult result = GradleRunner.create()
+            BuildResult result = Utils.createGradleRunner()
                     .forwardOutput()
                     .withProjectDir(buildDir)
                     .withArguments("clean", "build")
@@ -54,7 +53,7 @@ public class ProjectionTest {
     @Test
     public void modifiesLogging() {
         Utils.withCopy("jar-plugin/projection", buildDir -> {
-            BuildResult result = GradleRunner.create()
+            BuildResult result = Utils.createGradleRunner()
                     .forwardOutput()
                     .withProjectDir(buildDir)
                     .withArguments("clean", "build", "--info")
@@ -66,7 +65,7 @@ public class ProjectionTest {
     @Test
     public void usesDebugMode() {
         Utils.withCopy("jar-plugin/projection", buildDir -> {
-            BuildResult result = GradleRunner.create()
+            BuildResult result = Utils.createGradleRunner()
                     .forwardOutput()
                     .withProjectDir(buildDir)
                     .withArguments("clean", "build", "--debug")

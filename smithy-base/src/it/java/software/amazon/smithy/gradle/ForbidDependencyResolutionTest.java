@@ -1,7 +1,6 @@
 package software.amazon.smithy.gradle;
 
 import org.gradle.testkit.runner.BuildResult;
-import org.gradle.testkit.runner.GradleRunner;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -9,7 +8,7 @@ public class ForbidDependencyResolutionTest {
     @Test
     public void testNoFork() {
         Utils.withCopy("base-plugin/failure-cases/forbid-dependency-resolution-no-fork", buildDir -> {
-            BuildResult result = GradleRunner.create()
+            BuildResult result = Utils.createGradleRunner()
                     .forwardOutput()
                     .withProjectDir(buildDir)
                     .withArguments("clean", "build", "--stacktrace")
@@ -25,7 +24,7 @@ public class ForbidDependencyResolutionTest {
     @Test
     public void testFork() {
         Utils.withCopy("base-plugin/failure-cases/forbid-dependency-resolution-fork", buildDir -> {
-            BuildResult result = GradleRunner.create()
+            BuildResult result = Utils.createGradleRunner()
                     .forwardOutput()
                     .withProjectDir(buildDir)
                     .withArguments("clean", "build", "--stacktrace")

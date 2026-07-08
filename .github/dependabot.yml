@@ -1,0 +1,27 @@
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    labels:
+     - "dependencies"
+  - package-ecosystem: "gradle"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "wednesday"
+    labels:
+     - "dependencies"
+     - "no-changelog-needed"
+    groups:
+      gradle:
+        update-types:
+          - "minor"
+          - "patch"
+    ignore:
+      # These versions are deliberaly kept at a range that we only want to
+      # update when we need to.
+      - dependency-name: "software.amazon.smithy:smithy-model"
+      - dependency-name: "software.amazon.smithy:smithy-build"
+      - dependency-name: "software.amazon.smithy:smithy-cli"

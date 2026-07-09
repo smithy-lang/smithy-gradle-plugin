@@ -74,4 +74,4 @@ jobs:
         if: ${{ matrix.gradle != 'wrapper' }}
         run: |
           cd smithy-gradle-plugin
-          ./gradlew clean integTest -PgradleTestVersion=${{ steps.setup-gradle.outputs.gradle-version }} -Plog-tests
+          ./gradlew clean integTest -PgradleTestVersion="${{ steps.setup-gradle.outputs.gradle-version }}" -Plog-tests

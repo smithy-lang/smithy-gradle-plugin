@@ -45,7 +45,7 @@ public final class SmithyBasePlugin implements Plugin<Project> {
      */
     public static final String SMITHY_FORMAT_CHECK_TASK_NAME = "smithyFormatCheck";
 
-    private static final GradleVersion MINIMUM_GRADLE_VERSION = GradleVersion.version("8.2.0");
+    private static final GradleVersion MINIMUM_GRADLE_VERSION = GradleVersion.version("8.2");
 
     private final Project project;
 

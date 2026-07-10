@@ -110,6 +110,15 @@ sourceSets {
         runtimeClasspath += output + compileClasspath + sourceSets["test"].runtimeClasspath
     }
 }
+
+dependencies {
+    // JUnit's classes carry @API(status = ...) annotations defined in the compile-only
+    // apiguardian artifact. The `it` source set draws its compile classpath from
+    // testRuntimeClasspath, which omits compile-only deps, so add apiguardian directly to
+    // stop javac warning spam.
+    "itCompileOnly"(libs.apiguardian.api)
+}
+
 // Disable spotbugs and checkstyle for integration tests
 tasks["spotbugsIt"].enabled = false
 tasks["checkstyleIt"].enabled = false

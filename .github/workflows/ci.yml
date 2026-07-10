@@ -68,7 +68,7 @@ jobs:
         if: ${{ matrix.gradle == 'wrapper' }}
         run: |
           cd smithy-gradle-plugin
-          ./gradlew clean build -Plog-tests
+          ./gradlew clean build -Plog-tests -PnoFormat
 
       # When we're not running the wrapper version, we only need to run the
       # integ tests. We can use the output of the setup-gradle action to

@@ -17,7 +17,7 @@ import org.jreleaser.model.Active
 
 plugins {
     base
-    id("org.jreleaser") version "1.17.0"
+    id("org.jreleaser") version "1.25.0"
 }
 
 val pluginVersion = project.file("VERSION").readText().replace(System.lineSeparator(), "")

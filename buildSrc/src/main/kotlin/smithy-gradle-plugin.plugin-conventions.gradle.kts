@@ -9,6 +9,9 @@ plugins {
     id("com.github.spotbugs")
 }
 
+// Workaround per: https://github.com/gradle/gradle/issues/15383
+val Project.libs get() = the<org.gradle.accessors.dm.LibrariesForLibs>()
+
 /*
  * Common plugin settings
  * ====================================================
@@ -67,10 +70,10 @@ publishing {
  * ====================================================
  */
 dependencies {
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.4.0")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.4.0")
-    testImplementation("org.junit.jupiter:junit-jupiter-params:5.4.0")
-    testImplementation("org.hamcrest:hamcrest:2.1")
+    testImplementation(libs.junit.jupiter.api)
+    testRuntimeOnly(libs.junit.jupiter.engine)
+    testImplementation(libs.junit.jupiter.params)
+    testImplementation(libs.hamcrest)
     testImplementation(project(":integ-test-utils"))
 }
 

@@ -31,7 +31,7 @@ publishing {
     repositories {
         maven {
             name = "stagingRepository"
-            url = uri("${rootProject.buildDir}/staging")
+            url = uri(stagingDir())
         }
     }
     // Add license spec to all maven publications
@@ -151,7 +151,7 @@ tasks.jacocoTestReport {
     reports {
         xml.required.set(false)
         csv.required.set(false)
-        html.outputLocation.set(file("$buildDir/reports/jacoco"))
+        html.outputLocation.set(layout.buildDirectory.dir("reports/jacoco"))
     }
 }
 

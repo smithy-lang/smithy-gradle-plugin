@@ -7,9 +7,16 @@ plugins {
 // Workaround per: https://github.com/gradle/gradle/issues/15383
 val Project.libs get() = the<org.gradle.accessors.dm.LibrariesForLibs>()
 
-java {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
+// Compile production sources against the Java 8 API so the plugins keep supporting
+// Java 8 consumers.
+tasks.compileJava {
+    options.release.set(8)
+}
+
+// JUnit 6 requires Java 17, so tests are compiled against the Java 17 API even though
+// the production sources they exercise remain Java 8 compatible.
+tasks.compileTestJava {
+    options.release.set(17)
 }
 
 dependencies {

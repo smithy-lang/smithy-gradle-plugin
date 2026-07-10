@@ -1,3 +1,7 @@
+/*
+ * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package software.amazon.smithy.gradle;
 
 import org.gradle.testkit.runner.BuildResult;
@@ -19,9 +23,9 @@ public class ProjectsWithTagsTest {
             Utils.assertSmithyBuildTaskRan(result);
             Utils.assertValidationRan(result);
             Utils.assertJarContains(buildDir,
-                                    "build/libs/projects-with-tags.jar",
-                                    "META-INF/smithy/manifest",
-                                    "META-INF/smithy/model.json");
+                    "build/libs/projects-with-tags.jar",
+                    "META-INF/smithy/manifest",
+                    "META-INF/smithy/model.json");
 
             Model model = Model.assembler()
                     .addImport(buildDir.toPath().resolve("build").resolve("libs").resolve("projects-with-tags.jar"))

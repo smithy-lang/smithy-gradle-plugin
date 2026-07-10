@@ -2,7 +2,6 @@
  * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
  * SPDX-License-Identifier: Apache-2.0
  */
-
 package software.amazon.smithy.gradle;
 
 import static java.lang.String.format;
@@ -11,7 +10,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 import org.gradle.api.GradleException;
-
 
 /**
  * Represents a Smithy-Gradle-Plugin version.

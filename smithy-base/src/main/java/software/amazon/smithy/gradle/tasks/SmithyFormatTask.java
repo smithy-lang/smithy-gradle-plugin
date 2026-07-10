@@ -2,7 +2,6 @@
  * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
  * SPDX-License-Identifier: Apache-2.0
  */
-
 package software.amazon.smithy.gradle.tasks;
 
 import java.io.File;
@@ -12,7 +11,6 @@ import org.gradle.StartParameter;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.tasks.TaskAction;
 import software.amazon.smithy.utils.ListUtils;
-
 
 /**
  * Executes the Smithy CLI {@code format} tool on a set of source files.
@@ -49,8 +47,7 @@ public abstract class SmithyFormatTask extends AbstractSmithyCliTask {
                 executeCliProcess("format",
                         additionalArgs,
                         objectFactory.fileCollection().from(file),
-                        true
-                );
+                        true);
             }
         }
     }

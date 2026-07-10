@@ -2,7 +2,6 @@
  * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
  * SPDX-License-Identifier: Apache-2.0
  */
-
 package software.amazon.smithy.gradle.tasks;
 
 import java.util.ArrayList;
@@ -19,7 +18,6 @@ import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.TaskAction;
 import software.amazon.smithy.model.validation.Severity;
-
 
 /**
  * Validates the Smithy models.
@@ -100,9 +98,9 @@ public abstract class SmithyValidateTask extends AbstractSmithyCliTask {
         extraArgs.add(getSeverity().get());
 
         // Set models to an empty collection so source models are not included in validation path.
-        executeCliProcess("validate", extraArgs,
+        executeCliProcess("validate",
+                extraArgs,
                 getSources().get(),
-                getDisableModelDiscovery().get()
-        );
+                getDisableModelDiscovery().get());
     }
 }

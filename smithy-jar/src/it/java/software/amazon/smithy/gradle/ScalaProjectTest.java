@@ -1,3 +1,7 @@
+/*
+ * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package software.amazon.smithy.gradle;
 
 import org.gradle.testkit.runner.BuildResult;
@@ -25,8 +29,7 @@ public class ScalaProjectTest {
                     "build/libs/scala-project.jar",
                     "META-INF/smithy/manifest",
                     "META-INF/smithy/main.smithy",
-                    "example/Main.class"
-            );
+                    "example/Main.class");
         });
     }
 }

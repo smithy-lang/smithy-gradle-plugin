@@ -1,11 +1,14 @@
+/*
+ * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package software.amazon.smithy.gradle;
-
-import org.gradle.testkit.runner.BuildResult;
-import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.UncheckedIOException;
 import java.nio.file.Path;
+import org.gradle.testkit.runner.BuildResult;
+import org.junit.jupiter.api.Test;
 
 public class OutputDirectoryWithProjectionTest {
     @Test

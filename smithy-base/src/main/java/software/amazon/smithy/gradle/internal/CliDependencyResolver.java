@@ -2,7 +2,6 @@
  * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
  * SPDX-License-Identifier: Apache-2.0
  */
-
 package software.amazon.smithy.gradle.internal;
 
 import java.io.File;
@@ -18,7 +17,6 @@ import org.gradle.api.file.FileCollection;
 import org.gradle.api.plugins.JavaPlugin;
 import software.amazon.smithy.gradle.SmithyUtils;
 import software.amazon.smithy.utils.SmithyInternalApi;
-
 
 /**
  * Utility class used to resolve the CLI version and associated CLI dependencies.
@@ -59,13 +57,15 @@ public final class CliDependencyResolver {
         Configuration cli = SmithyUtils.getCliConfiguration(project);
 
         // Prefer explicitly set dependency first.
-        Optional<Dependency> explicitCliDepOptional = cli.getAllDependencies().stream()
+        Optional<Dependency> explicitCliDepOptional = cli.getAllDependencies()
+                .stream()
                 .filter(d -> SmithyUtils.isMatchingDependency(d, SMITHY_CLI_DEP_NAME))
                 .findFirst();
         if (explicitCliDepOptional.isPresent()) {
-            project.getLogger().info(String.format("(using explicitly configured Smithy CLI: %s)",
+            project.getLogger()
+                    .info(String.format("(using explicitly configured Smithy CLI: %s)",
                             explicitCliDepOptional.get().getVersion()));
-            return  explicitCliDepOptional.get().getVersion();
+            return explicitCliDepOptional.get().getVersion();
         }
 
         checkIfRunningInMainSmithyRepo(project);
@@ -103,7 +103,9 @@ public final class CliDependencyResolver {
         }
         Configuration runtimeClasspath = configurations.getByName(
                 JavaPlugin.RUNTIME_CLASSPATH_CONFIGURATION_NAME);
-        return runtimeClasspath.getResolvedConfiguration().getResolvedArtifacts().stream()
+        return runtimeClasspath.getResolvedConfiguration()
+                .getResolvedArtifacts()
+                .stream()
                 .filter(ra -> ra.getName().equals("smithy-model"))
                 .map(ra -> ra.getModuleVersion().getId().getVersion())
                 .findFirst()
@@ -118,10 +120,12 @@ public final class CliDependencyResolver {
             int smithyCliPosition = name.lastIndexOf("smithy-cli-");
             if (smithyCliPosition > -1 && name.endsWith(".jar")) {
                 String cliVersion = name.substring(
-                        smithyCliPosition + "smithy-cli-".length(), name.length() - ".jar".length());
-                project.getLogger().info("(scanned and found a Smithy CLI version {}. "
-                        + "You will need to add an explicit dependency on smithy-model "
-                        + "if publishing a JAR)", cliVersion);
+                        smithyCliPosition + "smithy-cli-".length(),
+                        name.length() - ".jar".length());
+                project.getLogger()
+                        .info("(scanned and found a Smithy CLI version {}. "
+                                + "You will need to add an explicit dependency on smithy-model "
+                                + "if publishing a JAR)", cliVersion);
                 return cliVersion;
             }
         }
@@ -140,8 +144,9 @@ public final class CliDependencyResolver {
                     if (subproject.getPath().equals(":smithy-cli")) {
                         // Add a dependency on the smithy-cli, shadow configuration
                         project.getDependencies().project(SMITHY_CLI_PROJECT_CONFIGURATION);
-                        project.getLogger().info("Detected that this is the main Smithy repo. "
-                                + "Adding dependency on (:smithy-cli - shadow)");
+                        project.getLogger()
+                                .info("Detected that this is the main Smithy repo. "
+                                        + "Adding dependency on (:smithy-cli - shadow)");
                     }
                 }
             }

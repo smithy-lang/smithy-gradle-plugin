@@ -1,4 +1,11 @@
+/*
+ * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package software.amazon.smithy.gradle.tasks;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import org.gradle.api.Project;
 import org.gradle.api.logging.configuration.ShowStacktrace;
@@ -6,9 +13,6 @@ import org.gradle.testfixtures.ProjectBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import software.amazon.smithy.gradle.SmithyUtils;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 
 public class SmithyBuildTaskTest {
     private Project testProject;

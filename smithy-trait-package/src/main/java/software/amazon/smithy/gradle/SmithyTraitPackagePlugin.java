@@ -2,7 +2,6 @@
  * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
  * SPDX-License-Identifier: Apache-2.0
  */
-
 package software.amazon.smithy.gradle;
 
 import java.io.File;
@@ -63,7 +62,8 @@ public class SmithyTraitPackagePlugin implements Plugin<Project> {
                 Optional<File> existingOptional = existingSpiFile(sourceSet);
                 if (existingOptional.isPresent()) {
                     project.getLogger().info("Found existing SPI file. Merging with generated...");
-                    TaskProvider<MergeSpiFilesTask> mergeTaskProvider = addMergeTask(sourceSet, pluginOutput,
+                    TaskProvider<MergeSpiFilesTask> mergeTaskProvider = addMergeTask(sourceSet,
+                            pluginOutput,
                             existingOptional.get());
                     sourceSet.getResources().srcDir(mergeTaskProvider.get().getOutputDir());
 
@@ -78,7 +78,9 @@ public class SmithyTraitPackagePlugin implements Plugin<Project> {
     }
 
     private Optional<File> existingSpiFile(SourceSet sourceSet) {
-        return sourceSet.getResources().getFiles().stream()
+        return sourceSet.getResources()
+                .getFiles()
+                .stream()
                 .filter(f -> f.getName().equals(TRAIT_SPI_FILE_NAME))
                 .findFirst();
     }
@@ -88,34 +90,41 @@ public class SmithyTraitPackagePlugin implements Plugin<Project> {
                 .getByName(SmithyUtils.getSmithyBuildConfigurationName(sourceSet));
 
         // Prefer explicit dependency
-        Optional<Dependency> explicitDepOptional = smithyBuild.getAllDependencies().stream()
+        Optional<Dependency> explicitDepOptional = smithyBuild.getAllDependencies()
+                .stream()
                 .filter(d -> SmithyUtils.isMatchingDependency(d, SMITHY_TRAIT_CODEGEN_DEP_NAME))
                 .findFirst();
         if (explicitDepOptional.isPresent()) {
-            project.getLogger().info(String.format("(using explicitly configured Dependency for %s: %s)",
-                    SMITHY_TRAIT_CODEGEN_DEP_NAME, explicitDepOptional.get().getVersion()));
+            project.getLogger()
+                    .info(String.format("(using explicitly configured Dependency for %s: %s)",
+                            SMITHY_TRAIT_CODEGEN_DEP_NAME,
+                            explicitDepOptional.get().getVersion()));
             return;
         }
 
         // If trait codegen does not exist, add the dependency with the same version as the resolved CLI version
         String cliVersion = CliDependencyResolver.resolve(project);
-        project.getDependencies().add(smithyBuild.getName(),
-                String.format(DEPENDENCY_NOTATION, SMITHY_TRAIT_CODEGEN_DEP_NAME, cliVersion));
+        project.getDependencies()
+                .add(smithyBuild.getName(),
+                        String.format(DEPENDENCY_NOTATION, SMITHY_TRAIT_CODEGEN_DEP_NAME, cliVersion));
     }
 
     private TaskProvider<MergeSpiFilesTask> addMergeTask(SourceSet sourceSet, Path pluginPath, File existing) {
         String mergeTaskName = SmithyUtils.getRelativeSourceSetName(sourceSet, MERGE_TASK_NAME);
-        SmithyBuildTask buildTask = project.getTasks().withType(SmithyBuildTask.class)
+        SmithyBuildTask buildTask = project.getTasks()
+                .withType(SmithyBuildTask.class)
                 .getByName(SmithyBasePlugin.SMITHY_BUILD_TASK_NAME);
         ProcessResources process = project.getTasks().withType(ProcessResources.class).getByName("processResources");
         Task compileTask = project.getTasks().getByName(sourceSet.getCompileJavaTaskName());
-        return project.getTasks().register(mergeTaskName, MergeSpiFilesTask.class,
-                mergeTask -> {
-                    mergeTask.mustRunAfter(buildTask);
-                    process.dependsOn(mergeTask);
-                    compileTask.dependsOn(mergeTask);
-                    mergeTask.getGeneratedFile().set(pluginPath.resolve(TRAIT_SPI_FILE_PATH).toFile());
-                    mergeTask.getExistingFile().set(existing);
-                });
+        return project.getTasks()
+                .register(mergeTaskName,
+                        MergeSpiFilesTask.class,
+                        mergeTask -> {
+                            mergeTask.mustRunAfter(buildTask);
+                            process.dependsOn(mergeTask);
+                            compileTask.dependsOn(mergeTask);
+                            mergeTask.getGeneratedFile().set(pluginPath.resolve(TRAIT_SPI_FILE_PATH).toFile());
+                            mergeTask.getExistingFile().set(existing);
+                        });
     }
 }

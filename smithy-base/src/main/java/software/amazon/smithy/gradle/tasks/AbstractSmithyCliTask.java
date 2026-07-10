@@ -2,7 +2,6 @@
  * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
  * SPDX-License-Identifier: Apache-2.0
  */
-
 package software.amazon.smithy.gradle.tasks;
 
 import java.util.ArrayList;
@@ -166,10 +165,11 @@ abstract class AbstractSmithyCliTask extends DefaultTask {
      * @param additionalArgs Custom arguments that aren't one of the shared args.
      * @param sources Source files to execute the command on
      */
-    protected void executeCliProcess(String command,
-                                 List<String> additionalArgs,
-                                 FileCollection sources,
-                                 boolean disableModelDiscovery
+    protected void executeCliProcess(
+            String command,
+            List<String> additionalArgs,
+            FileCollection sources,
+            boolean disableModelDiscovery
     ) {
         List<String> args = new ArrayList<>();
         args.add(command);

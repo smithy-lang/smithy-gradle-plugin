@@ -1,18 +1,21 @@
+/*
+ * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package software.amazon.smithy.gradle;
 
+import static java.util.Objects.requireNonNull;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.io.File;
 import org.gradle.testkit.runner.BuildResult;
 import org.gradle.testkit.runner.TaskOutcome;
 import org.junit.jupiter.api.Test;
 import software.amazon.smithy.model.Model;
 import software.amazon.smithy.model.loader.ModelAssembler;
 import software.amazon.smithy.model.shapes.ShapeId;
-
-import java.io.File;
-
-import static java.util.Objects.requireNonNull;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class BuildDependenciesTest {
     @Test
@@ -26,7 +29,8 @@ public class BuildDependenciesTest {
 
             // Check that nested build and validation tasks succeeded
             assertSame(requireNonNull(result.task(":internal-model:smithyBuild")).getOutcome(), TaskOutcome.SUCCESS);
-            assertSame(requireNonNull(result.task(":internal-model:smithyJarValidate")).getOutcome(), TaskOutcome.SUCCESS);
+            assertSame(requireNonNull(result.task(":internal-model:smithyJarValidate")).getOutcome(),
+                    TaskOutcome.SUCCESS);
             assertSame(requireNonNull(result.task(":internal-model:jar")).getOutcome(), TaskOutcome.SUCCESS);
             assertSame(requireNonNull(result.task(":service:smithyBuild")).getOutcome(), TaskOutcome.SUCCESS);
             assertSame(requireNonNull(result.task(":service:smithyJarValidate")).getOutcome(), TaskOutcome.SUCCESS);
@@ -46,7 +50,8 @@ public class BuildDependenciesTest {
                     "service/build/libs/service.jar");
 
             // Check that the service jar contains expected files
-            Utils.assertJarContains(buildDir, "service/build/libs/service.jar",
+            Utils.assertJarContains(buildDir,
+                    "service/build/libs/service.jar",
                     "META-INF/MANIFEST.MF",
                     "META-INF/smithy/manifest",
                     "META-INF/smithy/model.json");
@@ -56,7 +61,8 @@ public class BuildDependenciesTest {
             Model model = Model.assembler()
                     .addImport(jarFile.getPath())
                     .putProperty(ModelAssembler.ALLOW_UNKNOWN_TRAITS, true)
-                    .assemble().unwrap();
+                    .assemble()
+                    .unwrap();
 
             // Check that the model does have at least the basic shapes we expect
             assertTrue(model.getShape(ShapeId.from("smithy.example#Foo")).isPresent());

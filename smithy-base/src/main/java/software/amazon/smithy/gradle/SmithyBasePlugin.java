@@ -2,7 +2,6 @@
  * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
  * SPDX-License-Identifier: Apache-2.0
  */
-
 package software.amazon.smithy.gradle;
 
 import javax.annotation.Nonnull;
@@ -147,24 +146,28 @@ public final class SmithyBasePlugin implements Plugin<Project> {
         // Add the smithy source set as an extension
         SmithySourceDirectorySet sds = extension.getSourceSets().create(sourceSet.getName());
         sourceSet.getExtensions().add(SmithySourceDirectorySet.NAME, sds);
-        SmithySourceDirectorySet.SOURCE_DIRS.forEach(sourceDir ->
-                sds.srcDir(sourceDir.replace("$name", sourceSet.getName())));
+        SmithySourceDirectorySet.SOURCE_DIRS
+                .forEach(sourceDir -> sds.srcDir(sourceDir.replace("$name", sourceSet.getName())));
         sds.include("**/*.smithy");
 
         return sds;
     }
 
-    private void addFormatTaskForSourceSet(SourceSet sourceSet, SmithySourceDirectorySet sds,
-                                           SmithyExtension extension
+    private void addFormatTaskForSourceSet(
+            SourceSet sourceSet,
+            SmithySourceDirectorySet sds,
+            SmithyExtension extension
     ) {
         // Set up format task and Register all smithy sourceSets as formatting targets
         String taskName = SmithyUtils.getRelativeSourceSetName(sourceSet, SMITHY_FORMAT_TASK_NAME);
-        TaskProvider<SmithyFormatTask> smithyFormat = project.getTasks().register(taskName, SmithyFormatTask.class,
-                formatTask -> {
-                    formatTask.getModels().set(sds.getSourceDirectories());
-                    formatTask.setEnabled(extension.getFormat().get());
-                    formatTask.getOutputs().upToDateWhen(s -> true);
-                });
+        TaskProvider<SmithyFormatTask> smithyFormat = project.getTasks()
+                .register(taskName,
+                        SmithyFormatTask.class,
+                        formatTask -> {
+                            formatTask.getModels().set(sds.getSourceDirectories());
+                            formatTask.setEnabled(extension.getFormat().get());
+                            formatTask.getOutputs().upToDateWhen(s -> true);
+                        });
 
         // Set up check task (same sources, but not wired into any lifecycle task)
         String checkTaskName = SmithyUtils.getRelativeSourceSetName(sourceSet, SMITHY_FORMAT_CHECK_TASK_NAME);
@@ -180,8 +183,10 @@ public final class SmithyBasePlugin implements Plugin<Project> {
         }
     }
 
-    private void addSelectTaskForSourceSet(SourceSet sourceSet, SmithySourceDirectorySet sds,
-                                           SmithyExtension extension
+    private void addSelectTaskForSourceSet(
+            SourceSet sourceSet,
+            SmithySourceDirectorySet sds,
+            SmithyExtension extension
     ) {
         String taskName = SmithyUtils.getRelativeSourceSetName(sourceSet, SMITHY_SELECT_TASK_NAME);
         String runtimeConfigName = sourceSet.getRuntimeClasspathConfigurationName();
@@ -190,23 +195,27 @@ public final class SmithyBasePlugin implements Plugin<Project> {
             selectTask.getAllowUnknownTraits().set(extension.getAllowUnknownTraits());
             selectTask.getModels().set(sds.getSourceDirectories());
             selectTask.getFork().set(extension.getFork());
-            selectTask.getCliClasspath().set(project.getConfigurations()
-                    .getByName(SmithyUtils.SMITHY_CLI_CONFIGURATION_NAME));
-            selectTask.getModelDiscoveryClasspath().set(project.getConfigurations()
-                    .getByName(runtimeConfigName));
+            selectTask.getCliClasspath()
+                    .set(project.getConfigurations()
+                            .getByName(SmithyUtils.SMITHY_CLI_CONFIGURATION_NAME));
+            selectTask.getModelDiscoveryClasspath()
+                    .set(project.getConfigurations()
+                            .getByName(runtimeConfigName));
         });
     }
 
-    private TaskProvider<SmithyBuildTask> addBuildTaskForSourceSet(SourceSet sourceSet,
-                                                                   SmithySourceDirectorySet sds,
-                                                                   SmithyExtension extension
+    private TaskProvider<SmithyBuildTask> addBuildTaskForSourceSet(
+            SourceSet sourceSet,
+            SmithySourceDirectorySet sds,
+            SmithyExtension extension
     ) {
         String taskName = SmithyUtils.getRelativeSourceSetName(sourceSet, SMITHY_BUILD_TASK_NAME);
         String buildConfigName = SmithyUtils.getSmithyBuildConfigurationName(sourceSet);
         String runtimeConfigName = sourceSet.getRuntimeClasspathConfigurationName();
 
         return project.getTasks()
-                .register(taskName, SmithyBuildTask.class,
+                .register(taskName,
+                        SmithyBuildTask.class,
                         build -> {
                             // Configure basic extension settings
                             build.setDescription("Builds Smithy models for " + sourceSet.getName() + " source set.");
@@ -219,12 +228,15 @@ public final class SmithyBasePlugin implements Plugin<Project> {
                             build.getOutputDir().set(extension.getOutputDirectory());
 
                             // Add smithy configurations as classpaths for build task
-                            build.getCliClasspath().set(project.getConfigurations()
-                                    .getByName(SmithyUtils.SMITHY_CLI_CONFIGURATION_NAME));
-                            build.getBuildClasspath().set(project.getConfigurations()
-                                    .getByName(buildConfigName));
-                            build.getModelDiscoveryClasspath().set(
-                                    project.getConfigurations().getByName(runtimeConfigName));
+                            build.getCliClasspath()
+                                    .set(project.getConfigurations()
+                                            .getByName(SmithyUtils.SMITHY_CLI_CONFIGURATION_NAME));
+                            build.getBuildClasspath()
+                                    .set(project.getConfigurations()
+                                            .getByName(buildConfigName));
+                            build.getModelDiscoveryClasspath()
+                                    .set(
+                                            project.getConfigurations().getByName(runtimeConfigName));
 
                             // this allows the main smithy build task to show up when running `gradle tasks`
                             build.setGroup(LifecycleBasePlugin.BUILD_GROUP);

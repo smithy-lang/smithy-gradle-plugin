@@ -2,7 +2,6 @@
  * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
  * SPDX-License-Identifier: Apache-2.0
  */
-
 package software.amazon.smithy.gradle.tasks;
 
 import java.io.BufferedReader;
@@ -22,7 +21,6 @@ import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.TaskAction;
-
 
 /**
  * Merges two Service Provider files into a new provider file.
@@ -93,9 +91,8 @@ public abstract class MergeSpiFilesTask extends DefaultTask {
         createRequiredFiles();
 
         try (BufferedReader generated = Files.newBufferedReader(getGeneratedFile().getAsFile().get().toPath());
-             BufferedReader existing = Files.newBufferedReader(getExistingFile().getAsFile().get().toPath());
-             BufferedWriter output = Files.newBufferedWriter(getServiceProviderFile().get().toPath())
-        ) {
+                BufferedReader existing = Files.newBufferedReader(getExistingFile().getAsFile().get().toPath());
+                BufferedWriter output = Files.newBufferedWriter(getServiceProviderFile().get().toPath())) {
             appendInputToOutput(generated, output);
             appendInputToOutput(existing, output);
         } catch (IOException e) {

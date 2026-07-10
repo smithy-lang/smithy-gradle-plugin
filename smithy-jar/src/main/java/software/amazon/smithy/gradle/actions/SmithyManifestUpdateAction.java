@@ -2,7 +2,6 @@
  * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
  * SPDX-License-Identifier: Apache-2.0
  */
-
 package software.amazon.smithy.gradle.actions;
 
 import java.util.Date;
@@ -17,7 +16,6 @@ import org.gradle.api.java.archives.Attributes;
 import org.gradle.jvm.tasks.Jar;
 import org.gradle.util.GradleVersion;
 import software.amazon.smithy.gradle.SmithyGradleVersion;
-
 
 /**
  * Action that updates a JAR's manifest with Smithy-specific attributes.
@@ -52,12 +50,14 @@ public final class SmithyManifestUpdateAction implements Action<Task> {
     private void addBuildInfo(Attributes manifestAttributes) {
         manifestAttributes.put("Build-Timestamp",
                 new java.text.SimpleDateFormat(BUILD_TIMESTAMP_FORMAT).format(new Date()));
-        manifestAttributes.put("Created-With", "Smithy-Gradle-Plugin (" + SmithyGradleVersion.VERSION
-                + "), Gradle (" + GradleVersion.current().getVersion() + ")");
+        manifestAttributes.put("Created-With",
+                "Smithy-Gradle-Plugin (" + SmithyGradleVersion.VERSION
+                        + "), Gradle (" + GradleVersion.current().getVersion() + ")");
         manifestAttributes.put("Build-Jdk", System.getProperty("java.version"));
-        manifestAttributes.put("Build-OS", System.getProperty("os.name")
-                + " " + System.getProperty("os.arch") + " "
-                + System.getProperty("os.version"));
+        manifestAttributes.put("Build-OS",
+                System.getProperty("os.name")
+                        + " " + System.getProperty("os.arch") + " "
+                        + System.getProperty("os.version"));
     }
 
     private void addDefaultTags(Project project) {

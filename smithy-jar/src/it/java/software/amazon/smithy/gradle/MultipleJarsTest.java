@@ -1,16 +1,19 @@
+/*
+ * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package software.amazon.smithy.gradle;
 
-import org.gradle.testkit.runner.BuildResult;
-import org.junit.jupiter.api.Test;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 
 import java.io.File;
 import java.util.Arrays;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsInAnyOrder;
+import org.gradle.testkit.runner.BuildResult;
+import org.junit.jupiter.api.Test;
 
 public class MultipleJarsTest {
     @Test
@@ -40,13 +43,13 @@ public class MultipleJarsTest {
 
             // Check that models were correctly staged for both staging tasks
             Utils.assertArtifactsCreated(buildDir,
-            "build/tmp/staging-smithyJarStaging/META-INF/smithy/main.smithy",
+                    "build/tmp/staging-smithyJarStaging/META-INF/smithy/main.smithy",
                     "build/tmp/staging-smithyJarStaging/META-INF/smithy/manifest",
                     "build/tmp/staging-stageSmithySources/META-INF/smithy/model.json",
-                    "build/tmp/staging-stageSmithySources/META-INF/smithy/manifest"
-            );
+                    "build/tmp/staging-stageSmithySources/META-INF/smithy/manifest");
 
-            Utils.assertJarContains(buildDir, "build/libs/multiple-jars-sources.jar",
+            Utils.assertJarContains(buildDir,
+                    "build/libs/multiple-jars-sources.jar",
                     "META-INF/MANIFEST.MF",
                     "META-INF/smithy/manifest",
                     "META-INF/smithy/model.json");

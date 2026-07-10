@@ -2,7 +2,6 @@
  * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
  * SPDX-License-Identifier: Apache-2.0
  */
-
 package software.amazon.smithy.gradle.tasks;
 
 import javax.inject.Inject;
@@ -10,7 +9,6 @@ import org.gradle.StartParameter;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.tasks.TaskAction;
 import software.amazon.smithy.utils.ListUtils;
-
 
 /**
  * Verifies that Smithy source files are already formatted without modifying them.

@@ -4,15 +4,18 @@ plugins {
     checkstyle
 }
 
+// Workaround per: https://github.com/gradle/gradle/issues/15383
+val Project.libs get() = the<org.gradle.accessors.dm.LibrariesForLibs>()
+
 java {
     sourceCompatibility = JavaVersion.VERSION_1_8
     targetCompatibility = JavaVersion.VERSION_1_8
 }
 
 dependencies {
-    implementation("software.amazon.smithy:smithy-model:[1.60.2, 2.0[")
-    implementation("software.amazon.smithy:smithy-build:[1.60.2, 2.0[")
-    implementation("software.amazon.smithy:smithy-cli:[1.60.2, 2.0[")
+    implementation(libs.smithy.model)
+    implementation(libs.smithy.build)
+    implementation(libs.smithy.cli)
 }
 
 //// ==== Licensing =====

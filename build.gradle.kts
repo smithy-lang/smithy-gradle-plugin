@@ -17,7 +17,7 @@ import org.jreleaser.model.Active
 
 plugins {
     base
-    id("org.jreleaser") version "1.25.0"
+    alias(libs.plugins.jreleaser)
 }
 
 val pluginVersion = project.file("VERSION").readText().replace(System.lineSeparator(), "")
@@ -65,7 +65,7 @@ jreleaser {
                 create("maven-central") {
                     active = Active.ALWAYS
                     url = "https://central.sonatype.com/api/v1/publisher"
-                    stagingRepositories.add("${rootProject.buildDir}/staging")
+                    stagingRepositories.add(stagingDir().get().asFile.path)
                     maxRetries = 100
                     retryDelay = 60
                 }

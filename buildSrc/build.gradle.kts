@@ -12,9 +12,13 @@ repositories {
 
 dependencies {
     // Java convention dependencies
-    implementation("com.github.spotbugs.snom:spotbugs-gradle-plugin:6.4.8")
-    implementation("com.adarshr:gradle-test-logger-plugin:4.0.0")
+    implementation(libs.spotbugs)
+    implementation(libs.test.logger)
 
     // Plugin convention dependencies
-    implementation("com.gradle.publish:plugin-publish-plugin:1.3.1")
+    implementation(libs.plugin.publish)
+
+    // Make the generated version catalog accessors (LibrariesForLibs) available
+    // to precompiled script plugins. https://github.com/gradle/gradle/issues/15383
+    implementation(files(libs.javaClass.superclass.protectionDomain.codeSource.location))
 }

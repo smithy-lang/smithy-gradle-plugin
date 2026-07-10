@@ -6,8 +6,8 @@ plugins {
 
 dependencies {
     implementation(gradleTestKit())
-    implementation("org.junit.jupiter:junit-jupiter-api:5.4.0")
-    implementation("org.junit.jupiter:junit-jupiter-engine:5.4.0")
-    implementation("org.junit.jupiter:junit-jupiter-params:5.4.0")
-    implementation("org.hamcrest:hamcrest:3.0")
+    implementation(libs.junit.jupiter.api)
+    implementation(libs.junit.jupiter.engine)
+    implementation(libs.junit.jupiter.params)
+    implementation(libs.hamcrest)
 }

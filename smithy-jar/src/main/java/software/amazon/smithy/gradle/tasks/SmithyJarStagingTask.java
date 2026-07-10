@@ -19,7 +19,10 @@ import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputDirectory;
 import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.OutputDirectory;
+import org.gradle.api.tasks.PathSensitive;
+import org.gradle.api.tasks.PathSensitivity;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.work.DisableCachingByDefault;
 import software.amazon.smithy.gradle.SmithyUtils;
 
 /**
@@ -32,6 +35,7 @@ import software.amazon.smithy.gradle.SmithyUtils;
  * <p>The temporary staging directory created by this task is named {@code staging-$TaskName}
  * in order to ensure that multiple staging tasks can be run without naming collisions.
  */
+@DisableCachingByDefault(because = "Staging is a cheap copy of build outputs and is not worth caching")
 public abstract class SmithyJarStagingTask extends DefaultTask {
     private static final String DESCRIPTION = "Stages smithy models for addition to a jar file.";
     private static final String SOURCES_PLUGIN_NAME = "sources";
@@ -57,6 +61,7 @@ public abstract class SmithyJarStagingTask extends DefaultTask {
      *
      */
     @InputDirectory
+    @PathSensitive(PathSensitivity.RELATIVE)
     public abstract DirectoryProperty getInputDirectory();
 
     /**

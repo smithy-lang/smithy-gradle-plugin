@@ -10,6 +10,7 @@ import javax.inject.Inject;
 import org.gradle.StartParameter;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.work.DisableCachingByDefault;
 import software.amazon.smithy.utils.ListUtils;
 
 /**
@@ -26,6 +27,7 @@ import software.amazon.smithy.utils.ListUtils;
  *
  * @see SmithyFormatCheckTask
  */
+@DisableCachingByDefault(because = "Formats source files in place and has no cacheable outputs")
 public abstract class SmithyFormatTask extends AbstractSmithyCliTask {
     private static final String DESCRIPTION = "Formats smithy models.";
 

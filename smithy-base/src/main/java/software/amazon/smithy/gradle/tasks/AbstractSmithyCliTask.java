@@ -19,6 +19,8 @@ import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.Optional;
+import org.gradle.api.tasks.PathSensitive;
+import org.gradle.api.tasks.PathSensitivity;
 import org.gradle.internal.logging.text.StyledTextOutput;
 import org.gradle.internal.logging.text.StyledTextOutputFactory;
 import org.gradle.work.DisableCachingByDefault;
@@ -106,6 +108,7 @@ abstract class AbstractSmithyCliTask extends DefaultTask {
      */
     @InputFiles
     @Optional
+    @PathSensitive(PathSensitivity.RELATIVE)
     public abstract Property<FileCollection> getModels();
 
     /**

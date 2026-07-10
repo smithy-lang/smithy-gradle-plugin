@@ -23,7 +23,10 @@ import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.OutputDirectory;
+import org.gradle.api.tasks.PathSensitive;
+import org.gradle.api.tasks.PathSensitivity;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.work.DisableCachingByDefault;
 import software.amazon.smithy.cli.BuildParameterBuilder;
 import software.amazon.smithy.gradle.SmithyUtils;
 import software.amazon.smithy.model.validation.Severity;
@@ -35,6 +38,9 @@ import software.amazon.smithy.model.validation.Severity;
  * as task inputs.
  *
  */
+// Validation events written to smithy-build-info.json embed absolute source paths, so the
+// outputs are not relocatable across machines and cannot be safely cached.
+@DisableCachingByDefault(because = "Build outputs embed absolute source paths and are not relocatable")
 public abstract class SmithyBuildTask extends AbstractSmithyCliTask {
     @Inject
     public SmithyBuildTask(ObjectFactory objectFactory, StartParameter startParameter) {
@@ -67,6 +73,7 @@ public abstract class SmithyBuildTask extends AbstractSmithyCliTask {
      * @return list of smithy-build config json files
      */
     @InputFiles
+    @PathSensitive(PathSensitivity.RELATIVE)
     public abstract Property<FileCollection> getSmithyBuildConfigs();
 
     /**

@@ -20,7 +20,10 @@ import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.OutputDirectory;
+import org.gradle.api.tasks.PathSensitive;
+import org.gradle.api.tasks.PathSensitivity;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.work.DisableCachingByDefault;
 
 /**
  * Merges two Service Provider files into a new provider file.
@@ -29,6 +32,7 @@ import org.gradle.api.tasks.TaskAction;
  *
  * @see <a href="https://docs.oracle.com/javase/tutorial/sound/SPI-intro.html">Java Service Provider Interface Introduction</a>
  */
+@DisableCachingByDefault(because = "Merging a handful of SPI files is not worth caching")
 public abstract class MergeSpiFilesTask extends DefaultTask {
     private static final String DESCRIPTION = "Merges two Java Service Provider Files.";
 
@@ -42,12 +46,14 @@ public abstract class MergeSpiFilesTask extends DefaultTask {
      * Generated Service Provider file to merge with existing file.
      */
     @InputFile
+    @PathSensitive(PathSensitivity.NAME_ONLY)
     public abstract RegularFileProperty getGeneratedFile();
 
     /**
      * Existing Service Provider file to merge with generated file.
      */
     @InputFile
+    @PathSensitive(PathSensitivity.NAME_ONLY)
     public abstract RegularFileProperty getExistingFile();
 
     /**

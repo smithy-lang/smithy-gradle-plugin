@@ -8,6 +8,7 @@ import javax.inject.Inject;
 import org.gradle.StartParameter;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.work.DisableCachingByDefault;
 import software.amazon.smithy.utils.ListUtils;
 
 /**
@@ -27,6 +28,7 @@ import software.amazon.smithy.utils.ListUtils;
  *
  * @see SmithyFormatTask
  */
+@DisableCachingByDefault(because = "Only verifies formatting and has no cacheable outputs")
 public abstract class SmithyFormatCheckTask extends SmithyFormatTask {
     private static final String DESCRIPTION = "Checks that smithy models are formatted.";
 

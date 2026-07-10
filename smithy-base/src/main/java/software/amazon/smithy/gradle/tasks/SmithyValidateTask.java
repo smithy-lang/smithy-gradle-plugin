@@ -16,7 +16,10 @@ import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.Optional;
+import org.gradle.api.tasks.PathSensitive;
+import org.gradle.api.tasks.PathSensitivity;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.work.DisableCachingByDefault;
 import software.amazon.smithy.model.validation.Severity;
 
 /**
@@ -27,6 +30,7 @@ import software.amazon.smithy.model.validation.Severity;
  * generated JAR works correctly when used alongside its dependencies.
  *
  */
+@DisableCachingByDefault(because = "Only validates models and has no cacheable outputs")
 public abstract class SmithyValidateTask extends AbstractSmithyCliTask {
     private static final String DESCRIPTION = "Validates smithy models.";
 
@@ -48,6 +52,7 @@ public abstract class SmithyValidateTask extends AbstractSmithyCliTask {
      * @return file collection to use as sources for the validate task.
      */
     @InputFiles
+    @PathSensitive(PathSensitivity.RELATIVE)
     public abstract Property<FileCollection> getSources();
 
     /**

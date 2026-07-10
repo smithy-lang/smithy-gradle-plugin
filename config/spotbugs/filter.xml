@@ -33,4 +33,14 @@
     <Match>
         <Bug pattern="CT_CONSTRUCTOR_THROW"/>
     </Match>
+
+    <!--
+      The SmithySourceDirectorySet delegate intentionally discards the fluent return values of the
+      SourceDirectorySet it wraps and returns itself instead. SpotBugs models those methods as
+      side-effect-free, which is incorrect: they mutate the delegate.
+    -->
+    <Match>
+        <Class name="software.amazon.smithy.gradle.internal.DefaultSmithySourceDirectorySet"/>
+        <Bug pattern="RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT"/>
+    </Match>
 </FindBugsFilter>

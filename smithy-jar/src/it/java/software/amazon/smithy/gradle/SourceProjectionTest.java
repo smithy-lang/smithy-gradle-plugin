@@ -1,3 +1,7 @@
+/*
+ * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package software.amazon.smithy.gradle;
 
 import org.gradle.testkit.runner.BuildResult;
@@ -25,7 +29,8 @@ public class SourceProjectionTest {
                     "build/smithyprojections/source-projection/foo/sources/manifest",
                     "build/smithyprojections/source-projection/foo/sources/model.json",
                     "build/libs/source-projection.jar");
-            Utils.assertJarContains(buildDir, "build/libs/source-projection.jar",
+            Utils.assertJarContains(buildDir,
+                    "build/libs/source-projection.jar",
                     "META-INF/smithy/manifest",
                     "META-INF/smithy/main.smithy");
         });
@@ -52,7 +57,8 @@ public class SourceProjectionTest {
                     "build/smithyprojections/source-projection/foo/sources/manifest",
                     "build/smithyprojections/source-projection/foo/sources/model.json",
                     "build/libs/source-projection.jar");
-            Utils.assertJarContains(buildDir, "build/libs/source-projection.jar",
+            Utils.assertJarContains(buildDir,
+                    "build/libs/source-projection.jar",
                     "META-INF/smithy/manifest",
                     "META-INF/smithy/main.smithy");
         });

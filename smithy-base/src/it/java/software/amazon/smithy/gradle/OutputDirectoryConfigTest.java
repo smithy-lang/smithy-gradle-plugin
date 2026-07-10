@@ -1,9 +1,12 @@
+/*
+ * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package software.amazon.smithy.gradle;
 
+import java.io.File;
 import org.gradle.testkit.runner.BuildResult;
 import org.junit.jupiter.api.Test;
-
-import java.io.File;
 
 public class OutputDirectoryConfigTest {
     @Test
@@ -14,8 +17,10 @@ public class OutputDirectoryConfigTest {
                     .withProjectDir(buildDir)
                     .withArguments("clean", "build", "--stacktrace")
                     .build();
-            File outputDir = buildDir.toPath().resolve("build")
-                    .resolve("nested-output-directory").toFile();
+            File outputDir = buildDir.toPath()
+                    .resolve("build")
+                    .resolve("nested-output-directory")
+                    .toFile();
 
             Utils.assertSmithyBuildTaskRan(result);
             Utils.assertValidationRan(result);

@@ -2,7 +2,6 @@
  * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
  * SPDX-License-Identifier: Apache-2.0
  */
-
 package software.amazon.smithy.gradle;
 
 import java.io.File;
@@ -29,7 +28,6 @@ import software.amazon.smithy.model.node.StringNode;
 import software.amazon.smithy.model.traits.DynamicTrait;
 import software.amazon.smithy.utils.IoUtils;
 
-
 /**
  * Gradle configuration settings for Smithy plugins.
  */
@@ -44,8 +42,7 @@ public abstract class SmithyExtension {
     public SmithyExtension(Project project, ObjectFactory objectFactory) {
         this.sourceSets = objectFactory.domainObjectContainer(SmithySourceDirectorySet.class,
                 name -> objectFactory.newInstance(DefaultSmithySourceDirectorySet.class,
-                        objectFactory.sourceDirectorySet(name, name + " Smithy sources"))
-        );
+                        objectFactory.sourceDirectorySet(name, name + " Smithy sources")));
         configureDefaults(project);
     }
 
@@ -67,7 +64,6 @@ public abstract class SmithyExtension {
         return this.sourceSets;
     }
 
-
     /**
      * Gets whether to execute the format task on files in the Smithy source set
      *
@@ -83,7 +79,6 @@ public abstract class SmithyExtension {
      * @return Returns the collection of build configurations.
      */
     public abstract Property<FileCollection> getSmithyBuildConfigs();
-
 
     /**
      * Gets the projection name in use by the extension as the source (primary) projection.

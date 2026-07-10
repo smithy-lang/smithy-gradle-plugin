@@ -2,7 +2,6 @@
  * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
  * SPDX-License-Identifier: Apache-2.0
  */
-
 package software.amazon.smithy.gradle;
 
 import java.io.File;
@@ -41,8 +40,7 @@ public class SmithyJarPlugin implements Plugin<Project> {
             "android-library",
             "org.jetbrains.kotlin.jvm",
             "org.jetbrains.kotlin.android",
-            "scala"
-    );
+            "scala");
     private static final List<String> SUPPORTED_LANGUAGES = ListUtils.of("java", "kotlin", "scala");
     private boolean wasApplied = false;
     private SmithyExtension extension;
@@ -74,8 +72,9 @@ public class SmithyJarPlugin implements Plugin<Project> {
 
     private void applyWithPlugin(AppliedPlugin appliedPlugin) {
         if (wasApplied) {
-            project.getLogger().info("The smithy-jar plugin was already applied to the project: "
-            + project.getPath());
+            project.getLogger()
+                    .info("The smithy-jar plugin was already applied to the project: "
+                            + project.getPath());
             return;
         }
         wasApplied = true;
@@ -83,7 +82,8 @@ public class SmithyJarPlugin implements Plugin<Project> {
         project.getExtensions().getByType(SourceSetContainer.class).forEach(sourceSet -> {
             // Only stage jar task for main component
             if (SourceSet.isMain(sourceSet)) {
-                SmithyBuildTask buildTask = project.getTasks().withType(SmithyBuildTask.class)
+                SmithyBuildTask buildTask = project.getTasks()
+                        .withType(SmithyBuildTask.class)
                         .getByName(SmithyBasePlugin.SMITHY_BUILD_TASK_NAME);
                 // Must execute after project has evaluated or else the java "enabled" setting will not be resolved
                 project.afterEvaluate(p -> addJavaTasksForSourceSet(sourceSet, buildTask));
@@ -137,7 +137,8 @@ public class SmithyJarPlugin implements Plugin<Project> {
         // Ensure the smithy files generated for the JAR are available for any Compile tasks so smithy-generated
         // data can be picked up by annotation processors and compile tasks
         for (String lang : SUPPORTED_LANGUAGES) {
-            AbstractCompile compileTask = project.getTasks().withType(AbstractCompile.class)
+            AbstractCompile compileTask = project.getTasks()
+                    .withType(AbstractCompile.class)
                     .findByName(sourceSet.getCompileTaskName(lang));
             if (compileTask != null) {
                 // Ensures staging occurs before compilation so smithy files are available

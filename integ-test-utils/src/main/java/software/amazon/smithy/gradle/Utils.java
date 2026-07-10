@@ -1,18 +1,7 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License").
- * You may not use this file except in compliance with the License.
- * A copy of the License is located at
- *
- *  http://aws.amazon.com/apache2.0
- *
- * or in the "license" file accompanying this file. This file is distributed
- * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
- * express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * SPDX-License-Identifier: Apache-2.0
  */
-
 package software.amazon.smithy.gradle;
 
 import java.io.File;
@@ -142,27 +131,30 @@ public final class Utils {
         Path base = projectDir.toPath();
         for (String file : paths) {
             Path dirPath = base.resolve(file);
-            Assertions.assertTrue(Files.exists(dirPath), () -> file
-                    + " does not exist. The following files exist:\n"
-                    + listProjectFiles(base).map(Path::toString).collect(Collectors.joining("\n")));
+            Assertions.assertTrue(Files.exists(dirPath),
+                    () -> file
+                            + " does not exist. The following files exist:\n"
+                            + listProjectFiles(base).map(Path::toString).collect(Collectors.joining("\n")));
         }
     }
 
     public static void assertArtifactsNotCreated(File projectDir, String... paths) {
         Path base = projectDir.toPath();
         for (String file : paths) {
-            Assertions.assertFalse(Files.exists(base.resolve(file)), () -> file  + " should not exist");
+            Assertions.assertFalse(Files.exists(base.resolve(file)), () -> file + " should not exist");
         }
     }
 
     public static void assertJarContains(File projectDir, String jarPath, String... jarEntries) {
         try (JarFile jar = new JarFile(new File(projectDir, jarPath))) {
             for (String jarEntry : jarEntries) {
-                Assertions.assertNotNull(jar.getEntry(jarEntry), "JAR entry `" + jarEntry + "` does not exist in `"
-                        + jarPath + "`. This JAR contains the following entries:\n"
-                        + Collections.list(jar.entries()).stream()
-                                .map(JarEntry::getName)
-                                .collect(Collectors.joining("\n")));
+                Assertions.assertNotNull(jar.getEntry(jarEntry),
+                        "JAR entry `" + jarEntry + "` does not exist in `"
+                                + jarPath + "`. This JAR contains the following entries:\n"
+                                + Collections.list(jar.entries())
+                                        .stream()
+                                        .map(JarEntry::getName)
+                                        .collect(Collectors.joining("\n")));
             }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -210,8 +202,7 @@ public final class Utils {
 
     public static String getJarEntryContents(File jarFile, String entryPath) {
         try (JarFile jar = new JarFile(jarFile);
-             InputStream is = jar.getInputStream(jar.getJarEntry(entryPath))
-        ) {
+                InputStream is = jar.getInputStream(jar.getJarEntry(entryPath))) {
             return IoUtils.toUtf8String(is);
         } catch (IOException e) {
             throw new RuntimeException(e);

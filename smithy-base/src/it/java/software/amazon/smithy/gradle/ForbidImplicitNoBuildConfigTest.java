@@ -1,3 +1,7 @@
+/*
+ * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package software.amazon.smithy.gradle;
 
 import org.gradle.testkit.runner.BuildResult;
@@ -15,7 +19,8 @@ public class ForbidImplicitNoBuildConfigTest {
                     .buildAndFail();
 
             Assertions.assertTrue(result.getOutput()
-                    .contains("No smithy-build configs found. If this was intentional, set the `smithyBuildConfigs` property to an empty list."));
+                    .contains(
+                            "No smithy-build configs found. If this was intentional, set the `smithyBuildConfigs` property to an empty list."));
             Utils.assertArtifactsNotCreated(buildDir,
                     "build/smithyprojections/forbid-implicit-no-build-config/source/build-info/smithy-build-info.json");
         });

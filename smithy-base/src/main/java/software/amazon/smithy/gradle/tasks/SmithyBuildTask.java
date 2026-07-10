@@ -2,7 +2,6 @@
  * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
  * SPDX-License-Identifier: Apache-2.0
  */
-
 package software.amazon.smithy.gradle.tasks;
 
 import java.io.File;
@@ -68,7 +67,6 @@ public abstract class SmithyBuildTask extends AbstractSmithyCliTask {
     @Optional
     public abstract SetProperty<String> getProjectionSourceTags();
 
-
     /**
      * Smithy build configs to use for building models.
      *
@@ -110,7 +108,9 @@ public abstract class SmithyBuildTask extends AbstractSmithyCliTask {
      */
     @Internal
     List<String> getModelAbsolutePaths() {
-        return getModels().get().getFiles().stream()
+        return getModels().get()
+                .getFiles()
+                .stream()
                 .map(File::getAbsolutePath)
                 .collect(Collectors.toList());
     }
@@ -124,8 +124,7 @@ public abstract class SmithyBuildTask extends AbstractSmithyCliTask {
     @Internal
     Provider<Boolean> getSmithyBuildConfigsMissing() {
         return getSmithyBuildConfigs().map(
-                files -> !files.isEmpty() && files.filter(File::exists).isEmpty()
-        );
+                files -> !files.isEmpty() && files.filter(File::exists).isEmpty());
     }
 
     @TaskAction
@@ -170,8 +169,7 @@ public abstract class SmithyBuildTask extends AbstractSmithyCliTask {
         SmithyUtils.executeCli(getExecutor(),
                 result.args,
                 getCliExecutionClasspath().get(),
-                getFork().get()
-        );
+                getFork().get());
     }
 
     /**
@@ -183,9 +181,10 @@ public abstract class SmithyBuildTask extends AbstractSmithyCliTask {
      * @return provider for the plugin artifact directory
      */
     public Provider<Directory> getPluginProjectionDirectory(String projection, String plugin) {
-        return getProject().getLayout().dir(
-                getOutputDir().getAsFile()
-                        .map(file -> SmithyUtils.getProjectionPluginPath(file, projection, plugin).toFile()));
+        return getProject().getLayout()
+                .dir(
+                        getOutputDir().getAsFile()
+                                .map(file -> SmithyUtils.getProjectionPluginPath(file, projection, plugin).toFile()));
     }
 
 }

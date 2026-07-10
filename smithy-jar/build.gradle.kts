@@ -1,3 +1,7 @@
+/*
+ * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ */
 description = "Adds built Smithy files to an existing jar task such as that created " +
         "by the Java or Kotlin plugins. The smithy-jar plugin also adds build metadata " +
         "and tags to the JAR's MANIFEST. The smithy-jar plugin applies the smithy-base " +

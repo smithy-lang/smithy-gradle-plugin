@@ -1,11 +1,15 @@
+/*
+ * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package software.amazon.smithy.gradle;
-
-import org.gradle.testkit.runner.BuildResult;
-import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
+
+import org.gradle.testkit.runner.BuildResult;
+import org.junit.jupiter.api.Test;
 
 public class ProjectionTest {
     @Test

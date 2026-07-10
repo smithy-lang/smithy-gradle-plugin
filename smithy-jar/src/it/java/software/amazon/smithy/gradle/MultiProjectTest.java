@@ -1,19 +1,22 @@
+/*
+ * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package software.amazon.smithy.gradle;
 
-import org.gradle.testkit.runner.BuildResult;
-import org.gradle.testkit.runner.TaskOutcome;
-import org.junit.jupiter.api.Test;
+import static java.util.Objects.requireNonNull;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 import java.io.File;
 import java.util.Arrays;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
-
-import static java.util.Objects.requireNonNull;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.junit.jupiter.api.Assertions.assertSame;
+import org.gradle.testkit.runner.BuildResult;
+import org.gradle.testkit.runner.TaskOutcome;
+import org.junit.jupiter.api.Test;
 
 public class MultiProjectTest {
     @Test
@@ -42,7 +45,8 @@ public class MultiProjectTest {
                     "consumer/build/libs/consumer-999.999.999.jar");
 
             // Check that that jar contains correct objects
-            Utils.assertJarContains(buildDir, "consumer/build/libs/consumer-999.999.999.jar",
+            Utils.assertJarContains(buildDir,
+                    "consumer/build/libs/consumer-999.999.999.jar",
                     "META-INF/MANIFEST.MF",
                     "META-INF/smithy/manifest",
                     "META-INF/smithy/main.smithy");
@@ -54,9 +58,11 @@ public class MultiProjectTest {
             jar.close();
             String[] tagValues = tags.split(", ");
 
-            assertThat(Arrays.asList(tagValues), containsInAnyOrder(
-                    "software.amazon.smithy.it:consumer", "software.amazon.smithy.it:consumer:999.999.999",
-                    "software.amazon.smithy.it"));
+            assertThat(Arrays.asList(tagValues),
+                    containsInAnyOrder(
+                            "software.amazon.smithy.it:consumer",
+                            "software.amazon.smithy.it:consumer:999.999.999",
+                            "software.amazon.smithy.it"));
         });
     }
 }

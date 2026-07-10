@@ -1,3 +1,7 @@
+/*
+ * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package software.amazon.smithy.gradle;
 
 import org.gradle.testkit.runner.BuildResult;
@@ -15,7 +19,8 @@ public class ForbidDependencyResolutionTest {
                     .buildAndFail();
 
             Assertions.assertTrue(result.getOutput()
-                    .contains("SMITHY_DEPENDENCY_MODE is set to 'forbid', but the following Maven dependencies are defined in smithy-build.json"));
+                    .contains(
+                            "SMITHY_DEPENDENCY_MODE is set to 'forbid', but the following Maven dependencies are defined in smithy-build.json"));
             Utils.assertArtifactsNotCreated(buildDir,
                     "build/smithyprojections/forbid-dependency-resolution/source/build-info/smithy-build-info.json");
         });
@@ -31,7 +36,8 @@ public class ForbidDependencyResolutionTest {
                     .buildAndFail();
 
             Assertions.assertTrue(result.getOutput()
-                    .contains("SMITHY_DEPENDENCY_MODE is set to 'forbid', but the following Maven dependencies are defined in smithy-build.json"));
+                    .contains(
+                            "SMITHY_DEPENDENCY_MODE is set to 'forbid', but the following Maven dependencies are defined in smithy-build.json"));
             Utils.assertArtifactsNotCreated(buildDir,
                     "build/smithyprojections/forbid-dependency-resolution/source/build-info/smithy-build-info.json");
         });

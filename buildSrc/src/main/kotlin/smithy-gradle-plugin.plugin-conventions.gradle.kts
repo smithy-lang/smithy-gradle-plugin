@@ -119,9 +119,8 @@ dependencies {
     "itCompileOnly"(libs.apiguardian.api)
 }
 
-// Disable spotbugs and checkstyle for integration tests
+// Disable spotbugs for integration tests
 tasks["spotbugsIt"].enabled = false
-tasks["checkstyleIt"].enabled = false
 
 
 tasks.register<Test>("integTest") {

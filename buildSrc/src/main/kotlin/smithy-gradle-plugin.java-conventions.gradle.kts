@@ -1,7 +1,7 @@
 
 plugins {
     `java-library`
-    checkstyle
+    id("smithy-gradle-plugin.formatting-conventions")
 }
 
 // Workaround per: https://github.com/gradle/gradle/issues/15383
@@ -43,14 +43,6 @@ tasks.withType<Jar>() {
 tasks.withType<Javadoc> {
     (options as StandardJavadocDocletOptions).addStringOption("Xdoclint:-html", "-quiet")
 }
-
-/*
- * CheckStyle
- * ====================================================
- *
- * Apply CheckStyle to source files but not tests.
- */
-tasks["checkstyleTest"].enabled = false
 
 /*
  * Repositories

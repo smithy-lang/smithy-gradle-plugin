@@ -14,6 +14,7 @@ dependencies {
     // Java convention dependencies
     implementation(libs.spotbugs)
     implementation(libs.test.logger)
+    implementation(libs.spotless)
 
     // Plugin convention dependencies
     implementation(libs.plugin.publish)

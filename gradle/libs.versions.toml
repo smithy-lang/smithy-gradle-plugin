@@ -7,6 +7,7 @@ jreleaser = "1.25.0"
 spotbugs = "6.4.8"
 test-logger = "4.0.0"
 plugin-publish = "1.3.1"
+spotless = "8.7.0"
 
 [libraries]
 smithy-model = { module = "software.amazon.smithy:smithy-model", version.ref = "smithy" }
@@ -27,6 +28,7 @@ apiguardian-api = { module = "org.apiguardian:apiguardian-api", version.ref = "a
 spotbugs = { module = "com.github.spotbugs.snom:spotbugs-gradle-plugin", version.ref = "spotbugs" }
 test-logger = { module = "com.adarshr:gradle-test-logger-plugin", version.ref = "test-logger" }
 plugin-publish = { module = "com.gradle.publish:plugin-publish-plugin", version.ref = "plugin-publish" }
+spotless = { module = "com.diffplug.spotless:spotless-plugin-gradle", version.ref = "spotless" }
 
 [plugins]
 jreleaser = { id = "org.jreleaser", version.ref = "jreleaser" }

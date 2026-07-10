@@ -2,7 +2,6 @@
  * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
  * SPDX-License-Identifier: Apache-2.0
  */
-
 package software.amazon.smithy.gradle;
 
 import java.io.File;
@@ -93,8 +92,8 @@ public final class SmithyUtils {
      */
     public static Provider<Directory> getProjectionOutputDirProperty(Project project) {
         return project.getLayout()
-            .getBuildDirectory()
-            .dir(SMITHY_PROJECTIONS + File.separator + project.getName());
+                .getBuildDirectory()
+                .dir(SMITHY_PROJECTIONS + File.separator + project.getName());
     }
 
     /**
@@ -132,9 +131,10 @@ public final class SmithyUtils {
             return executor.processIsolation(spec -> {
                 spec.getClasspath().setFrom(cliClasspath);
                 // Explicitly forbid the use of maven dependency resolution using an environment variable
-                spec.getForkOptions().environment(
-                        EnvironmentVariable.SMITHY_DEPENDENCY_MODE.toString(), SMITHY_GRADLE_CLI_DEP_MODE
-                );
+                spec.getForkOptions()
+                        .environment(
+                                EnvironmentVariable.SMITHY_DEPENDENCY_MODE.toString(),
+                                SMITHY_GRADLE_CLI_DEP_MODE);
             });
         } else {
             return executor.classLoaderIsolation(spec -> {
@@ -265,4 +265,3 @@ public final class SmithyUtils {
                 && dependency.getName().equals(name);
     }
 }
-

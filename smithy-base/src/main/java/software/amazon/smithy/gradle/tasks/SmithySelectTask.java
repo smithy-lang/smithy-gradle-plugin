@@ -2,7 +2,6 @@
  * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
  * SPDX-License-Identifier: Apache-2.0
  */
-
 package software.amazon.smithy.gradle.tasks;
 
 import java.util.ArrayList;
@@ -17,7 +16,6 @@ import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.options.Option;
 import org.gradle.work.DisableCachingByDefault;
-
 
 /**
  * Executes the Smithy CLI {@code select} command on a set of source files.
@@ -41,7 +39,6 @@ public abstract class SmithySelectTask extends AbstractSmithyCliTask {
     @Input
     @Option(option = "selector", description = "The Smithy selector to execute")
     abstract Property<String> getSelector();
-
 
     @Input
     @Optional
@@ -75,7 +72,6 @@ public abstract class SmithySelectTask extends AbstractSmithyCliTask {
         executeCliProcess("select",
                 extraArgs,
                 getModels().get(),
-                true
-        );
+                true);
     }
 }

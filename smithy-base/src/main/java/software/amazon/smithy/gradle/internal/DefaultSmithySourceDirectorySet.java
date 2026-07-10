@@ -2,7 +2,6 @@
  * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
  * SPDX-License-Identifier: Apache-2.0
  */
-
 package software.amazon.smithy.gradle.internal;
 
 import groovy.lang.Closure;
@@ -30,7 +29,6 @@ import org.gradle.api.tasks.TaskProvider;
 import org.gradle.api.tasks.util.PatternFilterable;
 import software.amazon.smithy.gradle.SmithySourceDirectorySet;
 import software.amazon.smithy.utils.SmithyInternalApi;
-
 
 /**
  * Default implementation of {@link SmithySourceDirectorySet}.

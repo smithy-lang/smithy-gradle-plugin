@@ -1,9 +1,12 @@
+/*
+ * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package software.amazon.smithy.gradle;
 
 import org.gradle.testkit.runner.BuildResult;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import software.amazon.smithy.model.node.Node;
 
 public class SelectTaskTest {
     @Test
@@ -48,7 +51,12 @@ public class SelectTaskTest {
             BuildResult result = Utils.createGradleRunner()
                     .forwardOutput()
                     .withProjectDir(buildDir)
-                    .withArguments("select", "--selector", "structure > member", "--show-traits", "documentation", "--stacktrace")
+                    .withArguments("select",
+                            "--selector",
+                            "structure > member",
+                            "--show-traits",
+                            "documentation",
+                            "--stacktrace")
                     .build();
 
             Utils.assertSmithyBuildDidNotRun(result);

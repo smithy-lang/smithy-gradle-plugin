@@ -1,3 +1,7 @@
+/*
+ * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ */
 import org.apache.tools.ant.filters.ReplaceTokens
 
 description = "This plugin sets up the basic capabilities necessary for building Smithy models. " +

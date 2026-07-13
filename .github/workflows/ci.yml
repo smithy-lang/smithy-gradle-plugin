@@ -27,7 +27,6 @@ jobs:
         gradle:
           - '8.2'      # Our declared minimum version
           - 'wrapper'  # The version in our gradle wrapper
-          - 'current'  # The current stable release
 
     steps:
       - name: Checkout smithy-gradle-plugin

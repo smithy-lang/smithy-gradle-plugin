@@ -4,13 +4,25 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+      day: "wednesday"
+      time: "10:00"
+    cooldown:
+      default-days: 7
     labels:
      - "dependencies"
+
   - package-ecosystem: "gradle"
     directory: "/"
     schedule:
       interval: "weekly"
       day: "wednesday"
+      time: "10:00"
+    cooldown:
+      default-days: 7
+      exclude:
+        - "software.amazon.smithy:smithy-model"
+        - "software.amazon.smithy:smithy-build"
+        - "software.amazon.smithy:smithy-cli"
     labels:
      - "dependencies"
      - "no-changelog-needed"

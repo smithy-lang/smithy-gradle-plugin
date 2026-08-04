@@ -27,6 +27,18 @@ allprojects {
 }
 println("Smithy Gradle version: '${pluginVersion}'")
 
+// Create a single task that covers publishing each plugin, current and future, to mavenLocal.
+// This task should be a dependency of plugin integration tests to ensure all of the plugins
+// for running the tests are in sync.
+val publishPluginsToMavenLocal = tasks.register("publishPluginsToMavenLocal")
+subprojects {
+    plugins.withId("smithy-gradle-plugin.plugin-conventions") {
+        publishPluginsToMavenLocal.configure {
+            dependsOn(tasks.named("publishToMavenLocal"))
+        }
+    }
+}
+
 /*
  * Jreleaser (https://jreleaser.org) config.
  */

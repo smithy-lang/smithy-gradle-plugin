@@ -139,7 +139,9 @@ tasks.register<Test>("integTest") {
 }
 
 afterEvaluate {
-    tasks["integTest"].dependsOn("publishToMavenLocal")
+    // Require that all of the plugins are published before running integration tests,
+    // ensuring that mismatches due to Gradle sequencing don't occur.
+    tasks["integTest"].dependsOn(rootProject.tasks.named("publishPluginsToMavenLocal"))
 
     // Always run javadoc and integration tests after build.
     tasks["assemble"].dependsOn("javadoc")

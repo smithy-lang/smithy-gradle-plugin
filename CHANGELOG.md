@@ -1,5 +1,16 @@
 # Smithy Gradle Plugin Changelog
 
+## 1.5.0 (2026-08-06)
+
+### Features
+* Improved compatibility with newer Gradle versions by removing usage of the deprecated `buildDir` accessors and avoiding subclassing an internal Gradle source set class. ([#179](https://github.com/smithy-lang/smithy-gradle-plugin/pull/179), [#176](https://github.com/smithy-lang/smithy-gradle-plugin/pull/176))
+* Configured IDEA source sets by default and excluded the `smithy-jar` plugin's staging directory from IntelliJ. ([#169](https://github.com/smithy-lang/smithy-gradle-plugin/pull/169), [#167](https://github.com/smithy-lang/smithy-gradle-plugin/pull/167))
+* Declared task cacheability explicitly to improve build caching. ([#178](https://github.com/smithy-lang/smithy-gradle-plugin/pull/178))
+* Added a check mode to the format task and split the format check into its own task. ([#168](https://github.com/smithy-lang/smithy-gradle-plugin/pull/168))
+
+### Fixes
+* Fixed the thread context class loader used when running the Smithy CLI so that `ServiceLoader`-based class discovery resolves correctly. ([#185](https://github.com/smithy-lang/smithy-gradle-plugin/pull/185))
+
 ## 1.4.0 (2026-02-23)
 
 ### Fixes

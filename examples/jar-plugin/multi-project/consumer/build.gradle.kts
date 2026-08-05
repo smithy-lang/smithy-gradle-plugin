@@ -1,5 +1,5 @@
 plugins {
-    id("software.amazon.smithy.gradle.smithy-jar").version("1.4.0")
+    id("software.amazon.smithy.gradle.smithy-jar").version("1.5.0")
 }
 
 dependencies {
